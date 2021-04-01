@@ -1,6 +1,8 @@
 import React from 'react';
 
 import * as FaIcons from 'react-icons/fa';
+import * as Bootstrap from "react-icons/bs";
+
 const tamanho = 25;
 export const DadosBarraNavegacao = [
     {
@@ -22,15 +24,33 @@ export const DadosBarraNavegacao = [
         classe: 'nav-text'
     },
     {
+        texto: 'Gestão de Notícias',
+        rota: '/noticias',
+        icone: <FaIcons.FaRegNewspaper size={ tamanho } />,
+        classe: 'nav-text'
+    },
+    {
         texto: 'Gestão de Atas',
         rota: '/atas',
         icone: <FaIcons.FaFileAlt size={ tamanho } />,
         classe: 'nav-text'
     },
     {
-        texto: 'Gestão de Notícias',
-        rota: '/noticias',
-        icone: <FaIcons.FaRegNewspaper size={ tamanho } />,
+        texto: 'Gestão de Classificados',
+        rota: '/classificados',
+        icone: <Bootstrap.BsBagFill size={ tamanho } />,
+        classe: 'nav-text'
+    },
+    {
+        texto: 'Gestão de Fotos',
+        rota: '/fotos',
+        icone: <Bootstrap.BsFillImageFill size={ tamanho } />,
+        classe: 'nav-text'
+    },
+    {
+        texto: 'Gestão de Vídeos',
+        rota: '/videos',
+        icone: <Bootstrap.BsFillCameraVideoFill size={ tamanho } />,
         classe: 'nav-text'
     },
     {

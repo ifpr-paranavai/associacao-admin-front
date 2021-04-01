@@ -9,6 +9,12 @@ import { DadosBarraNavegacao } from './DadosBarraNavegacao';
 import { Route, Switch }  from 'react-router-dom';
 import Inicio from './../../paginas/inicio/Inicio';
 import Associados from './../../paginas/associados/Associados';
+import Eventos from './../../paginas/eventos/Eventos';
+import Atas from './../../paginas/atas/Atas';
+import Noticias from './../../paginas/noticias/Noticias';
+import Classificados from './../../paginas/classificados/Classificados.js';
+import Fotos from '../../paginas/fotos/Fotos.js';
+import Videos from '../../paginas/videos/Videos.js';
 
 
 export default function BarraNavegacao() {
@@ -103,10 +109,13 @@ export default function BarraNavegacao() {
         <div className={classes.drawerHeader} />
         <Switch>
           <Route exact path="/" component={ Inicio }/>
-          <Route path="/eventos" />
+          <Route path="/eventos" component={Eventos} />
           <Route path="/associados" component={ Associados }/>
-          <Route path="/classificados" />
-          <Route path="/fotosvideos" />
+          <Route path="/atas" component={Atas}/>
+          <Route path="/noticias" component={Noticias}/>
+          <Route path="/classificados" component={Classificados}/>
+          <Route path="/fotos" component={Fotos} />
+          <Route path="/videos" component={Videos}/>
         </Switch>
       </main>
     </div>
