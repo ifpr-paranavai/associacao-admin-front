@@ -7,12 +7,12 @@ import { useStyles } from './estilo.js';
 import { useTheme } from '@material-ui/core/styles';
 import { DadosBarraNavegacao } from './DadosBarraNavegacao';
 import { Route, Switch }  from 'react-router-dom';
-import Inicio from './../../paginas/inicio/Inicio';
-import Associados from './../../paginas/associados/Associados';
-import Eventos from './../../paginas/eventos/Eventos';
-import Atas from './../../paginas/atas/Atas';
-import Noticias from './../../paginas/noticias/Noticias';
-import Classificados from './../../paginas/classificados/Classificados.js';
+import Inicio from '../../paginas/inicio/Inicio';
+import Associados from '../../paginas/associados/Associados';
+import Eventos from '../../paginas/eventos/Eventos';
+import Atas from '../../paginas/atas/Atas';
+import Noticias from '../../paginas/noticias/Noticias';
+import Classificados from '../../paginas/classificados/Classificados.js';
 import Fotos from '../../paginas/fotos/Fotos.js';
 import Videos from '../../paginas/videos/Videos.js';
 

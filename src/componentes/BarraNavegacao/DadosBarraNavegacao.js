@@ -26,7 +26,7 @@ export const DadosBarraNavegacao = [
     {
         texto: 'Gestão de Notícias',
         rota: '/noticias',
-        icone: <FaIcons.FaRegNewspaper size={ tamanho } />,
+        icone: <FaIcons.FaNewspaper size={ tamanho } />,
         classe: 'nav-text'
     },
     {
@@ -38,7 +38,7 @@ export const DadosBarraNavegacao = [
     {
         texto: 'Gestão de Classificados',
         rota: '/classificados',
-        icone: <Bootstrap.BsBagFill size={ tamanho } />,
+        icone: <FaIcons.FaShoppingCart size={ tamanho } />,
         classe: 'nav-text'
     },
     {

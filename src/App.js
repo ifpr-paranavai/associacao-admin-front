@@ -1,10 +1,11 @@
-import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao'
+import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
+import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
 import React, { Component } from 'react';
 import { BrowserRouter as Router}  from 'react-router-dom';
 import './App.css';
 
 class App extends Component{
-  render(){
+  usuarioLogado(){
     return (
       <div>
         <Router>
@@ -12,6 +13,18 @@ class App extends Component{
         </Router>
       </div>
     );
+  }
+  usuarioNaoLogado(){
+    return(
+        <PaginaLogin/>
+    )
+  }
+  render(){
+    let usuario = false;
+    if(usuario){
+        return this.usuarioLogado()
+    }
+    return this.usuarioNaoLogado()
   }
 }
 
