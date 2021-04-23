@@ -12,9 +12,9 @@ export default class ServicoAutenticacao {
                 senha: md5(senha)
             });
             console.log(response)
-            return response.data;
+            return response.logar;
         } catch (error) {
-            throw error.response.data;
+            throw error.response.logar;
         }
     } // login()
 }

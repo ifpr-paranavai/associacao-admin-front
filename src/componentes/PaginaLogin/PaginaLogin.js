@@ -3,7 +3,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { useStyles } from './estilo.js';
 import {AccountCircle, Visibility, VisibilityOff} from '@material-ui/icons';
-import {Grid, Paper, Avatar, TextField, OutlinedInput, InputAdornment, IconButton, InputLabel, Button, FormControl} from '@material-ui/core';
+import {Grid, Paper, Avatar, TextField, OutlinedInput, InputAdornment, IconButton, InputLabel, Button, FormControl, Link} from '@material-ui/core';
 
 
 
@@ -15,6 +15,9 @@ export default function PaginaLogin() {
     event.preventDefault();
       try {
         await ServicoAutenticacao.logar(values);
+        //salvar usuário no local storage;
+        //criar variável compartilhada entre o app e a página de login, com redux;
+        //usa-la na tela de login para realizar a redirecionação;
         
       } catch (e) {
         console.log(e);
@@ -75,9 +78,12 @@ export default function PaginaLogin() {
                 />
             </FormControl>
             <div style={{ height: 40}} />
-            <Button className={classes.button_submit} type="submit" color="primary" variant="contained" fullWidth>
-              Entrar
-            </Button>
+            <Link to="/">
+              <Button className={classes.button_submit} type="submit" color="primary" variant="contained" fullWidth>
+                Entrar
+              </Button>
+            </Link>
+
           </form> 
       </Paper>
     </Grid>
