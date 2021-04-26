@@ -20,12 +20,12 @@ class App extends Component{
     )
   }
   render(){
-    let usuario = false;
+    let usuario= true;
     if(usuario){
-        return this.usuarioLogado()
+      return this.usuarioLogado()
     }
     return this.usuarioNaoLogado()
-  }
+   }
 }
 
 export default App;

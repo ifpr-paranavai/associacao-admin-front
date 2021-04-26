@@ -15,6 +15,7 @@ import Noticias from '../../paginas/noticias/Noticias';
 import Classificados from '../../paginas/classificados/Classificados.js';
 import Fotos from '../../paginas/fotos/Fotos.js';
 import Videos from '../../paginas/videos/Videos.js';
+import PaginaLogin from '../PaginaLogin/PaginaLogin';
 
 
 export default function BarraNavegacao() {
@@ -108,6 +109,7 @@ export default function BarraNavegacao() {
       >
         <div className={classes.drawerHeader} />
         <Switch>
+          <Route exact path="/login" component={PaginaLogin}/>
           <Route exact path="/" component={ Inicio }/>
           <Route path="/eventos" component={Eventos} />
           <Route path="/associados" component={ Associados }/>

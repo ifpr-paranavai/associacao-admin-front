@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
     button_submit: {
         backgroundColor: '#0e54e2',
     },
+    
     image: {
         src:"https://static.vecteezy.com/ti/fotos-gratis/p1/1309783-ceu-azul-com-nuvens-gr%C3%A1tis-foto.jpg",
     },
