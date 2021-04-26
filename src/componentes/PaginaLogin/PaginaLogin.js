@@ -9,6 +9,7 @@ export default function PaginaLogin() {
   const classes = useStyles();
 
   const [values, setValues] = React.useState({
+    email: '',
     password: '',
     showPassword: false,
   });
