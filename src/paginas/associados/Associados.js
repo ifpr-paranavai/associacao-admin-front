@@ -1,26 +1,37 @@
 import React, { Component, useState, useEffect } from 'react';
 import { useStyles }  from './estilo.js';
 import{
-      Paper, Container, TableContainer, Table, TableBody, TableHead, TableRow, TableCell
+      Paper, Container, TableContainer, Table, TableBody, TableHead, TableRow, TableCell, TablePagination, 
 } from "@material-ui/core";
 import {withStyles} from '@material-ui/core/styles';
 import axios from 'axios';
 
 
-
 class Associados extends Component{
-      render(){  
-            const {classes} = this.props;
+
+      
+      render(){
+            
             const [users, setUsers] = useStates([]);
+            const [page, setPage] = useState(0);
+            const [rowsPerPage, setRowsPerPage] = useState(5);
+            
+            const {classes} = this.props;
             const loadUsers = async () => {
                   const res = await axios.get("https://whispering-plains-13580.herokuapp.com/");
                   setUsers(res.data);
             };
-
+            
             useEffect(() => {
                   loadUsers()
-            }, []);
+            }, [users]);
 
+            const onChangePage = (event, nextPage) =>{
+                  setPage(nextPage)
+            }
+            const onChangeRowsPerPage = () =>{
+                  setRowsPerPage(event.target.value);
+            }
             return(
                   <Container className={classes.root}>
                         <TableContainer component = {Paper}>
@@ -36,7 +47,7 @@ class Associados extends Component{
                                           </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                          {users.map((user) =>(
+                                          {users.slice(page * rowsPerPage,  page * rowsPerPage + rowsPerPage).map((user) =>(
                                                 <TableRow>
                                                       <TableCell>{user.nome}</TableCell>
                                                       <TableCell>{user.sobrenome}</TableCell>
@@ -47,10 +58,18 @@ class Associados extends Component{
                                                 </TableRow>
                                                 
                                           ))}
-                                    </TableBody>
+                                    </TableBody>                                    
                               </Table>
+                              <TablePagination rowsPerPageOptions = {[3, 10, 15, 25, 50]} count= {users.length}
+                                    rowsPerPage = {rowPerPage}
+                                    page={page}
+                                    onChangePage ={onChangePage}
+                                    onChangeRowsPerPage= {onChangeRowsPerPage}
+                              />
+
                         </TableContainer>
                   </Container>
+                  
             )
 
             
