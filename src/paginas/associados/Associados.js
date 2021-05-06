@@ -10,7 +10,9 @@ import {
   TableRow,
   TableCell,
   TablePagination,
+  Button,
 } from "@material-ui/core";
+import AddIcon from '@material-ui/icons/Add';
 import { withStyles } from "@material-ui/core/styles";
 import ServicoAssociado from "../../servicos/ServicoAssociado";
 
@@ -43,6 +45,16 @@ class Associados extends Component {
 
     return (
       <Container className={classes.root}>
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            startIcon={<AddIcon />}
+          >
+            Adicionar
+          </Button>
+        </div>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>

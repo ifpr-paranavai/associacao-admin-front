@@ -9,6 +9,12 @@ const useStyles = makeStyles((theme) => ({
         paddingTop: theme.spacing(5),
 
     },
+    button: {
+        margin: theme.spacing(1),
+    },
+    divButton: {
+        marginBotton: "20px",
+    },
 
 }));
 
