@@ -7,11 +7,11 @@ const instance = axios.create({
 
 const token = localStorage.getItem('associadoToken');
 
-instance.defaults.headers.common['Authorization'] = token;
+instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 // axios.interceptors.request.use(config => {
 //     const token = localStorage.getItem('associadoToken');
-//     config.headers.Authorization = token;
+//     config.headers.Authorization = `Bearer ${token}`;
 //     return config;
 // });
 
