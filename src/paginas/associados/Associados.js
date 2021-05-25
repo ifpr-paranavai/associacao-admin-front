@@ -23,11 +23,20 @@ class Associados extends Component {
       associados: [],
       page: 0,
       rowsPerPage: 5,
+      qtdeInicial: 0,
+      qtdeFinal: 10,
     };
   }
-  async componentDidMount() {
-    let associados = await ServicoAssociado.obterAssociados();
+  async paginacao() {
+    let associados = await ServicoAssociado.obterAssociados({
+      _start: this.state.qtdeInicial, _end: this.state.qtdeFinal
+    });
+
     this.setState({ associados });
+  }
+
+  async componentDidMount() {
+    await this.paginacao();
   }
 
   async onChangePage(event, nextPage) {
@@ -37,7 +46,7 @@ class Associados extends Component {
 
   async onChangeRowsPerPage(event) {
     event.preventDefault();
-    this.setState({ page: event.target.value });
+    this.setState({ rowsPerPage: event.target.value });
   }
   render() {
     const { classes } = this.props;
@@ -69,9 +78,8 @@ class Associados extends Component {
             </TableHead>
             <TableBody>
               {associados
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user) => (
-                  <TableRow>
+                  <TableRow key={user._id}>
                     <TableCell>{user.nome}</TableCell>
                     <TableCell>{user.sobrenome}</TableCell>
                     <TableCell>{user.cpf}</TableCell>

@@ -50,6 +50,7 @@ class App extends Component {
     }
     return this.usuarioNaoLogado();
   }
+  
 }
 
 export default App;
