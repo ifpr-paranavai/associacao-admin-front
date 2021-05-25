@@ -1,10 +1,11 @@
 import API from "../Api";
 
+
 const md5 = require("md5");
 
 export default class ServicoAutenticacao {
   //--------------------------AUTH--------------------------//
-  static async logar({ email, senha }) {
+  async logar({ email, senha}) {
     try {
       console.log(email + senha);
       let response = await API.post("login", {
@@ -14,18 +15,21 @@ export default class ServicoAutenticacao {
       await this.salvarAssociadoLocalStorage(response.data);
       return response.logar;
     } catch (error) {
-      throw error.response.logar;
+        throw error;
     }
   } // login()
 
-  static salvarAssociadoLocalStorage(associado) {
+  salvarAssociadoLocalStorage(associado) {
     localStorage.setItem("associadoLogado", JSON.stringify(associado));
+    localStorage.setItem("associadoToken", associado.token);
+
   } //removerAssociadoLocalStorage
-  static removerAssociadoLocalStorage() {
+  removerAssociadoLocalStorage() {
     localStorage.removeItem("associadoLogado");
+    localStorage.removeItem("associadoToken");
   } //removerAssociadoLocalStorage
 
-  static obterAssociadoLogado() {
+  obterAssociadoLogado() {
     return JSON.parse(localStorage.getItem("associadoLogado"));
   } // obterAssociadoLogado()
 }

@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
 import ServicoAutenticacao from "./servicos/ServicoAutenticacao";
+import API from './Api';
 
 class App extends Component {
   constructor(props) {
@@ -13,9 +14,11 @@ class App extends Component {
     };
   }
   componentWillMount() {
-    let associado = ServicoAutenticacao.obterAssociadoLogado();
+    const Servico = new ServicoAutenticacao();
+    let associado = Servico.obterAssociadoLogado();
 
     if (associado && associado.id) {
+      API.defaults.headers['x-access-token'] = associado.token;
       console.log(associado);
       this.state.logadoLocalmente = true;
     } else {
@@ -24,6 +27,8 @@ class App extends Component {
   }
   async sair() {
     await ServicoAutenticacao.removerAssociadoLocalStorage();
+    API.defaults.headers['x-access-token'] = '';
+
     // usando Redux (que é uma variável global), reinicializar a variável
   }
   usuarioLogado() {

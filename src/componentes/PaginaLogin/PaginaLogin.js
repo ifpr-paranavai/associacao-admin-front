@@ -23,7 +23,9 @@ export default function PaginaLogin() {
   const logar = async (event) => {
     event.preventDefault();
     try {
-      await ServicoAutenticacao.logar(values);
+      const Servico = new ServicoAutenticacao()
+      await Servico.logar(values);
+
       //salvar usuário no local storage;
       //criar variável compartilhada entre o app e a página de login, com redux;
       //usa-la na tela de login para realizar a redirecionação;

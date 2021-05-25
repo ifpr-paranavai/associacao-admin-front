@@ -1,8 +1,16 @@
 import axios from 'axios';
 import config from './config';
-const instance = axios.create({
-    baseURL: config.apiHost
-});
+const token = localStorage.getItem("associadoToken")
+const instance = axios.create(   
+    //consultar o localStorage
+);
+instance.defaults.baseURL = config.apiHost;
+instance.defaults.headers = {'x-access-token': token}
+
+//pegando token do localStorage
+
+
+//instance.defaults.headers = {'x-acess-token': token}
 
 // instance.interceptors.response.use(
 //     response => {
