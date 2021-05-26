@@ -2,17 +2,13 @@ import axios from 'axios';
 import config from './config';
 
 const instance = axios.create({
-    baseURL: config.apiHost
+  baseURL: config.apiHost
 });
 
-const token = localStorage.getItem('associadoToken');
-
-//instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
 axios.interceptors.request.use(config => {
-    const token = localStorage.getItem('associadoToken');
-    config.headers.Authorization = `Bearer ${token}`;
-    return config;
+  const token = localStorage.getItem('associadoToken');
+  config.headers.Authorization = `Bearer ${token || ''}`;
+  return config;
 });
 
 // instance.interceptors.response.use(

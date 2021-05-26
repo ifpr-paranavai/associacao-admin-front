@@ -1,37 +1,39 @@
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+
 import BarraNavegacao from "./componentes/BarraNavegacao/BarraNavegacao";
 import PaginaLogin from "./componentes/PaginaLogin/PaginaLogin";
-import React, { Component } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import "./App.css";
-import ServicoAutenticacao from "./servicos/ServicoAutenticacao";
-import API from './Api';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      logadoLocalmente: false,
-    };
-  }
-  componentWillMount() {
+import ServicoAutenticacao from "./servicos/ServicoAutenticacao";
+import "./App.css";
+
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { ptBR } from '@material-ui/core/locale';
+
+
+const App = () => {
+  // Nova forma de definir a state [valor, função que atualiza o valor] = useState('valor inicial')
+  const [logadoLocalmente, setLogadoLocalmente] = useState(false);
+
+  // Substituto do componentWillMount / componentDidMount / componentDidUpdate
+  useEffect(() => {
     const Servico = new ServicoAutenticacao();
-    let associado = Servico.obterAssociadoLogado();
+    const associado = Servico.obterAssociadoLogado();
 
     if (associado && associado.id) {
-      API.defaults.headers['x-access-token'] = associado.token;
-      console.log(associado);
-      this.state.logadoLocalmente = true;
-    } else {
-      this.state.logadoLocalmente = false;
+      // Atualiza a state(logadoLocalmente) para true
+      setLogadoLocalmente(true);
+      return
     }
-  }
-  async sair() {
-    await ServicoAutenticacao.removerAssociadoLocalStorage();
-    API.defaults.headers['x-access-token'] = '';
+    // Atualiza a state(logadoLocalmente) para falso
+    setLogadoLocalmente(false);
+  }, []);
 
-    // usando Redux (que é uma variável global), reinicializar a variável
+  async function sair() {
+    await ServicoAutenticacao.removerAssociadoLocalStorage();
   }
-  usuarioLogado() {
+
+  const usuarioLogado = () => {
     return (
       <div>
         <Router>
@@ -40,17 +42,26 @@ class App extends Component {
       </div>
     );
   }
-  usuarioNaoLogado() {
+
+  const usuarioNaoLogado = () => {
     return <PaginaLogin />;
   }
-  render() {
-    let { logadoLocalmente } = this.state;
-    if (logadoLocalmente) {
-      return this.usuarioLogado();
-    }
-    return this.usuarioNaoLogado();
-  }
-  
+
+  // Definição do tema e linguagem padrão
+  const theme = createMuiTheme({
+    palette: {
+      primary: { main: '#1976d2' },
+    },
+  }, ptBR);
+
+  return (
+    <ThemeProvider theme={theme}>
+      {
+        // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
+        logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
+      }
+    </ThemeProvider>
+  );
 }
 
 export default App;
