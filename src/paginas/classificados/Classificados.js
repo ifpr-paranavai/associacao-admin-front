@@ -1,16 +1,9 @@
-import './estilo.css';
-import React, { Component } from 'react';
+import React from 'react';
 
-class Classificados extends Component{
-      render(){
-            return (
-                  <>
-                        estou na página Classificados
-                  </>
-            )
+// import { Container } from './styles';
 
-      }
+function Classificados() {
+  return <h1>Página de Classificados</h1>;
 }
 
 export default Classificados;
-      

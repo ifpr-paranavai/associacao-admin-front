@@ -1,24 +1,37 @@
 import React from 'react';
-import clsx from 'clsx';
-import { Drawer, CssBaseline, AppBar, Toolbar, List, Typography, Divider, IconButton, ListItemIcon, ListItemText, ListItem } from '@material-ui/core';
+import { Route, Switch, Link }  from 'react-router-dom';
+import {
+  Drawer,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  List,
+  Typography,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  ListItem,
+} from '@material-ui/core';
 import * as FaIcons from 'react-icons/fa';
-import { Link } from 'react-router-dom';
 import { useStyles } from './estilo.js';
 import { useTheme } from '@material-ui/core/styles';
 import { DadosBarraNavegacao } from './DadosBarraNavegacao';
-import { Route, Switch }  from 'react-router-dom';
-import Inicio from '../../paginas/inicio/Inicio';
-import Associados from '../../paginas/associados/Associados';
-import Eventos from '../../paginas/eventos/Eventos';
-import Atas from '../../paginas/atas/Atas';
-import Noticias from '../../paginas/noticias/Noticias';
+import clsx from 'clsx';
+
+import Inicio from '../../paginas/inicio/Inicio.js';
+import Associados from '../../paginas/associados/Associados.js';
+import Eventos from '../../paginas/eventos/Eventos.js';
+import Atas from '../../paginas/atas/Atas.js';
+import Noticias from '../../paginas/noticias/Noticias.js';
 import Classificados from '../../paginas/classificados/Classificados.js';
 import Fotos from '../../paginas/fotos/Fotos.js';
 import Videos from '../../paginas/videos/Videos.js';
-import PaginaLogin from '../PaginaLogin/PaginaLogin';
+import PaginaLogin from '../PaginaLogin/PaginaLogin.js';
 
+import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 
-export default function BarraNavegacao() {
+export default function BarraNavegacao(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -35,8 +48,11 @@ export default function BarraNavegacao() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
   const handleSair = () => {
-    console.log("Implementar");
+    const Servico = new ServicoAutenticacao();
+    Servico.removerAssociadoLocalStorage();
+    props.onLogout()
   };
 
   return (
@@ -94,8 +110,8 @@ export default function BarraNavegacao() {
           ))}
           <Divider />
           <ListItem
-            onClick={(event) => handleSair(event)}
-            className={ classes.link }
+            onClick={handleSair}
+            className={classes.link}
           >
             <ListItemIcon><FaIcons.FaSignOutAlt size={ 25 }/></ListItemIcon>
             <ListItemText primary="Sair" />

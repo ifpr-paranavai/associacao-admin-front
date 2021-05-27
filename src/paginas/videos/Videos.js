@@ -1,16 +1,9 @@
-import './estilo.css';
-import React, { Component } from 'react';
+import React from 'react';
 
-class Videos extends Component{
-      render(){
-            return (
-                  <>
-                        estou na página Videos
-                  </>
-            )
+// import { Container } from './styles';
 
-      }
+function Videos() {
+  return <h1>Página de Vídeos</h1>;
 }
 
 export default Videos;
-      

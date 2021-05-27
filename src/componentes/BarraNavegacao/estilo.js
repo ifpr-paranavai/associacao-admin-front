@@ -59,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
   link: {
     color: cores.grey[500],
+    cursor: 'pointer',
     "&:hover": {
       backgroundColor: cores.grey[300],
       color: cores.grey[500]

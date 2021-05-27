@@ -1,16 +1,9 @@
-import './estilo.css';
-import React, { Component } from 'react';
+import React from 'react';
 
-class Atas extends Component{
-      render(){
-            return (
-                  <>
-                        Estamos procurando o axios
-                  </>
-            )
+// import { Container } from './styles';
 
-      }
+function Atas() {
+  return <h1>página de Atas</h1>;
 }
 
 export default Atas;
-      

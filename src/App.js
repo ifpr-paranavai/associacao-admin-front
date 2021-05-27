@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-import BarraNavegacao from "./componentes/BarraNavegacao/BarraNavegacao";
-import PaginaLogin from "./componentes/PaginaLogin/PaginaLogin";
-
-import ServicoAutenticacao from "./servicos/ServicoAutenticacao";
-import "./App.css";
+import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
+import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { ptBR } from '@material-ui/core/locale';
 
+import ServicoAutenticacao from './servicos/ServicoAutenticacao';
 
 const App = () => {
   // Nova forma de definir a state [valor, função que atualiza o valor] = useState('valor inicial')
@@ -29,15 +27,13 @@ const App = () => {
     setLogadoLocalmente(false);
   }, []);
 
-  async function sair() {
-    await ServicoAutenticacao.removerAssociadoLocalStorage();
-  }
-
   const usuarioLogado = () => {
     return (
       <div>
         <Router>
-          <BarraNavegacao />
+          <BarraNavegacao
+            onLogout={() => setLogadoLocalmente(false)}
+          />
         </Router>
       </div>
     );
@@ -58,7 +54,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       {
         // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
-        logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
+        !logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
       }
     </ThemeProvider>
   );

@@ -1,16 +1,9 @@
-import './estilo.css';
-import React, { Component } from 'react';
+import React from 'react';
 
-class Fotos extends Component{
-      render(){
-            return (
-                  <>
-                        estou na página Fotos
-                  </>
-            )
+// import { Container } from './styles';
 
-      }
+function Fotos() {
+  return <h1>Página de Fotos</h1>;
 }
 
 export default Fotos;
-      

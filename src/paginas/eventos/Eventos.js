@@ -1,16 +1,9 @@
-import './estilo.css';
-import React, { Component } from 'react';
+import React from 'react';
 
-class Eventos extends Component{
-      render(){
-            return (
-                  <>
-                        estou na página Eventos
-                  </>
-            )
+// import { Container } from './styles';
 
-      }
+function Eventos() {
+  return <h1>Página de Eventos</h1>;
 }
 
 export default Eventos;
-      

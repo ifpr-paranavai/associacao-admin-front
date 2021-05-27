@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import CadastrarAssociado from "../../componentes/CadastrarAssociado/CadastrarAssociado";
-import { useStyles } from "./estilo.js";
+import React, { useState, useEffect } from 'react';
+import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
+import { useStyles } from './estilo.js';
 import {
   Paper,
   Container,
@@ -12,12 +12,13 @@ import {
   TableCell,
   TablePagination,
   Button,
-} from "@material-ui/core";
+  LinearProgress,
+} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import { withStyles } from "@material-ui/core/styles";
-import ServicoAssociado from "../../servicos/ServicoAssociado";
+import ServicoAssociado from '../../servicos/ServicoAssociado';
 
-const Associados = (props) => {
+const Associados = () => {
+  const [loading, setLoading] = useState(false);
   const [associados, setAssociados]= useState([]);
   const [page, setPage]= useState(0);
   const [rowsPerPage, setRowsPerPage]= useState(10);
@@ -34,15 +35,21 @@ const Associados = (props) => {
   }; //fechar o dialogo
 
   async function paginacao() {
-    let associados = await ServicoAssociado.obterAssociados({
-      _start: qtdeInicial, _end: qtdeFinal
-    });
-
-    setAssociados(associados);
+    try {
+      setLoading(true);
+      const associados = await ServicoAssociado.obterAssociados({
+        _start: qtdeInicial, _end: qtdeFinal
+      });
+  
+      setAssociados(associados);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  useEffect(async () => {
-    await paginacao();
+  useEffect(() => {
+    paginacao();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function onChangePage(event, nextPage) {
@@ -54,7 +61,7 @@ const Associados = (props) => {
     event.preventDefault();
     setRowsPerPage(event.target.value);
   }
-  const { classes } = props;
+  const classes = useStyles();
 
   return (
     <Container className={classes.root}>
@@ -69,8 +76,11 @@ const Associados = (props) => {
           Adicionar
         </Button>
       </div>
+      {!loading && <div className={classes.mockProgressBar} />}
       <TableContainer component={Paper}>
-        <Table>
+        {loading && <LinearProgress />}
+        {loading && <div className={classes.tableLoading} />}
+        <Table className={classes.table}>
           <TableHead>
             <TableRow>
               <TableCell>Nome</TableCell>
@@ -82,17 +92,28 @@ const Associados = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {associados
-              .map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>{user.nome}</TableCell>
-                  <TableCell>{user.sobrenome}</TableCell>
-                  <TableCell>{user.cpf}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.tel_celular.numero}</TableCell>
-                  <TableCell>{user.tel_celular.whatsapp}</TableCell>
-                </TableRow>
-              ))}
+            {associados.map(user => (
+              <TableRow key={user._id}>
+                <TableCell>
+                  <span>{user.nome}</span>
+                </TableCell>
+                <TableCell>
+                  <span>{user.sobrenome}</span>
+                </TableCell>
+                <TableCell>
+                  <span>{user.cpf}</span>
+                </TableCell>
+                <TableCell>
+                  <span>{user.email}</span>
+                </TableCell>
+                <TableCell>
+                  {user.tel_celular && <span>{user.tel_celular.numero}</span>}
+                </TableCell>
+                <TableCell>
+                  {user.tel_celular && <span>{user.tel_celular.whatsapp}</span>}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
         <TablePagination
@@ -114,4 +135,4 @@ const Associados = (props) => {
 
 }
 
-export default withStyles(useStyles)(Associados);
+export default Associados;

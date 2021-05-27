@@ -1,8 +1,5 @@
-import ServicoAutenticacao from "../../servicos/ServicoAutenticacao";
-import React from "react";
-import clsx from "clsx";
-import { useStyles } from "./estilo.js";
-import { AccountCircle, Visibility, VisibilityOff } from "@material-ui/icons";
+import React from 'react';
+import { AccountCircle, Visibility, VisibilityOff } from '@material-ui/icons';
 import {
   Grid,
   Paper,
@@ -15,7 +12,11 @@ import {
   Button,
   FormControl,
   Link,
-} from "@material-ui/core";
+} from '@material-ui/core';
+
+import { useStyles } from './estilo.js';
+import clsx from 'clsx';
+import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 
 export default function PaginaLogin() {
   const classes = useStyles();
@@ -37,8 +38,8 @@ export default function PaginaLogin() {
   };
 
   const [values, setValues] = React.useState({
-    email: "",
-    senha: "",
+    email: '',
+    senha: '',
     mostrarSenha: false,
   });
 
@@ -69,7 +70,7 @@ export default function PaginaLogin() {
             variant="outlined"
             fullWidth
             value={values.email}
-            onChange={handleChange("email")}
+            onChange={handleChange('email')}
           />
           <div style={{ height: 20 }} />
           <FormControl
@@ -80,9 +81,9 @@ export default function PaginaLogin() {
             <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={values.mostrarSenha ? "text" : "password"}
+              type={values.mostrarSenha ? 'text' : 'password'}
               value={values.senha}
-              onChange={handleChange("senha")}
+              onChange={handleChange('senha')}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton

@@ -1,16 +1,9 @@
-import './estilo.css';
-import React, { Component } from 'react';
+import React from 'react';
 
-class Noticias extends Component{
-      render(){
-            return (
-                  <>
-                        estou na página Noticias
-                  </>
-            )
+// import { Container } from './styles';
 
-      }
+function Noticias() {
+  return <h1>Página de Notícias</h1>;
 }
 
 export default Noticias;
-      
