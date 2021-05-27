@@ -54,7 +54,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       {
         // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
-        !logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
+        logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
       }
     </ThemeProvider>
   );
