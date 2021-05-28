@@ -52,7 +52,7 @@ export default function BarraNavegacao(props) {
   const handleSair = () => {
     const Servico = new ServicoAutenticacao();
     Servico.removerAssociadoLocalStorage();
-    props.onLogout()
+    props.onLogout();
   };
 
   return (

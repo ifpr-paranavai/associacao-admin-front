@@ -49,7 +49,6 @@ const Associados = () => {
 
   useEffect(() => {
     paginacao();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function onChangePage(event, nextPage) {
@@ -76,6 +75,7 @@ const Associados = () => {
           Adicionar
         </Button>
       </div>
+
       {!loading && <div className={classes.mockProgressBar} />}
       <TableContainer component={Paper}>
         {loading && <LinearProgress />}
@@ -92,25 +92,25 @@ const Associados = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {associados.map(user => (
-              <TableRow key={user._id}>
+            {associados.map(associado => (
+              <TableRow key={associado._id}>
                 <TableCell>
-                  <span>{user.nome}</span>
+                  <span>{associado.nome}</span>
                 </TableCell>
                 <TableCell>
-                  <span>{user.sobrenome}</span>
+                  <span>{associado.sobrenome}</span>
                 </TableCell>
                 <TableCell>
-                  <span>{user.cpf}</span>
+                  <span>{associado.cpf}</span>
                 </TableCell>
                 <TableCell>
-                  <span>{user.email}</span>
+                  <span>{associado.email}</span>
                 </TableCell>
                 <TableCell>
-                  {user.tel_celular && <span>{user.tel_celular.numero}</span>}
+                  {associado.tel_celular && <span>{associado.tel_celular.numero}</span>}
                 </TableCell>
                 <TableCell>
-                  {user.tel_celular && <span>{user.tel_celular.whatsapp}</span>}
+                  {associado.tel_celular && <span>{associado.tel_celular.whatsapp}</span>}
                 </TableCell>
               </TableRow>
             ))}
@@ -128,7 +128,6 @@ const Associados = () => {
       <CadastrarAssociado
         open={open}
         fecharFormulario={fecharFormulario}
-
       />
     </Container>
   );
