@@ -6,8 +6,20 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { FormControl, IconButton, Input, InputAdornment, InputLabel } from '@material-ui/core';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
+import {
+  FormControl,
+  IconButton,
+  OutlinedInput,
+  InputAdornment,
+  InputLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormLabel,
+  Typography,
+  Box,
+} from '@material-ui/core';
+import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
 
 import {
   MuiPickersUtilsProvider,
@@ -19,6 +31,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
 
 import { useStyles } from './estilo';
+import { toBase64 } from '../../uteis/file';
 
 export default function CadastrarAssociado(props) {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,38 +51,81 @@ export default function CadastrarAssociado(props) {
     cidade: '', 
     rua: '',
     bairro: '',
-    numero: 0,
+    numero: '',
   });
 
   const classes = useStyles();
 
-  useEffect(() => {
-    console.log(data_nascimento)
-  }, [data_nascimento]);
-
   return (
     <div>
-      <Dialog open={props.open} onClose={props.fecharFormulario} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={props.open}
+        onClose={props.fecharFormulario}
+        aria-labelledby="form-dialog-title"
+        maxWidth="800px"
+      >
         <DialogTitle id="form-dialog-title">Cadastrar Associado</DialogTitle>
-        <DialogContent>
+        <DialogContent style={{ width: '800px' }}>
           <DialogContentText>
             Texto de inscrição
           </DialogContentText>
+          <Box display="flex" flexDirection="row" alignItems="center">
+            <Person
+              style={{ width: '50px', height: '50px', marginRight: '12px' }}
+            />
+            <Typography
+              variant="h6"
+              component="h6"
+              className={classes.title}
+            >
+              Dados do associado
+            </Typography>
+          </Box>
+          <RadioGroup
+            aria-label="Modalidade"
+            row
+            value={modalidade}
+            className={classes.fieldMargin}
+            onChange={event => setModalidade(event.target.value)}
+          >
+            <FormLabel
+              component="legend"
+              style={{ width: '100%' }}
+            >
+              Modalidade
+            </FormLabel>
+            <FormControlLabel
+              value="aeromodelismo"
+              control={<Radio color="primary" />}
+              label="Aeromodelismo"
+            />
+            <FormControlLabel
+              value="automodelismo"
+              control={<Radio color="primary" />}
+              label="Automodelismo"
+            />
+          </RadioGroup>
           <TextField
             autoFocus // para iniciar com o cursor no campo
             value={nomecompleto}
             label="Nome completo"
             type="text"
+            className={classes.fieldMargin}
             fullWidth
+            variant="outlined"
             onChange={event => setNomeCompleto(event.target.value)}
           />
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <MuiPickersUtilsProvider
+            utils={DateFnsUtils}
+          >
             <KeyboardDatePicker
               variant="inline"
               format="dd/MM/yyyy"
               margin="normal"
               label="Data de nascimento"
-              style={{ width: '100%', margin: '0px', padding: '0px' }}
+              inputVariant="outlined"
+              className={classes.fieldMargin}
+              style={{ width: '100%', padding: '0px' }}
               value={data_nascimento}
               onChange={value => setDataNascimento(value)}
               KeyboardButtonProps={{
@@ -81,36 +137,67 @@ export default function CadastrarAssociado(props) {
             value={rg}
             label="RG"
             type="text"
+            className={classes.fieldMargin}
             fullWidth
+            variant="outlined"
             onChange={event => setRG(event.target.value)}
           />
           <TextField
             value={cpf}
             label="CPF"
             type="text"
+            className={classes.fieldMargin}
             fullWidth
+            variant="outlined"
             onChange={event => setCPF(event.target.value)}
           />
+          <Box
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            className={classes.fieldMargin}
+          >
+            <Phone
+              style={{ width: '50px', height: '50px', marginRight: '12px' }}
+            />
+            <Typography
+              variant="h6"
+              component="h6"
+              className={classes.title}
+            >
+              Dados de contato
+            </Typography>
+          </Box>
           <TextField
             value={email}
             label="Email"
             type="email"
+            className={classes.fieldMargin}
             fullWidth
+            variant="outlined"
             onChange={event => setEmail(event.target.value)}
           />
           <TextField
             value={email_alternativo}
             label="Email alternativo"
             type="email"
+            className={classes.fieldMargin}
             fullWidth
+            variant="outlined"
             onChange={event => setEmailAlternativo(event.target.value)}
           />
-          <FormControl className={clsx(classes.margin, classes.textField)}>
-            <InputLabel htmlFor="standard-adornment-password">Senha</InputLabel>
-            <Input
+          <FormControl
+            className={clsx(classes.margin, classes.fieldMargin)}
+            variant="outlined"
+            fullWidth
+          >
+            <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
               value={senha}
               type={showPassword ? 'text' : 'password'}
               fullWidth
+              labelWidth={70}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
@@ -125,19 +212,86 @@ export default function CadastrarAssociado(props) {
             />
           </FormControl>
           <TextField
-            value={modalidade}
-            label="Modalidade"
-            type="text"
-            fullWidth
-            onChange={event => setModalidade(event.target.value)}
-          />
-          <TextField
             value={tel_celular.numero}
             label={tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
             type="phone"
+            inputMode="tel"
+            className={classes.fieldMargin}
             fullWidth
+            variant="outlined"
             // Mantém whatsapp e sobrescreve o número dentro do objeto tel_celular
             onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
+          />
+          <Box
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            className={classes.fieldMargin}
+          >
+            <Home
+              style={{ width: '50px', height: '50px', marginRight: '12px' }}
+            />
+            <Typography
+              variant="h6"
+              component="h6"
+              className={classes.title}
+            >
+              Endereço
+            </Typography>
+          </Box>
+          <TextField
+            value={endereco.cep}
+            label="CEP"
+            className={classes.fieldMargin}
+            fullWidth
+            variant="outlined"
+            // Mantém whatsapp e sobrescreve o cep dentro do objeto endereco
+            onChange={event => setEndereco({ ...endereco, cep: event.target.value })}
+          />
+          <TextField
+            value={endereco.rua}
+            label="Rua"
+            className={classes.fieldMargin}
+            fullWidth
+            variant="outlined"
+            // Mantém whatsapp e sobrescreve o rua dentro do objeto endereco
+            onChange={event => setEndereco({ ...endereco, rua: event.target.value })}
+          />
+          <TextField
+            value={endereco.numero}
+            label="Número"
+            className={classes.fieldMargin}
+            fullWidth
+            variant="outlined"
+            // Mantém whatsapp e sobrescreve o numero dentro do objeto endereco
+            onChange={event => setEndereco({ ...endereco, numero: event.target.value })}
+          />
+          <TextField
+            value={endereco.bairro}
+            label="Bairro"
+            className={classes.fieldMargin}
+            fullWidth
+            variant="outlined"
+            // Mantém whatsapp e sobrescreve o bairro dentro do objeto endereco
+            onChange={event => setEndereco({ ...endereco, bairro: event.target.value })}
+          />
+          <TextField
+            value={endereco.cidade}
+            label="Cidade"
+            className={classes.fieldMargin}
+            fullWidth
+            variant="outlined"
+            // Mantém whatsapp e sobrescreve o cidade dentro do objeto endereco
+            onChange={event => setEndereco({ ...endereco, cidade: event.target.value })}
+          />
+          <TextField
+            value={endereco.estado}
+            label="Estado"
+            className={classes.fieldMargin}
+            fullWidth
+            variant="outlined"
+            // Mantém whatsapp e sobrescreve o estado dentro do objeto endereco
+            onChange={event => setEndereco({ ...endereco, estado: event.target.value })}
           />
         </DialogContent>
         <DialogActions>

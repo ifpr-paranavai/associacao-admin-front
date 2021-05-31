@@ -14,6 +14,12 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     width: '100%',
   },
+  fieldMargin: {
+    marginTop: '16px',
+  },
+  title: {
+    fontWeight: '500',
+  },
 }));
 
 export { useStyles };
