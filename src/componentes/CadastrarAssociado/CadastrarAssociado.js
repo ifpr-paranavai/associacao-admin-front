@@ -19,6 +19,7 @@ import {
   Typography,
   Box,
 } from '@material-ui/core';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
 
 import {
@@ -30,11 +31,13 @@ import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
 
+import ImageUploader from '../ImageUploader/ImageUploader';
 import { useStyles } from './estilo';
-import { toBase64 } from '../../uteis/file';
 
 export default function CadastrarAssociado(props) {
+  const isMobile = useMediaQuery('(max-width:600px)');
   const [showPassword, setShowPassword] = useState(false);
+
   const [imagem, setImagem] = useState({ src: '',  alt: '' });
   const [nomecompleto, setNomeCompleto] = useState(''); // salvar sobrenome separado
   const [data_nascimento, setDataNascimento] = useState(null);
@@ -63,24 +66,30 @@ export default function CadastrarAssociado(props) {
         onClose={props.fecharFormulario}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
+        fullScreen={isMobile}
       >
         <DialogTitle id="form-dialog-title">Cadastrar Associado</DialogTitle>
-        <DialogContent style={{ width: '800px' }}>
+        <DialogContent style={{ width: '100%', maxWidth: '800px' }}>
           <DialogContentText>
             Texto de inscrição
           </DialogContentText>
           <Box display="flex" flexDirection="row" alignItems="center">
             <Person
-              style={{ width: '50px', height: '50px', marginRight: '12px' }}
+              style={{ width: '40px', height: '40px', marginRight: '12px' }}
+              color="primary"
             />
             <Typography
               variant="h6"
-              component="h6"
               className={classes.title}
             >
               Dados do associado
             </Typography>
           </Box>
+          <ImageUploader
+            image={imagem}
+            className={classes.fieldMargin}
+            onUpload={image => setImagem(image)}
+          />
           <RadioGroup
             aria-label="Modalidade"
             row
@@ -158,11 +167,11 @@ export default function CadastrarAssociado(props) {
             className={classes.fieldMargin}
           >
             <Phone
-              style={{ width: '50px', height: '50px', marginRight: '12px' }}
+              style={{ width: '40px', height: '40px', marginRight: '12px' }}
+              color="primary"
             />
             <Typography
               variant="h6"
-              component="h6"
               className={classes.title}
             >
               Dados de contato
@@ -197,14 +206,14 @@ export default function CadastrarAssociado(props) {
               value={senha}
               type={showPassword ? 'text' : 'password'}
               fullWidth
-              labelWidth={70}
+              labelWidth={48}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="Ver senha"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               }
@@ -229,11 +238,11 @@ export default function CadastrarAssociado(props) {
             className={classes.fieldMargin}
           >
             <Home
-              style={{ width: '50px', height: '50px', marginRight: '12px' }}
+              style={{ width: '40px', height: '40px', marginRight: '12px' }}
+              color="primary"
             />
             <Typography
               variant="h6"
-              component="h6"
               className={classes.title}
             >
               Endereço
