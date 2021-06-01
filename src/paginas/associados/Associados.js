@@ -92,7 +92,7 @@ const Associados = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {associados.map(associado => (
+            {associados.length > 0 && associados.map(associado => (
               <TableRow key={associado._id}>
                 <TableCell>
                   <span>{associado.nome}</span>

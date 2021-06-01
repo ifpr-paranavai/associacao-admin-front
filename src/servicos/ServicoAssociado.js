@@ -14,6 +14,16 @@ class ServicoAssociado {
       return error;
     }
   }
+
+  static async cadastrarAssociado(associado) {
+    try {
+      const { data } = await Axios.post(`${Config.api}/associados`, associado);
+      return data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
 }
 
 export default ServicoAssociado;

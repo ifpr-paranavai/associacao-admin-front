@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   fieldMargin: {
-    marginTop: '16px',
+    marginTop: '2px',
   },
   title: {
     fontWeight: '500',

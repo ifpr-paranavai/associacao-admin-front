@@ -18,6 +18,7 @@ import {
   FormLabel,
   Typography,
   Box,
+  Grid,
 } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
@@ -34,8 +35,11 @@ import clsx from 'clsx';
 import ImageUploader from '../ImageUploader/ImageUploader';
 import { useStyles } from './estilo';
 
+import ServicoAssociado from '../../servicos/ServicoAssociado';
+
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
+  const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [imagem, setImagem] = useState({ src: '',  alt: '' });
@@ -59,6 +63,29 @@ export default function CadastrarAssociado(props) {
 
   const classes = useStyles();
 
+  async function cadastrarAssociado () {
+    try {
+      setSaving(true);
+      const [nome, sobrenome] = nomecompleto.split(' ');
+      await ServicoAssociado.cadastrarAssociado({
+        imagem,
+        nome,
+        sobrenome,
+        data_nascimento,
+        rg,
+        cpf,
+        email,
+        email_alternativo,
+        modalidade,
+        senha,
+        tel_celular,
+        endereco,
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div>
       <Dialog
@@ -70,245 +97,296 @@ export default function CadastrarAssociado(props) {
       >
         <DialogTitle id="form-dialog-title">Cadastrar Associado</DialogTitle>
         <DialogContent style={{ width: '100%', maxWidth: '800px' }}>
-          <DialogContentText>
-            Texto de inscrição
-          </DialogContentText>
-          <Box display="flex" flexDirection="row" alignItems="center">
-            <Person
-              style={{ width: '40px', height: '40px', marginRight: '12px' }}
-              color="primary"
-            />
-            <Typography
-              variant="h6"
-              className={classes.title}
-            >
-              Dados do associado
-            </Typography>
-          </Box>
-          <ImageUploader
-            image={imagem}
-            className={classes.fieldMargin}
-            onUpload={image => setImagem(image)}
-          />
-          <RadioGroup
-            aria-label="Modalidade"
-            row
-            value={modalidade}
-            className={classes.fieldMargin}
-            onChange={event => setModalidade(event.target.value)}
+          <Grid
+            container
+            spacing={2}
           >
-            <FormLabel
-              component="legend"
-              style={{ width: '100%' }}
-            >
-              Modalidade
-            </FormLabel>
-            <FormControlLabel
-              value="aeromodelismo"
-              control={<Radio color="primary" />}
-              label="Aeromodelismo"
-            />
-            <FormControlLabel
-              value="automodelismo"
-              control={<Radio color="primary" />}
-              label="Automodelismo"
-            />
-          </RadioGroup>
-          <TextField
-            autoFocus // para iniciar com o cursor no campo
-            value={nomecompleto}
-            label="Nome completo"
-            type="text"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            onChange={event => setNomeCompleto(event.target.value)}
-          />
-          <MuiPickersUtilsProvider
-            utils={DateFnsUtils}
-          >
-            <KeyboardDatePicker
-              variant="inline"
-              format="dd/MM/yyyy"
-              margin="normal"
-              label="Data de nascimento"
-              inputVariant="outlined"
-              className={classes.fieldMargin}
-              style={{ width: '100%', padding: '0px' }}
-              value={data_nascimento}
-              onChange={value => setDataNascimento(value)}
-              KeyboardButtonProps={{
-                'aria-label': 'Escolha uma data',
-              }}
-            />
-          </MuiPickersUtilsProvider>
-          <TextField
-            value={rg}
-            label="RG"
-            type="text"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            onChange={event => setRG(event.target.value)}
-          />
-          <TextField
-            value={cpf}
-            label="CPF"
-            type="text"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            onChange={event => setCPF(event.target.value)}
-          />
-          <Box
-            display="flex"
-            flexDirection="row"
-            alignItems="center"
-            className={classes.fieldMargin}
-          >
-            <Phone
-              style={{ width: '40px', height: '40px', marginRight: '12px' }}
-              color="primary"
-            />
-            <Typography
-              variant="h6"
-              className={classes.title}
-            >
-              Dados de contato
-            </Typography>
-          </Box>
-          <TextField
-            value={email}
-            label="Email"
-            type="email"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            onChange={event => setEmail(event.target.value)}
-          />
-          <TextField
-            value={email_alternativo}
-            label="Email alternativo"
-            type="email"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            onChange={event => setEmailAlternativo(event.target.value)}
-          />
-          <FormControl
-            className={clsx(classes.margin, classes.fieldMargin)}
-            variant="outlined"
-            fullWidth
-          >
-            <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              value={senha}
-              type={showPassword ? 'text' : 'password'}
-              fullWidth
-              labelWidth={48}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="Ver senha"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              onChange={event => setSenha(event.target.value)}
-            />
-          </FormControl>
-          <TextField
-            value={tel_celular.numero}
-            label={tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
-            type="phone"
-            inputMode="tel"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o número dentro do objeto tel_celular
-            onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
-          />
-          <Box
-            display="flex"
-            flexDirection="row"
-            alignItems="center"
-            className={classes.fieldMargin}
-          >
-            <Home
-              style={{ width: '40px', height: '40px', marginRight: '12px' }}
-              color="primary"
-            />
-            <Typography
-              variant="h6"
-              className={classes.title}
-            >
-              Endereço
-            </Typography>
-          </Box>
-          <TextField
-            value={endereco.cep}
-            label="CEP"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o cep dentro do objeto endereco
-            onChange={event => setEndereco({ ...endereco, cep: event.target.value })}
-          />
-          <TextField
-            value={endereco.rua}
-            label="Rua"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o rua dentro do objeto endereco
-            onChange={event => setEndereco({ ...endereco, rua: event.target.value })}
-          />
-          <TextField
-            value={endereco.numero}
-            label="Número"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o numero dentro do objeto endereco
-            onChange={event => setEndereco({ ...endereco, numero: event.target.value })}
-          />
-          <TextField
-            value={endereco.bairro}
-            label="Bairro"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o bairro dentro do objeto endereco
-            onChange={event => setEndereco({ ...endereco, bairro: event.target.value })}
-          />
-          <TextField
-            value={endereco.cidade}
-            label="Cidade"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o cidade dentro do objeto endereco
-            onChange={event => setEndereco({ ...endereco, cidade: event.target.value })}
-          />
-          <TextField
-            value={endereco.estado}
-            label="Estado"
-            className={classes.fieldMargin}
-            fullWidth
-            variant="outlined"
-            // Mantém whatsapp e sobrescreve o estado dentro do objeto endereco
-            onChange={event => setEndereco({ ...endereco, estado: event.target.value })}
-          />
+            <Grid item xs={12}>
+              <Box display="flex" flexDirection="row" alignItems="center">
+                <Person
+                  style={{ width: '40px', height: '40px', marginRight: '12px' }}
+                  color="primary"
+                />
+                <Typography
+                  variant="h6"
+                  className={classes.title}
+                >
+                  Dados do associado
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <ImageUploader
+                image={imagem}
+                className={classes.fieldMargin}
+                onUpload={image => setImagem(image)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <RadioGroup
+                aria-label="Modalidade"
+                row
+                value={modalidade}
+                className={classes.fieldMargin}
+                onChange={event => setModalidade(event.target.value)}
+              >
+                <FormLabel
+                  component="legend"
+                  style={{ width: '100%' }}
+                >
+                  Modalidade
+                </FormLabel>
+                <FormControlLabel
+                  value="aeromodelismo"
+                  control={<Radio color="primary" />}
+                  label="Aeromodelismo"
+                />
+                <FormControlLabel
+                  value="automodelismo"
+                  control={<Radio color="primary" />}
+                  label="Automodelismo"
+                />
+              </RadioGroup>
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 8}>
+              <TextField
+                autoFocus // para iniciar com o cursor no campo
+                value={nomecompleto}
+                label="Nome completo"
+                type="text"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                onChange={event => setNomeCompleto(event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 4}>
+              <MuiPickersUtilsProvider
+                utils={DateFnsUtils}
+              >
+                <KeyboardDatePicker
+                  variant="inline"
+                  format="dd/MM/yyyy"
+                  margin="normal"
+                  label="Data de nascimento"
+                  inputVariant="outlined"
+                  className={classes.fieldMargin}
+                  style={{ width: '100%', padding: '0px' }}
+                  value={data_nascimento}
+                  onChange={value => setDataNascimento(value)}
+                  KeyboardButtonProps={{
+                    'aria-label': 'Escolha uma data',
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={rg}
+                label="RG"
+                type="text"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                onChange={event => setRG(event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={cpf}
+                label="CPF"
+                type="text"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                onChange={event => setCPF(event.target.value)}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                className={classes.fieldMargin}
+              >
+                <Phone
+                  style={{ width: '40px', height: '40px', marginRight: '12px' }}
+                  color="primary"
+                />
+                <Typography
+                  variant="h6"
+                  className={classes.title}
+                >
+                  Dados de contato
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={email}
+                label="Email"
+                type="email"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                onChange={event => setEmail(event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={email_alternativo}
+                label="Email alternativo"
+                type="email"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                onChange={event => setEmailAlternativo(event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={tel_celular.numero}
+                label={tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
+                type="phone"
+                inputMode="tel"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o número dentro do objeto tel_celular
+                onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <FormControl
+                className={clsx(classes.margin, classes.fieldMargin)}
+                variant="outlined"
+                fullWidth
+              >
+                <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  value={senha}
+                  type={showPassword ? 'text' : 'password'}
+                  fullWidth
+                  labelWidth={48}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="Ver senha"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  onChange={event => setSenha(event.target.value)}
+                />
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                className={classes.fieldMargin}
+              >
+                <Home
+                  style={{ width: '40px', height: '40px', marginRight: '12px' }}
+                  color="primary"
+                />
+                <Typography
+                  variant="h6"
+                  className={classes.title}
+                >
+                  Endereço
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 4}>
+              <TextField
+                value={endereco.cep}
+                label="CEP"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o cep dentro do objeto endereco
+                onChange={event => setEndereco({ ...endereco, cep: event.target.value })}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 8}>
+              <TextField
+                value={endereco.rua}
+                label="Rua"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o rua dentro do objeto endereco
+                onChange={event => setEndereco({ ...endereco, rua: event.target.value })}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 4}>
+              <TextField
+                value={endereco.numero}
+                label="Número"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o numero dentro do objeto endereco
+                onChange={event => setEndereco({ ...endereco, numero: event.target.value })}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 8}>
+              <TextField
+                value={endereco.bairro}
+                label="Bairro"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o bairro dentro do objeto endereco
+                onChange={event => setEndereco({ ...endereco, bairro: event.target.value })}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={endereco.cidade}
+                label="Cidade"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o cidade dentro do objeto endereco
+                onChange={event => setEndereco({ ...endereco, cidade: event.target.value })}
+              />
+            </Grid>
+            <Grid item xs={isMobile ? 12 : 6}>
+              <TextField
+                value={endereco.estado}
+                label="Estado"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+                // Mantém whatsapp e sobrescreve o estado dentro do objeto endereco
+                onChange={event => setEndereco({ ...endereco, estado: event.target.value })}
+              />
+            </Grid>
+          </Grid>
+
         </DialogContent>
-        <DialogActions>
-          <Button onClick={props.fecharFormulario} color="primary">
-            Cancel
+        <DialogActions style={{ padding: '16px' }}>
+          <Button
+            onClick={props.fecharFormulario}
+            color="primary"
+            style={{ marginRight: '12px' }}
+          >
+            Cancelar
           </Button>
-          <Button onClick={props.fecharFormulario} color="primary">
-            Subscribe
+          <Button
+            onClick={() => cadastrarAssociado()}
+            color="primary"
+            variant="contained"
+          >
+            Salvar
           </Button>
         </DialogActions>
       </Dialog>
