@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import { useStyles } from './estilo.js';
 import {
@@ -17,6 +17,8 @@ import {
 import AddIcon from '@material-ui/icons/Add';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 
+import { NotificationContext } from '../../contextos/Notificacao';
+
 const Associados = () => {
   const [loading, setLoading] = useState(false);
   const [associados, setAssociados]= useState([]);
@@ -26,8 +28,11 @@ const Associados = () => {
   const [qtdeFinal, setQtdeFinal]= useState(10);
   const [open, setOpen] = useState(false);
 
+  const notifyContext = useContext(NotificationContext);
+
   const abrirFormulario = () => {
-    setOpen(true);
+    notifyContext.showError('Erro ao abrir formulario');
+    // setOpen(true);
   };//abrir o dialogo
 
   const fecharFormulario = () => {

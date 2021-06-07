@@ -7,6 +7,8 @@ import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { ptBR } from '@material-ui/core/locale';
 
+import { NotificationProvider } from './contextos/Notificacao';
+
 import ServicoAutenticacao from './servicos/ServicoAutenticacao';
 
 const App = () => {
@@ -52,10 +54,12 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      {
-        // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
-        logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
-      }
+      <NotificationProvider>
+        {
+          // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
+          logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
+        }
+      </NotificationProvider>
     </ThemeProvider>
   );
 }
