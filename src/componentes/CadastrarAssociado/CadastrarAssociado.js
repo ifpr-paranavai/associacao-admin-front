@@ -4,7 +4,6 @@ import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {
   FormControl,
@@ -19,6 +18,7 @@ import {
   Typography,
   Box,
   Grid,
+  CircularProgress,
 } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
@@ -40,6 +40,7 @@ import ServicoAssociado from '../../servicos/ServicoAssociado';
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [imagem, setImagem] = useState({ src: '',  alt: '' });
@@ -62,12 +63,16 @@ export default function CadastrarAssociado(props) {
   });
 
   const classes = useStyles();
+  const buttonClassname = clsx({
+    [classes.buttonSuccess]: success,
+  });
 
   async function cadastrarAssociado () {
     try {
       setSaving(true);
+      setSuccess(false);
       const [nome, sobrenome] = nomecompleto.split(' ');
-      await ServicoAssociado.cadastrarAssociado({
+      const associado = await ServicoAssociado.cadastrarAssociado({
         imagem,
         nome,
         sobrenome,
@@ -81,6 +86,7 @@ export default function CadastrarAssociado(props) {
         tel_celular,
         endereco,
       });
+      setSuccess(true);
     } finally {
       setSaving(false);
     }
@@ -381,13 +387,18 @@ export default function CadastrarAssociado(props) {
           >
             Cancelar
           </Button>
-          <Button
-            onClick={() => cadastrarAssociado()}
-            color="primary"
-            variant="contained"
-          >
-            Salvar
-          </Button>
+          <div className={classes.wrapper}>
+            <Button
+              variant="contained"
+              color="primary"
+              className={buttonClassname}
+              disabled={saving}
+              onClick={() => cadastrarAssociado()}
+            >
+              Salvar
+            </Button>
+            {saving && <CircularProgress size={24} className={classes.buttonProgress} />}
+          </div>
         </DialogActions>
       </Dialog>
     </div>

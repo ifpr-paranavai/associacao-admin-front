@@ -42,9 +42,10 @@ const Associados = () => {
   async function paginacao() {
     try {
       setLoading(true);
-      const associados = await ServicoAssociado.obterAssociados({
+      await ServicoAssociado.obterAssociados({
         _start: qtdeInicial, _end: qtdeFinal
       });
+      const associados = JSON.parse(localStorage.getItem('associados'));
   
       setAssociados(associados);
     } finally {

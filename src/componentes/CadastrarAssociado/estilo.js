@@ -1,4 +1,5 @@
 import { makeStyles } from '@material-ui/core';
+import {blue, green} from '@material-ui/core/colors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,6 +20,24 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: '500',
+  },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: 'relative',
+  },
+  buttonProgress: {
+    color: blue[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12,
+  },
+  buttonSuccess: {
+    backgroundColor: green[500],
+    '&:hover': {
+      backgroundColor: green[700],
+    },
   },
 }));
 

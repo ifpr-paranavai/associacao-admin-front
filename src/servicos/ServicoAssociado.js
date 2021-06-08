@@ -8,6 +8,7 @@ class ServicoAssociado {
         _start,
         _end,
       });
+      localStorage.setItem('associados', JSON.stringify(data));
       return data;
     } catch (error) {
       console.log(error);
@@ -23,6 +24,12 @@ class ServicoAssociado {
       console.log(error);
       return error;
     }
+  }
+
+  static async adicionarAssociado(associado){
+    const associados = [...JSON.parse(localStorage.getItem('associados'))];
+    associados.unshift(associado);
+    localStorage.setItem('associados', associados);
   }
 }
 
