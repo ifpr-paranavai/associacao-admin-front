@@ -8,7 +8,6 @@ class ServicoAssociado {
         _start,
         _end,
       });
-      localStorage.setItem('associados', JSON.stringify(data));
       return data;
     } catch (error) {
       console.log(error);

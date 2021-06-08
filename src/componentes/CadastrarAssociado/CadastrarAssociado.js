@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -20,13 +20,14 @@ import {
   Grid,
   CircularProgress,
 } from '@material-ui/core';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
-
+import InputMask from 'react-input-mask';
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
+
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
@@ -36,11 +37,11 @@ import ImageUploader from '../ImageUploader/ImageUploader';
 import { useStyles } from './estilo';
 
 import ServicoAssociado from '../../servicos/ServicoAssociado';
+import { NotificationContext } from '../../contextos/Notificacao';
 
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [imagem, setImagem] = useState({ src: '',  alt: '' });
@@ -62,17 +63,14 @@ export default function CadastrarAssociado(props) {
     numero: '',
   });
 
+  const notify = useContext(NotificationContext);
   const classes = useStyles();
-  const buttonClassname = clsx({
-    [classes.buttonSuccess]: success,
-  });
 
   async function cadastrarAssociado () {
     try {
       setSaving(true);
-      setSuccess(false);
       const [nome, sobrenome] = nomecompleto.split(' ');
-      const associado = await ServicoAssociado.cadastrarAssociado({
+      await ServicoAssociado.cadastrarAssociado({
         imagem,
         nome,
         sobrenome,
@@ -86,7 +84,10 @@ export default function CadastrarAssociado(props) {
         tel_celular,
         endereco,
       });
-      setSuccess(true);
+      notify.showSuccess('Associado salvo com sucesso!');
+      props.onSave();
+    } catch(error) {
+      notify.showError(error.message);
     } finally {
       setSaving(false);
     }
@@ -187,26 +188,42 @@ export default function CadastrarAssociado(props) {
               </MuiPickersUtilsProvider>
             </Grid>
             <Grid item xs={isMobile ? 12 : 6}>
-              <TextField
+              <InputMask
+                mask="99.999.999-9"
                 value={rg}
-                label="RG"
-                type="text"
-                className={classes.fieldMargin}
-                fullWidth
-                variant="outlined"
+                maskChar={null}
                 onChange={event => setRG(event.target.value)}
-              />
+              >
+                {(inputProps) => (
+                  <TextField
+                    {...inputProps}
+                    label="RG"
+                    type="text"
+                    className={classes.fieldMargin}
+                    fullWidth
+                    variant="outlined"
+                  />
+                )}
+              </InputMask>
             </Grid>
             <Grid item xs={isMobile ? 12 : 6}>
-              <TextField
+              <InputMask
+                mask="999.999.999-99"
                 value={cpf}
-                label="CPF"
-                type="text"
-                className={classes.fieldMargin}
-                fullWidth
-                variant="outlined"
+                maskChar={null}
                 onChange={event => setCPF(event.target.value)}
-              />
+              >
+                {(inputProps) => (
+                  <TextField
+                    {...inputProps}
+                    label="CPF"
+                    type="text"
+                    className={classes.fieldMargin}
+                    fullWidth
+                    variant="outlined"
+                  />
+                )}
+              </InputMask>
             </Grid>
 
             <Grid item xs={12}>
@@ -251,17 +268,23 @@ export default function CadastrarAssociado(props) {
               />
             </Grid>
             <Grid item xs={isMobile ? 12 : 6}>
-              <TextField
+              <InputMask
+                mask="(99) 99999-9999"
                 value={tel_celular.numero}
-                label={tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
-                type="phone"
-                inputMode="tel"
-                className={classes.fieldMargin}
-                fullWidth
-                variant="outlined"
-                // Mantém whatsapp e sobrescreve o número dentro do objeto tel_celular
+                maskChar={null}
                 onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
-              />
+              >
+                {(inputProps) => (
+                  <TextField
+                    {...inputProps}
+                    label={tel_celular.whatsapp ? 'Whatsapp' : 'Celular'}
+                    type="phone"
+                    className={classes.fieldMargin}
+                    fullWidth
+                    variant="outlined"
+                  />
+                )}
+              </InputMask>
             </Grid>
             <Grid item xs={isMobile ? 12 : 6}>
               <FormControl
@@ -311,15 +334,23 @@ export default function CadastrarAssociado(props) {
               </Box>
             </Grid>
             <Grid item xs={isMobile ? 12 : 4}>
-              <TextField
+              <InputMask
+                mask="99999-999"
                 value={endereco.cep}
-                label="CEP"
-                className={classes.fieldMargin}
-                fullWidth
-                variant="outlined"
-                // Mantém whatsapp e sobrescreve o cep dentro do objeto endereco
+                maskChar={null}
                 onChange={event => setEndereco({ ...endereco, cep: event.target.value })}
-              />
+              >
+                {(inputProps) => (
+                  <TextField
+                    {...inputProps}
+                    label="CEP"
+                    type="text"
+                    className={classes.fieldMargin}
+                    fullWidth
+                    variant="outlined"
+                  />
+                )}
+              </InputMask>
             </Grid>
             <Grid item xs={isMobile ? 12 : 8}>
               <TextField
@@ -391,7 +422,6 @@ export default function CadastrarAssociado(props) {
             <Button
               variant="contained"
               color="primary"
-              className={buttonClassname}
               disabled={saving}
               onClick={() => cadastrarAssociado()}
             >

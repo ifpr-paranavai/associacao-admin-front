@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
-import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
-import { useStyles } from './estilo.js';
+import React, { useState, useEffect } from 'react';
 import {
   Paper,
   Container,
@@ -15,38 +13,34 @@ import {
   LinearProgress,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+
+import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 
-import { NotificationContext } from '../../contextos/Notificacao';
+import { useStyles } from './estilo.js';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  
   const [associados, setAssociados]= useState([]);
   const [page, setPage]= useState(0);
   const [rowsPerPage, setRowsPerPage]= useState(10);
-  const [qtdeInicial, setQtdeInicial]= useState(0);
-  const [qtdeFinal, setQtdeFinal]= useState(10);
-  const [open, setOpen] = useState(false);
-
-  const notifyContext = useContext(NotificationContext);
+  const [_start, setStart]= useState(0);
+  const [_end, setEnd]= useState(10);
 
   const abrirFormulario = () => {
-    notifyContext.showError('Erro ao abrir formulario');
-    // setOpen(true);
-  };//abrir o dialogo
+    setOpen(true);
+  };// abrir o dialogo
 
   const fecharFormulario = () => {
     setOpen(false);
-  }; //fechar o dialogo
+  }; // fechar o dialogo
 
   async function paginacao() {
     try {
       setLoading(true);
-      await ServicoAssociado.obterAssociados({
-        _start: qtdeInicial, _end: qtdeFinal
-      });
-      const associados = JSON.parse(localStorage.getItem('associados'));
-  
+      const associados = await ServicoAssociado.obterAssociados({ _start, _end });
       setAssociados(associados);
     } finally {
       setLoading(false);
@@ -66,6 +60,12 @@ const Associados = () => {
     event.preventDefault();
     setRowsPerPage(event.target.value);
   }
+
+  function onSaveAssociado () {
+    paginacao();
+    fecharFormulario();
+  }
+
   const classes = useStyles();
 
   return (
@@ -134,6 +134,7 @@ const Associados = () => {
       <CadastrarAssociado
         open={open}
         fecharFormulario={fecharFormulario}
+        onSave={() => onSaveAssociado()}
       />
     </Container>
   );
