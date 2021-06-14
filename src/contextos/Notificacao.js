@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 import { Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 
@@ -8,6 +8,8 @@ export const NotificationContext = createContext({
   showWarning: () => {},
   showInfo: () => {},
 });
+
+export const useNotify = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const [open, setOpen] = useState(false);
