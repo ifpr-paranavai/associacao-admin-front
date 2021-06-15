@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Paper,
+  Avatar,
+  IconButton,
   Container,
   TableContainer,
   Table,
@@ -11,21 +13,41 @@ import {
   TablePagination,
   Button,
   LinearProgress,
+  CircularProgress,
   colors,
 } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
+import InputMask from 'react-input-mask';
+
+import {
+  Edit as EditIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+} from '@material-ui/icons';
 import { FaWhatsapp } from 'react-icons/fa'
 
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 
 import { useStyles } from './estilo.js';
+import { useNotify } from '../../contextos/Notificacao';
 import { removeMask } from '../../uteis/string';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [open, setOpen] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const notify = useNotify();
   
+  const [associadoSelecionado, setAssociadoSelecionado]= useState(null);
+  const [cpfConfirmacao, setCPFConfirmacao]= useState(null);
   const [associados, setAssociados]= useState([]);
   const [page, setPage]= useState(0);
   const [rowsPerPage, setRowsPerPage]= useState(10);
@@ -38,6 +60,7 @@ const Associados = () => {
 
   const fecharFormulario = () => {
     setOpen(false);
+    setAssociadoSelecionado(null);
   }; // fechar o dialogo
 
   async function paginacao() {
@@ -75,6 +98,25 @@ const Associados = () => {
     window.open(whatsappLink, '_blank');
   }
 
+  async function handleRemoveAssociado () {
+    if (cpfConfirmacao !== associadoSelecionado.cpf) {
+      notify.showWarning('O CPF informado não corresponde ao do associado a ser removido!')
+      return
+    }
+    try {
+      setRemoving(true);
+      await ServicoAssociado.deletarAssociado(associadoSelecionado._id);
+
+      setDeleteDialog(false);
+      setAssociadoSelecionado(null);
+      paginacao();
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
   const classes = useStyles();
 
   return (
@@ -99,20 +141,33 @@ const Associados = () => {
           <TableHead>
             <TableRow>
               <TableCell>Nome</TableCell>
-              <TableCell>Sobrenome</TableCell>
               <TableCell>CPF</TableCell>
               <TableCell>E-mail</TableCell>
               <TableCell>Celular</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {associados.length > 0 && associados.map(associado => (
               <TableRow key={associado._id}>
                 <TableCell>
-                  <span>{associado.nome}</span>
-                </TableCell>
-                <TableCell>
-                  <span>{associado.sobrenome}</span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Avatar
+                      alt={associado.nome}
+                      src={associado.imagem.src}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <span style={{ marginRight: '3px' }}>{associado.nome}</span>
+                    {associado.sobrenome &&
+                      <span>{associado.sobrenome}</span>
+                    }
+                  </div>
                 </TableCell>
                 <TableCell>
                   <span>{associado.cpf}</span>
@@ -141,6 +196,26 @@ const Associados = () => {
                     }
                   </div>
                 </TableCell>
+                <TableCell align="right">
+                  <IconButton
+                    aria-label="delete"
+                    onClick={() => {
+                      setAssociadoSelecionado(associado);
+                      setOpen(true);
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="delete"
+                    onClick={() => {
+                      setAssociadoSelecionado(associado);
+                      setDeleteDialog(true);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -156,9 +231,64 @@ const Associados = () => {
       </TableContainer>
       <CadastrarAssociado
         open={open}
+        associado={associadoSelecionado}
         fecharFormulario={fecharFormulario}
         onSave={() => onSaveAssociado()}
       />
+      <Dialog
+        open={deleteDialog}
+        onClose={() => {
+          setAssociadoSelecionado(null);
+          setDeleteDialog(false);
+        }}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Deletar associado</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Digite o CPF <strong>{associadoSelecionado?.cpf}</strong> para confirmar.
+          </DialogContentText>
+          <InputMask
+            mask="999.999.999-99"
+            value={cpfConfirmacao}
+            maskChar={null}
+            onChange={event => setCPFConfirmacao(event.target.value)}
+          >
+            {(inputProps) => (
+              <TextField
+                {...inputProps}
+                label="CPF"
+                type="text"
+                className={classes.fieldMargin}
+                fullWidth
+                variant="outlined"
+              />
+            )}
+          </InputMask>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="primary"
+            onClick={() => {
+              setDeleteDialog(false);
+              setAssociadoSelecionado(null);
+            }}
+          >
+            Cancelar
+          </Button>
+          <div className={classes.wrapper}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={removing}
+              onClick={() => handleRemoveAssociado()}
+            >
+              Deletar
+            </Button>
+            {removing && <CircularProgress size={24} className={classes.buttonProgress} />}
+          </div>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 

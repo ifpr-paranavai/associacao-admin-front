@@ -10,7 +10,6 @@ class ServicoAssociado {
       });
       return data;
     } catch (error) {
-      console.log(error);
       return error;
     }
   }
@@ -20,15 +19,25 @@ class ServicoAssociado {
       const { data } = await Axios.post(`${Config.api}/associados`, associado);
       return data;
     } catch (error) {
-      console.log(error);
       return error;
     }
   }
 
-  static async adicionarAssociado(associado){
-    const associados = [...JSON.parse(localStorage.getItem('associados'))];
-    associados.unshift(associado);
-    localStorage.setItem('associados', associados);
+  static async atualizarAssociado(associado) {
+    try {
+      const { data } = await Axios.put(`${Config.api}/associados`, associado);
+      return data;
+    } catch (error) {
+      return error;
+    }
+  }
+  
+  static async deletarAssociado(_id) {
+    try {
+      await Axios.delete(`${Config.api}/associados/${_id}`);
+    } catch (error) {
+      return error;
+    }
   }
 }
 

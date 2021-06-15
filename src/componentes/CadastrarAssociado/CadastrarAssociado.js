@@ -38,6 +38,7 @@ import { buscaCEP } from '../../servicos/ServicoCEP';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
+import md5 from 'md5';
 
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -68,6 +69,21 @@ export default function CadastrarAssociado(props) {
   const notify = useNotify();
   const classes = useStyles();
 
+  function setAssociadoState () {
+    const associado = props.associado
+    const surname = associado.sobrenome ? ` ${associado.sobrenome}` : ''
+    setImagem(associado.imagem);
+    setNomeCompleto(associado.nome + surname);
+    setDataNascimento(associado.data_nascimento);
+    setCPF(associado.cpf);
+    setRG(associado.rg);
+    setEmail(associado.email);
+    setEmailAlternativo(associado.email_alternativo);
+    setModalidade(associado.modalidade);
+    setCelular(associado.tel_celular);
+    setEndereco(associado.endereco);
+  }
+
   function limparState () {
     setImagem({ src: '', alt: '' });
     setNomeCompleto('');
@@ -89,12 +105,12 @@ export default function CadastrarAssociado(props) {
     });
   }
 
-  async function cadastrarAssociado (event) {
+  async function salvarAssociado (event) {
     event.preventDefault();
     try {
       setSaving(true);
       const [nome, sobrenome] = nomecompleto.split(' ');
-      await ServicoAssociado.cadastrarAssociado({
+      const data = {
         imagem,
         nome,
         sobrenome,
@@ -104,10 +120,19 @@ export default function CadastrarAssociado(props) {
         email,
         email_alternativo,
         modalidade,
-        senha,
+        senha: md5(senha),
         tel_celular,
         endereco,
-      });
+      }
+      if (props.associado?._id) {
+        await ServicoAssociado.atualizarAssociado({
+          _id: props.associado._id,
+          ...data,
+          perfil: 'Diretoria',
+        });
+      } else {
+        await ServicoAssociado.cadastrarAssociado(data);
+      }
       notify.showSuccess('Associado salvo com sucesso!');
       props.onSave();
       limparState();
@@ -133,7 +158,7 @@ export default function CadastrarAssociado(props) {
       })
 
       setTimeout(() => {
-        numberRef.current.focus();
+        numberRef.current?.focus();
       }, 120);
     } catch (error) {
       notify.showError(error.message);
@@ -141,6 +166,13 @@ export default function CadastrarAssociado(props) {
       setSearching(false);
     }
   }
+
+  useEffect(() => {
+    if (!props.associado) {
+      return;
+    }
+    setAssociadoState();
+  }, [props.associado])
 
   useEffect(() => {
     if (!endereco.cep || endereco.cep.length < 9) {
@@ -160,7 +192,7 @@ export default function CadastrarAssociado(props) {
       >
         <form
           autoComplete="off"
-          onSubmit={event => cadastrarAssociado(event)}
+          onSubmit={event => salvarAssociado(event)}
         >
           <DialogTitle id="form-dialog-title">Cadastrar Associado</DialogTitle>
           <DialogContent style={{ width: '100%', maxWidth: '800px' }}>
@@ -327,7 +359,6 @@ export default function CadastrarAssociado(props) {
                   value={email_alternativo}
                   label="Email alternativo"
                   type="email"
-                  required
                   className={classes.fieldMargin}
                   fullWidth
                   variant="outlined"
@@ -379,7 +410,7 @@ export default function CadastrarAssociado(props) {
                   fullWidth
                 >
                   <InputLabel
-                    required
+                    required={!props.associado || !props.associado._id}
                     htmlFor="outlined-adornment-password"
                   >
                     Senha
@@ -388,7 +419,7 @@ export default function CadastrarAssociado(props) {
                     id="outlined-adornment-password"
                     value={senha}
                     type={showPassword ? 'text' : 'password'}
-                    required
+                    required={!props.associado || !props.associado._id}
                     fullWidth
                     labelWidth={48}
                     endAdornment={
