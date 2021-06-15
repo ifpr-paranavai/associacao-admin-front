@@ -1,89 +1,91 @@
-import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import React, { useEffect, useState, useRef } from 'react';
 import {
+  FormLabel,
   FormControl,
+  FormControlLabel,
   IconButton,
+  TextField,
   OutlinedInput,
   InputAdornment,
   InputLabel,
-  RadioGroup,
-  FormControlLabel,
+  Button,
   Radio,
-  FormLabel,
+  RadioGroup,
   Typography,
+  Switch,
+  LinearProgress,
   Box,
   Grid,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@material-ui/core';
-import InputMask from 'react-input-mask';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
 
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import InputMask from 'react-input-mask';
+import ImageUploader from '../ImageUploader/ImageUploader';
 
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
-
-import ImageUploader from '../ImageUploader/ImageUploader';
-import { useStyles } from './estilo';
+import { removeMask } from '../../uteis/string';
 
 import ServicoAssociado from '../../servicos/ServicoAssociado';
+import { buscaCEP } from '../../servicos/ServicoCEP';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
 
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
+  const numberRef = useRef(null);
   const [saving, setSaving] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [imagem, setImagem] = useState({ src: null,  alt: null });
-  const [nomecompleto, setNomeCompleto] = useState(null); // salvar sobrenome separado
+  const [imagem, setImagem] = useState({ src: '',  alt: '' });
+  const [nomecompleto, setNomeCompleto] = useState(''); // salvar sobrenome separado
   const [data_nascimento, setDataNascimento] = useState(null);
-  const [cpf, setCPF] = useState(null);
-  const [rg, setRG] = useState(null);
-  const [email, setEmail] = useState(null);
-  const [email_alternativo, setEmailAlternativo] = useState(null);
-  const [modalidade, setModalidade] = useState(null);
-  const [senha, setSenha] = useState(null);
-  const [tel_celular, setCelular] = useState({ numero: null, whatsapp: false });
+  const [cpf, setCPF] = useState('');
+  const [rg, setRG] = useState('');
+  const [email, setEmail] = useState('');
+  const [email_alternativo, setEmailAlternativo] = useState('');
+  const [modalidade, setModalidade] = useState('');
+  const [senha, setSenha] = useState('');
+  const [tel_celular, setCelular] = useState({ numero: '', whatsapp: false });
   const [endereco, setEndereco] = useState({
-    cep: null,
-    estado: null, 
-    cidade: null, 
-    rua: null,
-    bairro: null,
-    numero: null,
+    cep: '',
+    estado: '', 
+    cidade: '', 
+    rua: '',
+    bairro: '',
+    numero: '',
   });
 
   const notify = useNotify();
   const classes = useStyles();
 
   function limparState () {
-    setImagem({ src: null, alt: null });
-    setNomeCompleto(null);
-    setDataNascimento(null);
-    setCPF(null);
-    setRG(null);
-    setEmail(null);
-    setEmailAlternativo(null);
-    setModalidade(null);
-    setSenha(null);
-    setCelular(null);
+    setImagem({ src: '', alt: '' });
+    setNomeCompleto('');
+    setDataNascimento('');
+    setCPF('');
+    setRG('');
+    setEmail('');
+    setEmailAlternativo('');
+    setModalidade('');
+    setSenha('');
+    setCelular('');
     setEndereco({
-      cep: null,
-      estado: null, 
-      cidade: null, 
-      rua: null,
-      bairro: null,
-      numero: null,
+      cep: '',
+      estado: '', 
+      cidade: '', 
+      rua: '',
+      bairro: '',
+      numero: '',
     });
   }
 
@@ -115,6 +117,37 @@ export default function CadastrarAssociado(props) {
       setSaving(false);
     }
   }
+
+  async function findAddress () {
+    try {
+      setSearching(true);
+      const unmaskedCEP = removeMask(endereco.cep);
+      const address = await buscaCEP(unmaskedCEP);
+
+      setEndereco({
+        ...endereco,
+        estado: address.state,
+        cidade: address.city,
+        bairro: address.neighborhood,
+        rua: address.street,
+      })
+
+      setTimeout(() => {
+        numberRef.current.focus();
+      }, 120);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!endereco.cep || endereco.cep.length < 9) {
+      return;
+    }
+    findAddress();
+  }, [endereco.cep])
 
   return (
     <div>
@@ -302,24 +335,42 @@ export default function CadastrarAssociado(props) {
                 />
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
-                <InputMask
-                  mask="(99) 99999-9999"
-                  value={tel_celular.numero}
-                  maskChar={null}
-                  onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
-                >
-                  {(inputProps) => (
-                    <TextField
-                      {...inputProps}
-                      label={tel_celular.whatsapp ? 'Whatsapp' : 'Celular'}
-                      required
-                      type="phone"
-                      className={classes.fieldMargin}
-                      fullWidth
-                      variant="outlined"
-                    />
-                  )}
-                </InputMask>
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel htmlFor="outlined-adornment-password">
+                    {tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
+                  </InputLabel>
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    value={tel_celular.numero}
+                    maskChar={null}
+                    onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
+                  >
+                    {(inputProps) => (
+                      <OutlinedInput
+                        {...inputProps}
+                        id="outlined-adornment-password"
+                        type="phone"
+                        fullWidth
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={tel_celular.whatsapp}
+                                  size="small"
+                                  onChange={() => setCelular({ ...tel_celular, whatsapp: !tel_celular.whatsapp })}
+                                  color="primary"
+                                />
+                              }
+                              label="WhatsApp"
+                            />
+                          </InputAdornment>
+                        }
+                        labelWidth={80}
+                      />
+                    )}
+                  </InputMask>
+                </FormControl>
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <FormControl
@@ -378,6 +429,7 @@ export default function CadastrarAssociado(props) {
                 <InputMask
                   mask="99999-999"
                   value={endereco.cep}
+                  disabled={searching}
                   maskChar={null}
                   onChange={event => setEndereco({ ...endereco, cep: event.target.value })}
                 >
@@ -387,81 +439,149 @@ export default function CadastrarAssociado(props) {
                       label="CEP"
                       type="text"
                       required
+                      disabled={searching}
                       className={classes.fieldMargin}
                       fullWidth
                       variant="outlined"
+                      InputProps={{
+                        style: searching
+                          ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                          : undefined
+                      }}
                     />
-                  )}
+                    )}
                 </InputMask>
+                {searching &&
+                  <LinearProgress
+                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                  />
+                }
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
                   value={endereco.rua}
                   label="Rua"
                   required
+                  disabled={searching}
                   className={classes.fieldMargin}
                   fullWidth
                   variant="outlined"
-                  // Mantém whatsapp e sobrescreve o rua dentro do objeto endereco
+                  InputProps={{
+                    style: searching
+                      ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                      : undefined
+                  }}
+                  // Mantém endereco e sobrescreve o rua dentro do objeto endereco
                   onChange={event => setEndereco({ ...endereco, rua: event.target.value })}
                 />
+                {searching &&
+                  <LinearProgress
+                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                  />
+                }
               </Grid>
               <Grid item xs={isMobile ? 12 : 4}>
                 <TextField
+                  inputRef={numberRef}
                   value={endereco.numero}
                   label="Número"
                   required
+                  disabled={searching}
                   className={classes.fieldMargin}
                   fullWidth
                   variant="outlined"
-                  // Mantém whatsapp e sobrescreve o numero dentro do objeto endereco
+                  InputProps={{
+                    style: searching
+                      ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                      : undefined
+                  }}
+                  // Mantém endereco e sobrescreve o numero dentro do objeto endereco
                   onChange={event => setEndereco({ ...endereco, numero: event.target.value })}
                 />
+                {searching &&
+                  <LinearProgress
+                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                  />
+                }
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
                   value={endereco.bairro}
                   label="Bairro"
                   required
+                  disabled={searching}
                   className={classes.fieldMargin}
                   fullWidth
                   variant="outlined"
-                  // Mantém whatsapp e sobrescreve o bairro dentro do objeto endereco
+                  InputProps={{
+                    style: searching
+                      ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                      : undefined
+                  }}
+                  // Mantém endereco e sobrescreve o bairro dentro do objeto endereco
                   onChange={event => setEndereco({ ...endereco, bairro: event.target.value })}
                 />
-              </Grid>
-              <Grid item xs={isMobile ? 12 : 6}>
-                <TextField
-                  value={endereco.cidade}
-                  label="Cidade"
-                  required
-                  className={classes.fieldMargin}
-                  fullWidth
-                  variant="outlined"
-                  // Mantém whatsapp e sobrescreve o cidade dentro do objeto endereco
-                  onChange={event => setEndereco({ ...endereco, cidade: event.target.value })}
-                />
+                {searching &&
+                  <LinearProgress
+                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                  />
+                }
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
                   value={endereco.estado}
                   label="Estado"
                   required
+                  disabled={searching}
                   className={classes.fieldMargin}
                   fullWidth
                   variant="outlined"
-                  // Mantém whatsapp e sobrescreve o estado dentro do objeto endereco
+                  InputProps={{
+                    style: searching
+                      ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                      : undefined
+                  }}
+                  // Mantém endereco e sobrescreve o estado dentro do objeto endereco
                   onChange={event => setEndereco({ ...endereco, estado: event.target.value })}
                 />
+                {searching &&
+                  <LinearProgress
+                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                  />
+                }
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 6}>
+                <TextField
+                  value={endereco.cidade}
+                  label="Cidade"
+                  required
+                  disabled={searching}
+                  className={classes.fieldMargin}
+                  fullWidth
+                  variant="outlined"
+                  InputProps={{
+                    style: searching
+                      ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                      : undefined
+                  }}
+                  // Mantém endereco e sobrescreve o cidade dentro do objeto endereco
+                  onChange={event => setEndereco({ ...endereco, cidade: event.target.value })}
+                />
+                {searching &&
+                  <LinearProgress
+                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                  />
+                }
               </Grid>
             </Grid>
 
           </DialogContent>
           <DialogActions style={{ padding: '16px' }}>
             <Button
-              onClick={props.fecharFormulario}
               color="primary"
               style={{ marginRight: '12px' }}
+              disabled={saving}
+              onClick={props.fecharFormulario}
             >
               Cancelar
             </Button>

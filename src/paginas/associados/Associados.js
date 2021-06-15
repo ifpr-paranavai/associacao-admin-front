@@ -11,13 +11,16 @@ import {
   TablePagination,
   Button,
   LinearProgress,
+  colors,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import { FaWhatsapp } from 'react-icons/fa'
 
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 
 import { useStyles } from './estilo.js';
+import { removeMask } from '../../uteis/string';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
@@ -66,6 +69,12 @@ const Associados = () => {
     fecharFormulario();
   }
 
+  function onOpenWhatsAppLink (phone) {
+    const whatsappNumber = removeMask(phone);
+    const whatsappLink = `https://api.whatsapp.com/send/?phone=${whatsappNumber}`;
+    window.open(whatsappLink, '_blank');
+  }
+
   const classes = useStyles();
 
   return (
@@ -94,7 +103,6 @@ const Associados = () => {
               <TableCell>CPF</TableCell>
               <TableCell>E-mail</TableCell>
               <TableCell>Celular</TableCell>
-              <TableCell>WhatsApp</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -112,11 +120,26 @@ const Associados = () => {
                 <TableCell>
                   <span>{associado.email}</span>
                 </TableCell>
-                <TableCell>
-                  {associado.tel_celular && <span>{associado.tel_celular.numero}</span>}
-                </TableCell>
-                <TableCell>
-                  {associado.tel_celular && <span>{associado.tel_celular.whatsapp}</span>}
+                <TableCell width={220}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {associado.tel_celular &&
+                      <span style={{ lineHeight: '1.2rem' }}>{associado.tel_celular.numero}</span>
+                    }
+                    {associado.tel_celular.whatsapp &&
+                      <FaWhatsapp
+                        size={18}
+                        color={colors.green['700']}
+                        style={{ marginLeft: '8px', cursor: 'pointer' }}
+                        onClick={() => onOpenWhatsAppLink(associado.tel_celular.numero)}
+                      />
+                    }
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
