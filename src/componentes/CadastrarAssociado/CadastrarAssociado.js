@@ -11,6 +11,8 @@ import {
   Button,
   Radio,
   RadioGroup,
+  Select,
+  MenuItem,
   Typography,
   Switch,
   LinearProgress,
@@ -42,7 +44,10 @@ import md5 from 'md5';
 
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
+  const notify = useNotify();
+  const classes = useStyles();
   const numberRef = useRef(null);
+
   const [saving, setSaving] = useState(false);
   const [searching, setSearching] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,11 +55,12 @@ export default function CadastrarAssociado(props) {
   const [imagem, setImagem] = useState({ src: '',  alt: '' });
   const [nomecompleto, setNomeCompleto] = useState(''); // salvar sobrenome separado
   const [data_nascimento, setDataNascimento] = useState(null);
+  const [perfil, setPerfil] = useState('');
   const [cpf, setCPF] = useState('');
   const [rg, setRG] = useState('');
   const [email, setEmail] = useState('');
   const [email_alternativo, setEmailAlternativo] = useState('');
-  const [modalidade, setModalidade] = useState('');
+  const [modalidade, setModalidade] = useState('aeromodelismo');
   const [senha, setSenha] = useState('');
   const [tel_celular, setCelular] = useState({ numero: '', whatsapp: false });
   const [endereco, setEndereco] = useState({
@@ -65,9 +71,6 @@ export default function CadastrarAssociado(props) {
     bairro: '',
     numero: '',
   });
-
-  const notify = useNotify();
-  const classes = useStyles();
 
   function setAssociadoState () {
     const associado = props.associado
@@ -87,14 +90,14 @@ export default function CadastrarAssociado(props) {
   function limparState () {
     setImagem({ src: '', alt: '' });
     setNomeCompleto('');
-    setDataNascimento('');
+    setDataNascimento(null);
     setCPF('');
     setRG('');
     setEmail('');
     setEmailAlternativo('');
-    setModalidade('');
+    setModalidade('aeromodelismo');
     setSenha('');
-    setCelular('');
+    setCelular({ numero: '', whatsapp: false });
     setEndereco({
       cep: '',
       estado: '', 
@@ -120,6 +123,7 @@ export default function CadastrarAssociado(props) {
         email,
         email_alternativo,
         modalidade,
+        perfil,
         senha: md5(senha),
         tel_celular,
         endereco,
@@ -128,14 +132,13 @@ export default function CadastrarAssociado(props) {
         await ServicoAssociado.atualizarAssociado({
           _id: props.associado._id,
           ...data,
-          perfil: 'Diretoria',
         });
       } else {
         await ServicoAssociado.cadastrarAssociado(data);
       }
-      notify.showSuccess('Associado salvo com sucesso!');
-      props.onSave();
       limparState();
+      notify.showSuccess('Associado salvo com sucesso!');
+      setTimeout(() => { props.onSave() }, 100);
     } catch(error) {
       notify.showError(error.message);
     } finally {
@@ -246,6 +249,26 @@ export default function CadastrarAssociado(props) {
                     label="Automodelismo"
                   />
                 </RadioGroup>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl
+                  variant="outlined"
+                  fullWidth
+                  required
+                  className={classes.fieldMargin}
+                >
+                  <InputLabel id="demo-simple-select-outlined-label">Perfil de acesso</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-outlined-label"
+                    id="demo-simple-select-outlined"
+                    value={perfil}
+                    label="Perfil de acesso"
+                    onChange={event => setPerfil(event.target.value)}
+                  >
+                    <MenuItem value="Associado">Associado</MenuItem>
+                    <MenuItem value="Diretoria">Diretoria</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
@@ -366,8 +389,12 @@ export default function CadastrarAssociado(props) {
                 />
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel htmlFor="outlined-adornment-password">
+                <FormControl
+                  variant="outlined"
+                  required
+                  fullWidth
+                >
+                  <InputLabel htmlFor="outlined-adornment-celular">
                     {tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
                   </InputLabel>
                   <InputMask
@@ -379,7 +406,7 @@ export default function CadastrarAssociado(props) {
                     {(inputProps) => (
                       <OutlinedInput
                         {...inputProps}
-                        id="outlined-adornment-password"
+                        id="outlined-adornment-celular"
                         type="phone"
                         fullWidth
                         endAdornment={
@@ -421,7 +448,7 @@ export default function CadastrarAssociado(props) {
                     type={showPassword ? 'text' : 'password'}
                     required={!props.associado || !props.associado._id}
                     fullWidth
-                    labelWidth={48}
+                    labelWidth={56}
                     endAdornment={
                       <InputAdornment position="end">
                         <IconButton

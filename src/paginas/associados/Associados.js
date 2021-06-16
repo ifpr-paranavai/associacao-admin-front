@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Box,
   Paper,
   Avatar,
   IconButton,
@@ -37,6 +38,7 @@ import ServicoAssociado from '../../servicos/ServicoAssociado';
 
 import { useStyles } from './estilo.js';
 import { useNotify } from '../../contextos/Notificacao';
+import { useNavigation } from '../../contextos/Navegacao';
 import { removeMask } from '../../uteis/string';
 
 const Associados = () => {
@@ -45,6 +47,7 @@ const Associados = () => {
   const [open, setOpen] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const notify = useNotify();
+  const { setLocation } = useNavigation();
   
   const [associadoSelecionado, setAssociadoSelecionado]= useState(null);
   const [cpfConfirmacao, setCPFConfirmacao]= useState(null);
@@ -75,6 +78,11 @@ const Associados = () => {
 
   useEffect(() => {
     paginacao();
+    setLocation({
+      title: 'Gestão de Associados',
+      key: 'associados',
+      path: '/associados',
+    });
   }, []);
 
   async function onChangePage(event, nextPage) {
@@ -94,8 +102,14 @@ const Associados = () => {
 
   function onOpenWhatsAppLink (phone) {
     const whatsappNumber = removeMask(phone);
-    const whatsappLink = `https://api.whatsapp.com/send/?phone=${whatsappNumber}`;
+    const whatsappLink = `https://api.whatsapp.com/send/?phone=+55${whatsappNumber}`;
     window.open(whatsappLink, '_blank');
+  }
+ 
+  function onCloseRemoveAssociado () {
+    setDeleteDialog(false);
+    setCPFConfirmacao(null);
+    setAssociadoSelecionado(null);
   }
 
   async function handleRemoveAssociado () {
@@ -107,8 +121,7 @@ const Associados = () => {
       setRemoving(true);
       await ServicoAssociado.deletarAssociado(associadoSelecionado._id);
 
-      setDeleteDialog(false);
-      setAssociadoSelecionado(null);
+      onCloseRemoveAssociado();
       paginacao();
     } catch (error) {
       notify.showError(error.message);
@@ -121,7 +134,13 @@ const Associados = () => {
 
   return (
     <Container className={classes.root}>
-      <div>
+      <Box
+        display="flex"
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="flex-end"
+        width="100%"
+      >
         <Button
           variant="contained"
           color="primary"
@@ -131,7 +150,7 @@ const Associados = () => {
         >
           Adicionar
         </Button>
-      </div>
+      </Box>
 
       {!loading && <div className={classes.mockProgressBar} />}
       <TableContainer component={Paper}>
@@ -144,6 +163,9 @@ const Associados = () => {
               <TableCell>CPF</TableCell>
               <TableCell>E-mail</TableCell>
               <TableCell>Celular</TableCell>
+              <TableCell>
+                Perfil de acesso
+              </TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
@@ -175,7 +197,7 @@ const Associados = () => {
                 <TableCell>
                   <span>{associado.email}</span>
                 </TableCell>
-                <TableCell width={220}>
+                <TableCell>
                   <div
                     style={{
                       display: 'flex',
@@ -196,9 +218,12 @@ const Associados = () => {
                     }
                   </div>
                 </TableCell>
+                <TableCell>
+                  <span>{associado.perfil}</span>
+                </TableCell>
                 <TableCell align="right">
                   <IconButton
-                    aria-label="delete"
+                    aria-label="editar"
                     onClick={() => {
                       setAssociadoSelecionado(associado);
                       setOpen(true);
@@ -207,7 +232,7 @@ const Associados = () => {
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    aria-label="delete"
+                    aria-label="deletar"
                     onClick={() => {
                       setAssociadoSelecionado(associado);
                       setDeleteDialog(true);
@@ -229,22 +254,34 @@ const Associados = () => {
           onChangeRowsPerPage={onChangeRowsPerPage}
         />
       </TableContainer>
+
       <CadastrarAssociado
         open={open}
         associado={associadoSelecionado}
         fecharFormulario={fecharFormulario}
         onSave={() => onSaveAssociado()}
       />
+
       <Dialog
         open={deleteDialog}
-        onClose={() => {
-          setAssociadoSelecionado(null);
-          setDeleteDialog(false);
-        }}
+        onClose={() => onCloseRemoveAssociado()}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Deletar associado</DialogTitle>
-        <DialogContent>
+        <DialogTitle
+          id="form-dialog-title"
+          style={{ padding: '12px' }}
+        >
+          Excluir associado:
+          {associadoSelecionado &&
+            <span style={{ marginRight: '4px', marginLeft: '4px' }}>
+              {associadoSelecionado.nome}
+            </span>
+          }
+          {associadoSelecionado?.sobrenome &&
+            <span>{associadoSelecionado.sobrenome}</span>
+          }
+        </DialogTitle>
+        <DialogContent style={{ padding: '12px' }}>
           <DialogContentText>
             Digite o CPF <strong>{associadoSelecionado?.cpf}</strong> para confirmar.
           </DialogContentText>
@@ -266,13 +303,10 @@ const Associados = () => {
             )}
           </InputMask>
         </DialogContent>
-        <DialogActions>
+        <DialogActions style={{ padding: '4px' }}>
           <Button
             color="primary"
-            onClick={() => {
-              setDeleteDialog(false);
-              setAssociadoSelecionado(null);
-            }}
+            onClick={() => onCloseRemoveAssociado()}
           >
             Cancelar
           </Button>
@@ -283,7 +317,7 @@ const Associados = () => {
               disabled={removing}
               onClick={() => handleRemoveAssociado()}
             >
-              Deletar
+              Excluir
             </Button>
             {removing && <CircularProgress size={24} className={classes.buttonProgress} />}
           </div>

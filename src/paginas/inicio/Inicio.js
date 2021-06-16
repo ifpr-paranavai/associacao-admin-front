@@ -1,9 +1,17 @@
-import React from 'react';
-
-// import { Container } from './styles';
+import React, { useEffect } from 'react';
+import { useNavigation } from '../../contextos/Navegacao';
 
 function Inicio() {
-  return <h1>Página Inicial</h1>;
+  const { setLocation } = useNavigation();
+  useEffect(() => {
+    setLocation({
+      title: 'Página Inicial',
+      key: 'inicio',
+      path: '/',
+    });
+  }, []);
+
+  return <h1>página Inicial</h1>;
 }
 
 export default Inicio;

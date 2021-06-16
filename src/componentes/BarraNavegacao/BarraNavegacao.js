@@ -1,5 +1,9 @@
 import React from 'react';
-import { Route, Switch, Link }  from 'react-router-dom';
+import {
+  Route,
+  Switch,
+  Link,
+}  from 'react-router-dom';
 import {
   Drawer,
   CssBaseline,
@@ -27,19 +31,17 @@ import Noticias from '../../paginas/noticias/Noticias.js';
 import Classificados from '../../paginas/classificados/Classificados.js';
 import Fotos from '../../paginas/fotos/Fotos.js';
 import Videos from '../../paginas/videos/Videos.js';
+import Site from '../../paginas/site/Site.js';
 import PaginaLogin from '../PaginaLogin/PaginaLogin.js';
 
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
+import { useNavigation } from '../../contextos/Navegacao';
 
 export default function BarraNavegacao(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const { location } = useNavigation();
   const [open, setOpen] = React.useState(false);
-  const [selecionado, setSelecionado] = React.useState(1);
-
-  const handleListItemClick = (event, index) => {
-    setSelecionado(index);
-  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -75,7 +77,7 @@ export default function BarraNavegacao(props) {
             <FaIcons.FaBars />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Página
+            {location.title}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -95,12 +97,11 @@ export default function BarraNavegacao(props) {
         </div>
         <Divider />
         <List>
-          {DadosBarraNavegacao.map((item, indice) => (
+          {DadosBarraNavegacao.map(item => (
             <ListItem
               to={item.rota}
               key={item.texto}
-              selected={selecionado === indice}
-              onClick={(event) => handleListItemClick(event, indice)}
+              selected={item.key === location.key}
               component={Link}
               className={ classes.link }
             >
@@ -126,14 +127,15 @@ export default function BarraNavegacao(props) {
         <div className={classes.drawerHeader} />
         <Switch>
           <Route exact path="/login" component={PaginaLogin}/>
-          <Route exact path="/" component={ Inicio }/>
+          <Route exact path="/" component={Inicio}/>
           <Route path="/eventos" component={Eventos} />
-          <Route path="/associados" component={ Associados }/>
+          <Route path="/associados" component={Associados}/>
           <Route path="/atas" component={Atas}/>
           <Route path="/noticias" component={Noticias}/>
           <Route path="/classificados" component={Classificados}/>
           <Route path="/fotos" component={Fotos} />
           <Route path="/videos" component={Videos}/>
+          <Route path="/site" component={Site}/>
         </Switch>
       </main>
     </div>

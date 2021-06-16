@@ -8,6 +8,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { ptBR } from '@material-ui/core/locale';
 
 import { NotificationProvider } from './contextos/Notificacao';
+import { NavigationProvider } from './contextos/Navegacao';
 
 import ServicoAutenticacao from './servicos/ServicoAutenticacao';
 
@@ -54,12 +55,14 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <NotificationProvider>
-        {
-          // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
-          logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
-        }
-      </NotificationProvider>
+      <NavigationProvider>
+        <NotificationProvider>
+          {
+            // Operador ternário, se logadoLocalmente mostra usuarioLogado, caso contrário mostra usuarioNaoLogado
+            logadoLocalmente ? usuarioLogado() : usuarioNaoLogado()
+          }
+        </NotificationProvider>
+      </NavigationProvider>
     </ThemeProvider>
   );
 }

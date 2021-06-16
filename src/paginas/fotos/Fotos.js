@@ -1,9 +1,17 @@
-import React from 'react';
-
-// import { Container } from './styles';
+import React, { useEffect } from 'react';
+import { useNavigation } from '../../contextos/Navegacao';
 
 function Fotos() {
-  return <h1>Página de Fotos</h1>;
+  const { setLocation } = useNavigation();
+  useEffect(() => {
+    setLocation({
+      title: 'Gestão de Fotos',
+      key: 'fotos',
+      path: '/fotos',
+    });
+  }, []);
+
+  return <h1>página de Fotos</h1>;
 }
 
 export default Fotos;
