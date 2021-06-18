@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState  } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
@@ -11,24 +11,42 @@ import { NotificationProvider } from './contextos/Notificacao';
 import { NavigationProvider } from './contextos/Navegacao';
 
 import ServicoAutenticacao from './servicos/ServicoAutenticacao';
+import { parseJWT } from './uteis/string';
 
 const App = () => {
   // Nova forma de definir a state [valor, função que atualiza o valor] = useState('valor inicial')
   const [logadoLocalmente, setLogadoLocalmente] = useState(false);
+  const [timer, setTimer] = useState(null);
+  const Servico = new ServicoAutenticacao();
 
   // Substituto do componentWillMount / componentDidMount / componentDidUpdate
   useEffect(() => {
-    const Servico = new ServicoAutenticacao();
     const associado = Servico.obterAssociadoLogado();
+    
+    validarToken()
+    setTimer(setInterval(() => validarToken(), 60 * 5000))
 
-    if (associado && associado.id) {
+    if (associado?.id) {
       // Atualiza a state(logadoLocalmente) para true
       setLogadoLocalmente(true);
-      return
+      return () => { setTimer(null) }
     }
     // Atualiza a state(logadoLocalmente) para falso
     setLogadoLocalmente(false);
+    return () => { setTimer(null) }
   }, []);
+
+  function validarToken () {
+    const token = localStorage.getItem('associadoToken');
+    if (!token) {
+      return;
+    }
+    const decodedToken = parseJWT(token);
+    if (decodedToken.exp < (Date.now() / 1000)) {
+      setLogadoLocalmente(false);
+      Servico.removerAssociadoLocalStorage()
+    }
+  }
 
   const usuarioLogado = () => {
     return (

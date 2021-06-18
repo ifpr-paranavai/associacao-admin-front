@@ -83,6 +83,7 @@ export default function CadastrarAssociado(props) {
     setEmail(associado.email);
     setEmailAlternativo(associado.email_alternativo);
     setModalidade(associado.modalidade);
+    setPerfil(associado.perfil);
     setCelular(associado.tel_celular);
     setEndereco(associado.endereco);
   }

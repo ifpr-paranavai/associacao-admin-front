@@ -10,12 +10,17 @@ import {
   AppBar,
   Toolbar,
   List,
+  Box,
+  Menu,
+  MenuItem,
+  Avatar,
   Typography,
   Divider,
   IconButton,
   ListItemIcon,
   ListItemText,
   ListItem,
+  colors,
 } from '@material-ui/core';
 import * as FaIcons from 'react-icons/fa';
 import { useStyles } from './estilo.js';
@@ -42,6 +47,19 @@ export default function BarraNavegacao(props) {
   const theme = useTheme();
   const { location } = useNavigation();
   const [open, setOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const openMenu = Boolean(anchorEl);
+
+  const Autenticacao = new ServicoAutenticacao();
+  const associadoLogado = Autenticacao.obterAssociadoLogado();
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -52,8 +70,7 @@ export default function BarraNavegacao(props) {
   };
 
   const handleSair = () => {
-    const Servico = new ServicoAutenticacao();
-    Servico.removerAssociadoLocalStorage();
+    Autenticacao.removerAssociadoLocalStorage();
     props.onLogout();
   };
 
@@ -67,18 +84,81 @@ export default function BarraNavegacao(props) {
         })}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            style={{ width: '100%' }}
           >
-            <FaIcons.FaBars />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            {location.title}
-          </Typography>
+            <Box
+              display="flex"
+              alignItems="center"
+            >
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                className={clsx(classes.menuButton, open && classes.hide)}
+              >
+                <FaIcons.FaBars />
+              </IconButton>
+              <Typography variant="h6" noWrap>
+                {location.title}
+              </Typography>
+            </Box>
+            {associadoLogado?.id && (
+              <div>
+                <IconButton
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
+                  style={{ padding: '2px' }}
+                >
+                  <Avatar
+                    alt={associadoLogado.nome}
+                    src={associadoLogado.imagem?.src}
+                    style={{ width: '36px', height: '36px' }}
+                  />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  getContentAnchorEl={null}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                  }}
+                  open={openMenu}
+                  onClose={handleClose}
+                >
+                  <MenuItem unselectable>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                    >
+                      <span style={{ fontSize: '13px', color: colors.grey[700] }}>
+                        Usuário logado
+                      </span>
+                      <span>
+                        {`${associadoLogado.nome} ${associadoLogado.sobrenome ? ` ${associadoLogado.sobrenome}` : ''}`}
+                      </span>
+                    </Box>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleClose}>Minha conta</MenuItem>
+                  <MenuItem onClick={handleSair}>Sair</MenuItem>
+                </Menu>
+              </div>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -109,14 +189,6 @@ export default function BarraNavegacao(props) {
               <ListItemText primary={ item.texto } />
             </ListItem>
           ))}
-          <Divider />
-          <ListItem
-            onClick={handleSair}
-            className={classes.link}
-          >
-            <ListItemIcon><FaIcons.FaSignOutAlt size={ 25 }/></ListItemIcon>
-            <ListItemText primary="Sair" />
-          </ListItem>
         </List>
       </Drawer>
       <main
