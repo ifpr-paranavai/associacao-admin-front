@@ -137,11 +137,11 @@ export default function CadastrarAssociado(props) {
       } else {
         await ServicoAssociado.cadastrarAssociado(data);
       }
-      limparState();
       notify.showSuccess('Associado salvo com sucesso!');
-      setTimeout(() => { props.onSave() }, 100);
+      setTimeout(() => { props.onSave() }, 60);
+      limparState();
     } catch(error) {
-      notify.showError(error.message);
+      notify.showError(error.response.data);
     } finally {
       setSaving(false);
     }
@@ -165,7 +165,7 @@ export default function CadastrarAssociado(props) {
         numberRef.current?.focus();
       }, 120);
     } catch (error) {
-      notify.showError(error.message);
+      notify.showError(error.response.data);
     } finally {
       setSearching(false);
     }

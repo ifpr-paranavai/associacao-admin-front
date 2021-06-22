@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AccountCircle, Visibility, VisibilityOff } from '@material-ui/icons';
 import {
   Grid,
@@ -11,37 +11,39 @@ import {
   InputLabel,
   Button,
   FormControl,
-  Link,
+  CircularProgress,
 } from '@material-ui/core';
 
 import { useStyles } from './estilo.js';
+import { useNotify } from '../../contextos/Notificacao';
 import clsx from 'clsx';
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 
 export default function PaginaLogin() {
   const classes = useStyles();
-
-  const logar = async (event) => {
-    event.preventDefault();
-    try {
-      const Servico = new ServicoAutenticacao()
-      await Servico.logar(values);
-
-      //salvar usuário no local storage;
-      //criar variável compartilhada entre o app e a página de login, com redux;
-      //usa-la na tela de login para realizar a redirecionação;
-      // se autenticação deu certo
-      window.location.reload();
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const [values, setValues] = React.useState({
+  const notify = useNotify();
+  const [loading, setLoading] = useState(false);
+  const [values, setValues] = useState({
     email: '',
     senha: '',
     mostrarSenha: false,
   });
+
+  const logar = async (event) => {
+    event.preventDefault();
+    try {
+      setLoading(true);
+      const Servico = new ServicoAutenticacao()
+      await Servico.logar(values);
+
+      window.location.replace('/');
+    } catch (e) {
+      notify.showError(e.response.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
@@ -100,17 +102,18 @@ export default function PaginaLogin() {
             />
           </FormControl>
           <div style={{ height: 40 }} />
-          <Link to="/">
+          <div className={classes.wrapper}>
             <Button
-              className={classes.button_submit}
               type="submit"
-              color="primary"
               variant="contained"
+              color="primary"
               fullWidth
+              disabled={loading}
             >
               Entrar
             </Button>
-          </Link>
+            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+          </div>
         </form>
       </Paper>
     </Grid>
