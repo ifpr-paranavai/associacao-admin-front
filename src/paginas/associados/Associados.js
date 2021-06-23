@@ -54,6 +54,7 @@ const Associados = () => {
   const [associados, setAssociados]= useState([]);
   const [page, setPage]= useState(0);
   const [rowsPerPage, setRowsPerPage]= useState(10);
+  const [total, setTotal]= useState(0);
   const [_start, setStart]= useState(0);
   const [_end, setEnd]= useState(10);
 
@@ -70,7 +71,8 @@ const Associados = () => {
     try {
       setLoading(true);
       const associados = await ServicoAssociado.obterAssociados({ _start, _end });
-      setAssociados(associados);
+      setAssociados(associados.data);
+      setTotal(associados.total);
     } finally {
       setLoading(false);
     }
@@ -246,8 +248,8 @@ const Associados = () => {
           </TableBody>
         </Table>
         <TablePagination
-          rowsPerPageOptions={[3, 10, 15, 25, 50]}
-          count={associados.length}
+          rowsPerPageOptions={[3, 10, 15, 25, 40]}
+          count={total}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={onChangePage}
