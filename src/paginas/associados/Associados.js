@@ -53,10 +53,10 @@ const Associados = () => {
   const [cpfConfirmacao, setCPFConfirmacao]= useState(null);
   const [associados, setAssociados]= useState([]);
   const [page, setPage]= useState(0);
-  const [rowsPerPage, setRowsPerPage]= useState(10);
+  const [oldPage, setOldPage]= useState(0);
+  const [perPage, setPerPage]= useState(10);
   const [total, setTotal]= useState(0);
-  const [_start, setStart]= useState(0);
-  const [_end, setEnd]= useState(10);
+  const [start, setStart]= useState(0);
 
   const abrirFormulario = () => {
     setOpen(true);
@@ -70,7 +70,7 @@ const Associados = () => {
   async function paginacao() {
     try {
       setLoading(true);
-      const associados = await ServicoAssociado.obterAssociados({ _start, _end });
+      const associados = await ServicoAssociado.obterAssociados({ start, perPage });
       setAssociados(associados.data);
       setTotal(associados.total);
     } finally {
@@ -85,16 +85,20 @@ const Associados = () => {
       key: 'associados',
       path: '/associados',
     });
-  }, []);
+  }, [start, perPage]);
 
   async function onChangePage(event, nextPage) {
     event.preventDefault();
+    
+    const operator = nextPage < oldPage ? -1 : 1;
+    setStart(start + (perPage * operator));
     setPage(nextPage);
+    setOldPage(nextPage);
   }
 
   async function onChangeRowsPerPage(event) {
     event.preventDefault();
-    setRowsPerPage(event.target.value);
+    setPerPage(event.target.value);
   }
 
   function onSaveAssociado () {
@@ -250,7 +254,7 @@ const Associados = () => {
         <TablePagination
           rowsPerPageOptions={[3, 10, 15, 25, 40]}
           count={total}
-          rowsPerPage={rowsPerPage}
+          rowsPerPage={perPage}
           page={page}
           onChangePage={onChangePage}
           onChangeRowsPerPage={onChangeRowsPerPage}
