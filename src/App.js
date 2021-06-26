@@ -16,24 +16,23 @@ import { parseJWT } from './uteis/string';
 const App = () => {
   // Nova forma de definir a state [valor, função que atualiza o valor] = useState('valor inicial')
   const [logadoLocalmente, setLogadoLocalmente] = useState(false);
-  const [timer, setTimer] = useState(null);
   const Servico = new ServicoAutenticacao();
 
   // Substituto do componentWillMount / componentDidMount / componentDidUpdate
   useEffect(() => {
     const associado = Servico.obterAssociadoLogado();
     
-    validarToken()
-    setTimer(setInterval(() => validarToken(), 60 * 5000))
+    validarToken();
+    const interval = setInterval(() => validarToken(), 60 * 5000);
 
     if (associado?.id) {
       // Atualiza a state(logadoLocalmente) para true
       setLogadoLocalmente(true);
-      return () => { setTimer(null) }
+    } else {
+      // Atualiza a state(logadoLocalmente) para falso
+      setLogadoLocalmente(false);
     }
-    // Atualiza a state(logadoLocalmente) para falso
-    setLogadoLocalmente(false);
-    return () => { setTimer(null) }
+    return () => { clearInterval(interval) };
   }, []);
 
   function validarToken () {
@@ -44,7 +43,7 @@ const App = () => {
     const decodedToken = parseJWT(token);
     if (decodedToken.exp < (Date.now() / 1000)) {
       setLogadoLocalmente(false);
-      Servico.removerAssociadoLocalStorage()
+      Servico.removerAssociadoLocalStorage();
     }
   }
 
