@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigation } from '../../contextos/Navegacao';
+import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
 function Atas() {
   const { setLocation } = useNavigation();
@@ -11,7 +12,7 @@ function Atas() {
     });
   }, []);
 
-  return <h1>página de Atas</h1>;
+  return <Breadcrumbs />;
 }
 
 export default Atas;

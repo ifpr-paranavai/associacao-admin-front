@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigation } from '../../contextos/Navegacao';
+import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
 function Noticias() {
   const { setLocation } = useNavigation();
@@ -11,7 +12,7 @@ function Noticias() {
     });
   }, []);
 
-  return <h1>página de Notícias</h1>;
+  return <Breadcrumbs />;
 }
 
 export default Noticias;

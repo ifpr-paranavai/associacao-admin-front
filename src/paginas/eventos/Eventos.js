@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigation } from '../../contextos/Navegacao';
+import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
 function Eventos() {
   const { setLocation } = useNavigation();
@@ -11,7 +12,7 @@ function Eventos() {
     });
   }, []);
 
-  return <h1>página de Eventos</h1>;
+  return <Breadcrumbs />;
 }
 
 export default Eventos;

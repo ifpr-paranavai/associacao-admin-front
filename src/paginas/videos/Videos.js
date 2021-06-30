@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigation } from '../../contextos/Navegacao';
+import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
 function Videos() {
   const { setLocation } = useNavigation();
@@ -11,7 +12,7 @@ function Videos() {
     });
   }, []);
 
-  return <h1>página de Vídeos</h1>;
+  return <Breadcrumbs />;
 }
 
 export default Videos;

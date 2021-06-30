@@ -19,9 +19,6 @@ const useStyles = makeStyles((theme) => ({
     background: 'rgba(255, 255, 255, 0.5)',
     zIndex: '999'
   },
-  button: {
-    marginBottom: theme.spacing(3),
-  },
   divButton: {
     marginBotton: '20px',
   },

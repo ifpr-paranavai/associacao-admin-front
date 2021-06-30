@@ -20,18 +20,9 @@ const App = () => {
 
   // Substituto do componentWillMount / componentDidMount / componentDidUpdate
   useEffect(() => {
-    const associado = Servico.obterAssociadoLogado();
-    
     validarToken();
     const interval = setInterval(() => validarToken(), 60 * 5000);
 
-    if (associado?.id) {
-      // Atualiza a state(logadoLocalmente) para true
-      setLogadoLocalmente(true);
-    } else {
-      // Atualiza a state(logadoLocalmente) para falso
-      setLogadoLocalmente(false);
-    }
     return () => { clearInterval(interval) };
   }, []);
 
@@ -44,7 +35,9 @@ const App = () => {
     if (decodedToken.exp < (Date.now() / 1000)) {
       setLogadoLocalmente(false);
       Servico.removerAssociadoLocalStorage();
+      return;
     }
+    setLogadoLocalmente(true);
   }
 
   const usuarioLogado = () => {

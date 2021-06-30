@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigation } from '../../contextos/Navegacao';
+import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
 function Site() {
   const { setLocation } = useNavigation();
@@ -11,7 +12,7 @@ function Site() {
     });
   }, []);
 
-  return <h1>Modificar o site</h1>;
+  return <Breadcrumbs />;
 }
 
 export default Site;

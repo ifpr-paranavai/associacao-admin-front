@@ -41,6 +41,7 @@ import PaginaLogin from '../PaginaLogin/PaginaLogin.js';
 
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 import { useNavigation } from '../../contextos/Navegacao';
+import LogoWhite from '../../assets/logo-amaer.png';
 
 export default function BarraNavegacao(props) {
   const classes = useStyles();
@@ -103,9 +104,12 @@ export default function BarraNavegacao(props) {
               >
                 <FaIcons.FaBars />
               </IconButton>
-              <Typography variant="h6" noWrap>
-                {location.title}
-              </Typography>
+              <img
+                src={LogoWhite}
+                alt="Logo Amaer"
+                width="160px"
+                style={{ marginRight: '16px' }}
+              />
             </Box>
             {associadoLogado?.id && (
               <div>

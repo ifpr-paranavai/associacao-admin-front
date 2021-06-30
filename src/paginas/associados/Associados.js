@@ -16,6 +16,7 @@ import {
   LinearProgress,
   CircularProgress,
   colors,
+  InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -30,16 +31,19 @@ import {
   Edit as EditIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  Search as SearchIcon,
 } from '@material-ui/icons';
 import { FaWhatsapp } from 'react-icons/fa'
 
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
+import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
 import { useStyles } from './estilo.js';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
-import { removeMask } from '../../uteis/string';
+import { isValidCPF, removeMask } from '../../uteis/string';
+import { useDebouncedCallback } from 'use-debounce';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
@@ -51,6 +55,7 @@ const Associados = () => {
   
   const [associadoSelecionado, setAssociadoSelecionado]= useState(null);
   const [cpfConfirmacao, setCPFConfirmacao]= useState(null);
+  const [termoBuscado, setTermoBuscado]= useState('');
   const [associados, setAssociados]= useState([]);
   const [page, setPage]= useState(0);
   const [oldPage, setOldPage]= useState(0);
@@ -67,10 +72,14 @@ const Associados = () => {
     setAssociadoSelecionado(null);
   }; // fechar o dialogo
 
-  async function paginacao() {
+  async function paginacao(filter) {
     try {
       setLoading(true);
-      const associados = await ServicoAssociado.obterAssociados({ start, perPage });
+      const associados = await ServicoAssociado.obterAssociados({
+        start,
+        perPage,
+        filter,
+      });
       setAssociados(associados.data);
       setTotal(associados.total);
     } finally {
@@ -86,6 +95,30 @@ const Associados = () => {
       path: '/associados',
     });
   }, [start, perPage]);
+
+  const debouncedPaginacao = useDebouncedCallback(filter =>  paginacao(filter), 480);
+
+  useEffect(() => {
+    const filter = {};
+    
+    if (!termoBuscado) {
+      paginacao();
+      return;
+    }
+
+    if (isValidCPF(termoBuscado)) {
+      filter.cpf = termoBuscado;
+    } else {
+      delete filter.cpf;
+
+      const [nome, sobrenome] = termoBuscado.split(' ');
+      filter.nome = nome;
+      filter.sobrenome = sobrenome;
+    }
+
+    debouncedPaginacao(filter);
+  }, [termoBuscado]);
+
 
   async function onChangePage(event, nextPage) {
     event.preventDefault();
@@ -140,17 +173,34 @@ const Associados = () => {
 
   return (
     <Container className={classes.root}>
+      <Breadcrumbs />
       <Box
         display="flex"
         flexDirection="row"
         alignItems="center"
-        justifyContent="flex-end"
+        justifyContent="space-between"
         width="100%"
+        paddingBottom="18px"
+        paddingTop="12px"
       >
+        <TextField
+          value={termoBuscado}
+          placeholder="Buscar por nome ou CPF"
+          variant="outlined"
+          size="small"
+          style={{ width: '100%', maxWidth: '400px' }}
+          InputProps={{
+            startAdornment:
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>,
+          }}
+          onChange={event => setTermoBuscado(event.target.value)}
+        />
+
         <Button
           variant="contained"
           color="primary"
-          className={classes.button}
           startIcon={<AddIcon />}
           onClick={abrirFormulario}
         >

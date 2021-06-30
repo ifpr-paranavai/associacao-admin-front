@@ -2,11 +2,12 @@ import Axios from 'axios';
 import Config from '../uteis/configuracao';
 
 class ServicoAssociado {
-  static async obterAssociados({ start, perPage }) {
+  static async obterAssociados({ start, perPage, filter }) {
     const { data } = await Axios.get(`${Config.api}/associados`, {
       params: {
         start,
         perPage,
+        filter,
       }
     });
     return data;

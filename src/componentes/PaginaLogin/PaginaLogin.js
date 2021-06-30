@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AccountCircle, Visibility, VisibilityOff } from '@material-ui/icons';
 import {
   Grid,
+  Box,
   Paper,
   Avatar,
   TextField,
@@ -18,6 +19,7 @@ import { useStyles } from './estilo.js';
 import { useNotify } from '../../contextos/Notificacao';
 import clsx from 'clsx';
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
+import LogoBlack from '../../assets/logo-black.png';
 
 export default function PaginaLogin() {
   const classes = useStyles();
@@ -58,15 +60,17 @@ export default function PaginaLogin() {
   };
 
   return (
-    <Grid className={classes.image.src}>
+    <Box className={classes.container}>
       <Paper elevation={10} className={classes.paper}>
         <form noValidate onSubmit={logar}>
-          <Grid align="center">
-            <Avatar className={classes.avatar}>
-              <AccountCircle fontSize="large" />
-            </Avatar>
-            <h2>Login</h2>
+          <Grid align="center" style={{ marginBottom: '24px' }}>
+            <img
+              src={LogoBlack}
+              alt="Logo Amaer"
+              width="300px"
+            />
           </Grid>
+          <h2 style={{ margin: '14px 0' }}>Autenticação</h2>
           <TextField
             label="E-mail"
             variant="outlined"
@@ -116,6 +120,6 @@ export default function PaginaLogin() {
           </div>
         </form>
       </Paper>
-    </Grid>
+    </Box>
   );
 }
