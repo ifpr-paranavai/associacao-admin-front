@@ -3,9 +3,8 @@ import API from '../Api';
 const md5 = require('md5');
 
 export default class ServicoAutenticacao {
-  //--------------------------AUTH--------------------------//
+  // --------------------------AUTH--------------------------//
   async logar({ email, senha }) {
-    console.log(email + senha);
     const response = await API.post('login', {
       email: email.toLowerCase(),
       senha: md5(senha),
@@ -17,12 +16,12 @@ export default class ServicoAutenticacao {
   salvarAssociadoLocalStorage(associado) {
     localStorage.setItem('associadoLogado', JSON.stringify(associado));
     localStorage.setItem('associadoToken', associado.token);
+  } // removerAssociadoLocalStorage
 
-  } //removerAssociadoLocalStorage
   removerAssociadoLocalStorage() {
     localStorage.removeItem('associadoLogado');
     localStorage.removeItem('associadoToken');
-  } //removerAssociadoLocalStorage
+  } // removerAssociadoLocalStorage
 
   obterAssociadoLogado() {
     return JSON.parse(localStorage.getItem('associadoLogado'));

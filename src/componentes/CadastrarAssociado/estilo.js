@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
-import {blue, green} from '@material-ui/core/colors'
+import { blue } from '@material-ui/core/colors';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
     flexWrap: 'wrap',

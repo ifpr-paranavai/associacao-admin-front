@@ -6,24 +6,11 @@ const instance = axios.create({
 });
 
 axios.interceptors.request.use(config => {
+  const newConfig = { ...config };
   const token = localStorage.getItem('associadoToken');
-  config.headers.Authorization = `Bearer ${token || ''}`;
-  return config;
+  newConfig.headers.Authorization = `Bearer ${token || ''}`;
+
+  return newConfig;
 });
-
-// instance.interceptors.response.use(
-//     response => {
-//         return response;
-//     },
-//     error => {
-//         const { response } = error;
-
-//         if (response.status === 498) {
-//             // Sessão expirada
-//             console.log('asd');
-//             window.location = 'expired';
-//         }
-//     }
-// );
 
 export default instance;

@@ -1,8 +1,8 @@
 import { blue } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles((theme) => ({
-  root:{
+const useStyles = makeStyles(theme => ({
+  root: {
     width: '100%',
     height: '100%',
   },
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: '100%',
     background: 'rgba(255, 255, 255, 0.5)',
-    zIndex: '999'
+    zIndex: '999',
   },
   divButton: {
     marginBotton: '20px',

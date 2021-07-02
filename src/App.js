@@ -1,11 +1,10 @@
-import React, { useEffect, useState  } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-
-import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
-import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { ptBR } from '@material-ui/core/locale';
+import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
+import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
 
 import { NotificationProvider } from './contextos/Notificacao';
 import { NavigationProvider } from './contextos/Navegacao';
@@ -23,16 +22,18 @@ const App = () => {
     validarToken();
     const interval = setInterval(() => validarToken(), 60 * 5000);
 
-    return () => { clearInterval(interval) };
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  function validarToken () {
+  function validarToken() {
     const token = localStorage.getItem('associadoToken');
     if (!token) {
       return;
     }
     const decodedToken = parseJWT(token);
-    if (decodedToken.exp < (Date.now() / 1000)) {
+    if (decodedToken.exp < Date.now() / 1000) {
       setLogadoLocalmente(false);
       Servico.removerAssociadoLocalStorage();
       return;
@@ -40,28 +41,25 @@ const App = () => {
     setLogadoLocalmente(true);
   }
 
-  const usuarioLogado = () => {
-    return (
-      <div>
-        <Router>
-          <BarraNavegacao
-            onLogout={() => setLogadoLocalmente(false)}
-          />
-        </Router>
-      </div>
-    );
-  }
+  const usuarioLogado = () => (
+    <div>
+      <Router>
+        <BarraNavegacao onLogout={() => setLogadoLocalmente(false)} />
+      </Router>
+    </div>
+  );
 
-  const usuarioNaoLogado = () => {
-    return <PaginaLogin />;
-  }
+  const usuarioNaoLogado = () => <PaginaLogin />;
 
   // Definição do tema e linguagem padrão
-  const theme = createMuiTheme({
-    palette: {
-      primary: { main: '#1976d2' },
+  const theme = createMuiTheme(
+    {
+      palette: {
+        primary: { main: '#1976d2' },
+      },
     },
-  }, ptBR);
+    ptBR,
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -75,6 +73,6 @@ const App = () => {
       </NavigationProvider>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

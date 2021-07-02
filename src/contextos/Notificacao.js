@@ -41,7 +41,7 @@ export const NotificationProvider = ({ children }) => {
     setType('info');
   }
 
-  function handleClose () {
+  function handleClose() {
     setOpen(false);
     setTimeout(() => {
       setMessage('');
@@ -54,20 +54,12 @@ export const NotificationProvider = ({ children }) => {
     showSuccess,
     showWarning,
     showInfo,
-  }
+  };
 
   return (
     <NotificationContext.Provider value={value}>
-      <Snackbar
-        open={open}
-        autoHideDuration={2800}
-        onClose={handleClose}
-      >
-        <Alert
-          variant="filled"
-          severity={type}
-          onClose={handleClose}
-        >
+      <Snackbar open={open} autoHideDuration={2800} onClose={handleClose}>
+        <Alert variant="filled" severity={type} onClose={handleClose}>
           {message}
         </Alert>
       </Snackbar>

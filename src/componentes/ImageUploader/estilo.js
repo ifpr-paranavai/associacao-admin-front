@@ -1,6 +1,6 @@
 import { colors, makeStyles } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   imageSize: {
     width: '82px',
     height: '82px',

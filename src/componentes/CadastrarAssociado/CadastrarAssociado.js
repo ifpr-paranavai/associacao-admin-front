@@ -28,19 +28,19 @@ import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/picker
 import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
 
 import InputMask from 'react-input-mask';
-import ImageUploader from '../ImageUploader/ImageUploader';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import md5 from 'md5';
 
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
+import ImageUploader from '../ImageUploader/ImageUploader';
 import { removeMask } from '../../uteis/string';
 
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 import { buscaCEP } from '../../servicos/ServicoCEP';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
-import md5 from 'md5';
 
 export default function CadastrarAssociado(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -52,7 +52,7 @@ export default function CadastrarAssociado(props) {
   const [searching, setSearching] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [imagem, setImagem] = useState({ src: '',  alt: '' });
+  const [imagem, setImagem] = useState({ src: '', alt: '' });
   const [nomecompleto, setNomeCompleto] = useState(''); // salvar sobrenome separado
   const [data_nascimento, setDataNascimento] = useState(null);
   const [perfil, setPerfil] = useState('');
@@ -65,16 +65,16 @@ export default function CadastrarAssociado(props) {
   const [tel_celular, setCelular] = useState({ numero: '', whatsapp: false });
   const [endereco, setEndereco] = useState({
     cep: '',
-    estado: '', 
-    cidade: '', 
+    estado: '',
+    cidade: '',
     rua: '',
     bairro: '',
     numero: '',
   });
 
-  function setAssociadoState () {
-    const associado = props.associado
-    const surname = associado.sobrenome ? ` ${associado.sobrenome}` : ''
+  function setAssociadoState() {
+    const { associado } = props;
+    const surname = associado.sobrenome ? ` ${associado.sobrenome}` : '';
     setImagem(associado.imagem);
     setNomeCompleto(associado.nome + surname);
     setDataNascimento(associado.data_nascimento);
@@ -88,7 +88,7 @@ export default function CadastrarAssociado(props) {
     setEndereco(associado.endereco);
   }
 
-  function limparState () {
+  function limparState() {
     setImagem({ src: '', alt: '' });
     setNomeCompleto('');
     setDataNascimento(null);
@@ -101,15 +101,15 @@ export default function CadastrarAssociado(props) {
     setCelular({ numero: '', whatsapp: false });
     setEndereco({
       cep: '',
-      estado: '', 
-      cidade: '', 
+      estado: '',
+      cidade: '',
       rua: '',
       bairro: '',
       numero: '',
     });
   }
 
-  async function salvarAssociado (event) {
+  async function salvarAssociado(event) {
     event.preventDefault();
     try {
       setSaving(true);
@@ -128,7 +128,7 @@ export default function CadastrarAssociado(props) {
         senha: md5(senha),
         tel_celular,
         endereco,
-      }
+      };
       if (props.associado?._id) {
         await ServicoAssociado.atualizarAssociado({
           _id: props.associado._id,
@@ -138,16 +138,18 @@ export default function CadastrarAssociado(props) {
         await ServicoAssociado.cadastrarAssociado(data);
       }
       notify.showSuccess('Associado salvo com sucesso!');
-      setTimeout(() => { props.onSave() }, 60);
+      setTimeout(() => {
+        props.onSave();
+      }, 60);
       limparState();
-    } catch(error) {
+    } catch (error) {
       notify.showError(error.response.data);
     } finally {
       setSaving(false);
     }
   }
 
-  async function findAddress () {
+  async function findAddress() {
     try {
       setSearching(true);
       const unmaskedCEP = removeMask(endereco.cep);
@@ -159,7 +161,7 @@ export default function CadastrarAssociado(props) {
         cidade: address.city,
         bairro: address.neighborhood,
         rua: address.street,
-      })
+      });
 
       setTimeout(() => {
         numberRef.current?.focus();
@@ -176,14 +178,14 @@ export default function CadastrarAssociado(props) {
       return;
     }
     setAssociadoState();
-  }, [props.associado])
+  }, [props.associado]);
 
   useEffect(() => {
     if (!endereco.cep || endereco.cep.length < 9) {
       return;
     }
     findAddress();
-  }, [endereco.cep])
+  }, [endereco.cep]);
 
   return (
     <div>
@@ -194,26 +196,21 @@ export default function CadastrarAssociado(props) {
         maxWidth="800px"
         fullScreen={isMobile}
       >
-        <form
-          autoComplete="off"
-          onSubmit={event => salvarAssociado(event)}
-        >
+        <form autoComplete="off" onSubmit={event => salvarAssociado(event)}>
           <DialogTitle id="form-dialog-title">Cadastrar Associado</DialogTitle>
           <DialogContent style={{ width: '100%', maxWidth: '800px' }}>
-            <Grid
-              container
-              spacing={2}
-            >
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Box display="flex" flexDirection="row" alignItems="center">
                   <Person
-                    style={{ width: '40px', height: '40px', marginRight: '12px' }}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      marginRight: '12px',
+                    }}
                     color="primary"
                   />
-                  <Typography
-                    variant="h6"
-                    className={classes.title}
-                  >
+                  <Typography variant="h6" className={classes.title}>
                     Dados do associado
                   </Typography>
                 </Box>
@@ -233,10 +230,7 @@ export default function CadastrarAssociado(props) {
                   className={classes.fieldMargin}
                   onChange={event => setModalidade(event.target.value)}
                 >
-                  <FormLabel
-                    component="legend"
-                    style={{ width: '100%' }}
-                  >
+                  <FormLabel component="legend" style={{ width: '100%' }}>
                     Modalidade
                   </FormLabel>
                   <FormControlLabel
@@ -258,7 +252,9 @@ export default function CadastrarAssociado(props) {
                   required
                   className={classes.fieldMargin}
                 >
-                  <InputLabel id="demo-simple-select-outlined-label">Perfil de acesso</InputLabel>
+                  <InputLabel id="demo-simple-select-outlined-label">
+                    Perfil de acesso
+                  </InputLabel>
                   <Select
                     labelId="demo-simple-select-outlined-label"
                     id="demo-simple-select-outlined"
@@ -285,9 +281,7 @@ export default function CadastrarAssociado(props) {
                 />
               </Grid>
               <Grid item xs={isMobile ? 12 : 4}>
-                <MuiPickersUtilsProvider
-                  utils={DateFnsUtils}
-                >
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
                     variant="inline"
                     format="dd/MM/yyyy"
@@ -313,7 +307,7 @@ export default function CadastrarAssociado(props) {
                   maskChar={null}
                   onChange={event => setRG(event.target.value)}
                 >
-                  {(inputProps) => (
+                  {inputProps => (
                     <TextField
                       {...inputProps}
                       label="RG"
@@ -333,7 +327,7 @@ export default function CadastrarAssociado(props) {
                   maskChar={null}
                   onChange={event => setCPF(event.target.value)}
                 >
-                  {(inputProps) => (
+                  {inputProps => (
                     <TextField
                       {...inputProps}
                       label="CPF"
@@ -355,13 +349,14 @@ export default function CadastrarAssociado(props) {
                   className={classes.fieldMargin}
                 >
                   <Phone
-                    style={{ width: '40px', height: '40px', marginRight: '12px' }}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      marginRight: '12px',
+                    }}
                     color="primary"
                   />
-                  <Typography
-                    variant="h6"
-                    className={classes.title}
-                  >
+                  <Typography variant="h6" className={classes.title}>
                     Dados de contato
                   </Typography>
                 </Box>
@@ -390,11 +385,7 @@ export default function CadastrarAssociado(props) {
                 />
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
-                <FormControl
-                  variant="outlined"
-                  required
-                  fullWidth
-                >
+                <FormControl variant="outlined" required fullWidth>
                   <InputLabel htmlFor="outlined-adornment-celular">
                     {tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
                   </InputLabel>
@@ -402,9 +393,11 @@ export default function CadastrarAssociado(props) {
                     mask="(99) 99999-9999"
                     value={tel_celular.numero}
                     maskChar={null}
-                    onChange={event => setCelular({ ...tel_celular, numero: event.target.value })}
+                    onChange={event =>
+                      setCelular({ ...tel_celular, numero: event.target.value })
+                    }
                   >
-                    {(inputProps) => (
+                    {inputProps => (
                       <OutlinedInput
                         {...inputProps}
                         id="outlined-adornment-celular"
@@ -417,7 +410,12 @@ export default function CadastrarAssociado(props) {
                                 <Switch
                                   checked={tel_celular.whatsapp}
                                   size="small"
-                                  onChange={() => setCelular({ ...tel_celular, whatsapp: !tel_celular.whatsapp })}
+                                  onChange={() =>
+                                    setCelular({
+                                      ...tel_celular,
+                                      whatsapp: !tel_celular.whatsapp,
+                                    })
+                                  }
                                   color="primary"
                                 />
                               }
@@ -473,13 +471,14 @@ export default function CadastrarAssociado(props) {
                   className={classes.fieldMargin}
                 >
                   <Home
-                    style={{ width: '40px', height: '40px', marginRight: '12px' }}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      marginRight: '12px',
+                    }}
                     color="primary"
                   />
-                  <Typography
-                    variant="h6"
-                    className={classes.title}
-                  >
+                  <Typography variant="h6" className={classes.title}>
                     Endereço
                   </Typography>
                 </Box>
@@ -490,9 +489,11 @@ export default function CadastrarAssociado(props) {
                   value={endereco.cep}
                   disabled={searching}
                   maskChar={null}
-                  onChange={event => setEndereco({ ...endereco, cep: event.target.value })}
+                  onChange={event =>
+                    setEndereco({ ...endereco, cep: event.target.value })
+                  }
                 >
-                  {(inputProps) => (
+                  {inputProps => (
                     <TextField
                       {...inputProps}
                       label="CEP"
@@ -505,16 +506,20 @@ export default function CadastrarAssociado(props) {
                       InputProps={{
                         style: searching
                           ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
-                          : undefined
+                          : undefined,
                       }}
                     />
-                    )}
+                  )}
                 </InputMask>
-                {searching &&
+                {searching && (
                   <LinearProgress
-                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                    style={{
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                      height: 2,
+                    }}
                   />
-                }
+                )}
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
@@ -528,16 +533,22 @@ export default function CadastrarAssociado(props) {
                   InputProps={{
                     style: searching
                       ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
-                      : undefined
+                      : undefined,
                   }}
                   // Mantém endereco e sobrescreve o rua dentro do objeto endereco
-                  onChange={event => setEndereco({ ...endereco, rua: event.target.value })}
+                  onChange={event =>
+                    setEndereco({ ...endereco, rua: event.target.value })
+                  }
                 />
-                {searching &&
+                {searching && (
                   <LinearProgress
-                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                    style={{
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                      height: 2,
+                    }}
                   />
-                }
+                )}
               </Grid>
               <Grid item xs={isMobile ? 12 : 4}>
                 <TextField
@@ -552,16 +563,22 @@ export default function CadastrarAssociado(props) {
                   InputProps={{
                     style: searching
                       ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
-                      : undefined
+                      : undefined,
                   }}
                   // Mantém endereco e sobrescreve o numero dentro do objeto endereco
-                  onChange={event => setEndereco({ ...endereco, numero: event.target.value })}
+                  onChange={event =>
+                    setEndereco({ ...endereco, numero: event.target.value })
+                  }
                 />
-                {searching &&
+                {searching && (
                   <LinearProgress
-                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                    style={{
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                      height: 2,
+                    }}
                   />
-                }
+                )}
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
@@ -575,16 +592,22 @@ export default function CadastrarAssociado(props) {
                   InputProps={{
                     style: searching
                       ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
-                      : undefined
+                      : undefined,
                   }}
                   // Mantém endereco e sobrescreve o bairro dentro do objeto endereco
-                  onChange={event => setEndereco({ ...endereco, bairro: event.target.value })}
+                  onChange={event =>
+                    setEndereco({ ...endereco, bairro: event.target.value })
+                  }
                 />
-                {searching &&
+                {searching && (
                   <LinearProgress
-                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                    style={{
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                      height: 2,
+                    }}
                   />
-                }
+                )}
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
@@ -598,16 +621,22 @@ export default function CadastrarAssociado(props) {
                   InputProps={{
                     style: searching
                       ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
-                      : undefined
+                      : undefined,
                   }}
                   // Mantém endereco e sobrescreve o estado dentro do objeto endereco
-                  onChange={event => setEndereco({ ...endereco, estado: event.target.value })}
+                  onChange={event =>
+                    setEndereco({ ...endereco, estado: event.target.value })
+                  }
                 />
-                {searching &&
+                {searching && (
                   <LinearProgress
-                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                    style={{
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                      height: 2,
+                    }}
                   />
-                }
+                )}
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
@@ -621,19 +650,24 @@ export default function CadastrarAssociado(props) {
                   InputProps={{
                     style: searching
                       ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
-                      : undefined
+                      : undefined,
                   }}
                   // Mantém endereco e sobrescreve o cidade dentro do objeto endereco
-                  onChange={event => setEndereco({ ...endereco, cidade: event.target.value })}
+                  onChange={event =>
+                    setEndereco({ ...endereco, cidade: event.target.value })
+                  }
                 />
-                {searching &&
+                {searching && (
                   <LinearProgress
-                    style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, height: 2 }}
+                    style={{
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                      height: 2,
+                    }}
                   />
-                }
+                )}
               </Grid>
             </Grid>
-
           </DialogContent>
           <DialogActions style={{ padding: '16px' }}>
             <Button
@@ -645,15 +679,12 @@ export default function CadastrarAssociado(props) {
               Cancelar
             </Button>
             <div className={classes.wrapper}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                disabled={saving}
-              >
+              <Button type="submit" variant="contained" color="primary" disabled={saving}>
                 Salvar
               </Button>
-              {saving && <CircularProgress size={24} className={classes.buttonProgress} />}
+              {saving && (
+                <CircularProgress size={24} className={classes.buttonProgress} />
+              )}
             </div>
           </DialogActions>
         </form>

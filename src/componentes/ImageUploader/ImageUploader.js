@@ -6,32 +6,22 @@ import { useStyles } from './estilo';
 
 import { toBase64 } from '../../uteis/file';
 
-const ImageUploader = (props) => {
+const ImageUploader = props => {
   const classes = useStyles();
 
   async function handleImageUpload({ target }) {
     const file = target.files[0];
     const src = await toBase64(file);
     const [alt] = file.name.split('.');
-    
+
     props.onUpload({ src, alt });
   }
 
-  const renderIcon = () => {
-    return (
-      <ImageIcon className={classes.imageSize} />
-    );
-  };
+  const renderIcon = () => <ImageIcon className={classes.imageSize} />;
 
-  const renderImage = () => {
-    return (
-      <img
-        src={props.image.src}
-        alt={props.image.alt}
-        className={classes.imageSize}
-      />
-    );
-  };
+  const renderImage = () => (
+    <img src={props.image.src} alt={props.image.alt} className={classes.imageSize} />
+  );
 
   return (
     <Box
@@ -59,15 +49,15 @@ const ImageUploader = (props) => {
             {props.image?.src ? renderImage() : renderIcon()}
           </Button>
         </label>
-        {props.image?.src &&
+        {props.image?.src && (
           <CloseIcon
             className={classes.removeButton}
             onClick={() => props.onUpload({ src: '', alt: '' })}
           />
-        }
+        )}
       </div>
     </Box>
   );
-}
+};
 
 export default ImageUploader;

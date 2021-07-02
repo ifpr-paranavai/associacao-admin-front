@@ -33,17 +33,17 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
 } from '@material-ui/icons';
-import { FaWhatsapp } from 'react-icons/fa'
+import { FaWhatsapp } from 'react-icons/fa';
 
+import { useDebouncedCallback } from 'use-debounce';
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
-import { useStyles } from './estilo.js';
+import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
 import { isValidCPF, removeMask } from '../../uteis/string';
-import { useDebouncedCallback } from 'use-debounce';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
@@ -52,20 +52,20 @@ const Associados = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const notify = useNotify();
   const { setLocation } = useNavigation();
-  
-  const [associadoSelecionado, setAssociadoSelecionado]= useState(null);
-  const [cpfConfirmacao, setCPFConfirmacao]= useState(null);
-  const [termoBuscado, setTermoBuscado]= useState('');
-  const [associados, setAssociados]= useState([]);
-  const [page, setPage]= useState(0);
-  const [oldPage, setOldPage]= useState(0);
-  const [perPage, setPerPage]= useState(10);
-  const [total, setTotal]= useState(0);
-  const [start, setStart]= useState(0);
+
+  const [associadoSelecionado, setAssociadoSelecionado] = useState(null);
+  const [cpfConfirmacao, setCPFConfirmacao] = useState(null);
+  const [termoBuscado, setTermoBuscado] = useState('');
+  const [associados, setAssociados] = useState([]);
+  const [page, setPage] = useState(0);
+  const [oldPage, setOldPage] = useState(0);
+  const [perPage, setPerPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [start, setStart] = useState(0);
 
   const abrirFormulario = () => {
     setOpen(true);
-  };// abrir o dialogo
+  }; // abrir o dialogo
 
   const fecharFormulario = () => {
     setOpen(false);
@@ -96,11 +96,11 @@ const Associados = () => {
     });
   }, [start, perPage]);
 
-  const debouncedPaginacao = useDebouncedCallback(filter =>  paginacao(filter), 480);
+  const debouncedPaginacao = useDebouncedCallback(filter => paginacao(filter), 480);
 
   useEffect(() => {
     const filter = {};
-    
+
     if (!termoBuscado) {
       paginacao();
       return;
@@ -119,12 +119,11 @@ const Associados = () => {
     debouncedPaginacao(filter);
   }, [termoBuscado]);
 
-
   async function onChangePage(event, nextPage) {
     event.preventDefault();
-    
+
     const operator = nextPage < oldPage ? -1 : 1;
-    setStart(start + (perPage * operator));
+    setStart(start + perPage * operator);
     setPage(nextPage);
     setOldPage(nextPage);
   }
@@ -134,27 +133,29 @@ const Associados = () => {
     setPerPage(event.target.value);
   }
 
-  function onSaveAssociado () {
+  function onSaveAssociado() {
     paginacao();
     fecharFormulario();
   }
 
-  function onOpenWhatsAppLink (phone) {
+  function onOpenWhatsAppLink(phone) {
     const whatsappNumber = removeMask(phone);
     const whatsappLink = `https://api.whatsapp.com/send/?phone=+55${whatsappNumber}`;
     window.open(whatsappLink, '_blank');
   }
- 
-  function onCloseRemoveAssociado () {
+
+  function onCloseRemoveAssociado() {
     setDeleteDialog(false);
     setCPFConfirmacao(null);
     setAssociadoSelecionado(null);
   }
 
-  async function handleRemoveAssociado () {
+  async function handleRemoveAssociado() {
     if (cpfConfirmacao !== associadoSelecionado.cpf) {
-      notify.showWarning('O CPF informado não corresponde ao do associado a ser removido!')
-      return
+      notify.showWarning(
+        'O CPF informado não corresponde ao do associado a ser removido!',
+      );
+      return;
     }
     try {
       setRemoving(true);
@@ -190,10 +191,11 @@ const Associados = () => {
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
           InputProps={{
-            startAdornment:
+            startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon color="action" />
-              </InputAdornment>,
+              </InputAdornment>
+            ),
           }}
           onChange={event => setTermoBuscado(event.target.value)}
         />
@@ -219,86 +221,85 @@ const Associados = () => {
               <TableCell>CPF</TableCell>
               <TableCell>E-mail</TableCell>
               <TableCell>Celular</TableCell>
-              <TableCell>
-                Perfil de acesso
-              </TableCell>
-              <TableCell></TableCell>
+              <TableCell>Perfil de acesso</TableCell>
+              <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
-            {associados.length > 0 && associados.map(associado => (
-              <TableRow key={associado._id}>
-                <TableCell>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Avatar
-                      alt={associado.nome}
-                      src={associado.imagem.src}
-                      style={{ marginRight: '8px' }}
-                    />
-                    <span style={{ marginRight: '3px' }}>{associado.nome}</span>
-                    {associado.sobrenome &&
-                      <span>{associado.sobrenome}</span>
-                    }
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span>{associado.cpf}</span>
-                </TableCell>
-                <TableCell>
-                  <span>{associado.email}</span>
-                </TableCell>
-                <TableCell>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {associado.tel_celular &&
-                      <span style={{ lineHeight: '1.2rem' }}>{associado.tel_celular.numero}</span>
-                    }
-                    {associado.tel_celular.whatsapp &&
-                      <FaWhatsapp
-                        size={18}
-                        color={colors.green['700']}
-                        style={{ marginLeft: '8px', cursor: 'pointer' }}
-                        onClick={() => onOpenWhatsAppLink(associado.tel_celular.numero)}
+            {associados.length > 0 &&
+              associados.map(associado => (
+                <TableRow key={associado._id}>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Avatar
+                        alt={associado.nome}
+                        src={associado.imagem.src}
+                        style={{ marginRight: '8px' }}
                       />
-                    }
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span>{associado.perfil}</span>
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    aria-label="editar"
-                    onClick={() => {
-                      setAssociadoSelecionado(associado);
-                      setOpen(true);
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="deletar"
-                    onClick={() => {
-                      setAssociadoSelecionado(associado);
-                      setDeleteDialog(true);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+                      <span style={{ marginRight: '3px' }}>{associado.nome}</span>
+                      {associado.sobrenome && <span>{associado.sobrenome}</span>}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span>{associado.cpf}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span>{associado.email}</span>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {associado.tel_celular && (
+                        <span style={{ lineHeight: '1.2rem' }}>
+                          {associado.tel_celular.numero}
+                        </span>
+                      )}
+                      {associado.tel_celular.whatsapp && (
+                        <FaWhatsapp
+                          size={18}
+                          color={colors.green['700']}
+                          style={{ marginLeft: '8px', cursor: 'pointer' }}
+                          onClick={() => onOpenWhatsAppLink(associado.tel_celular.numero)}
+                        />
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span>{associado.perfil}</span>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      aria-label="editar"
+                      onClick={() => {
+                        setAssociadoSelecionado(associado);
+                        setOpen(true);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      aria-label="deletar"
+                      onClick={() => {
+                        setAssociadoSelecionado(associado);
+                        setDeleteDialog(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
         <TablePagination
@@ -323,19 +324,16 @@ const Associados = () => {
         onClose={() => onCloseRemoveAssociado()}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle
-          id="form-dialog-title"
-          style={{ padding: '12px' }}
-        >
+        <DialogTitle id="form-dialog-title" style={{ padding: '12px' }}>
           Excluir associado:
-          {associadoSelecionado &&
+          {associadoSelecionado && (
             <span style={{ marginRight: '4px', marginLeft: '4px' }}>
               {associadoSelecionado.nome}
             </span>
-          }
-          {associadoSelecionado?.sobrenome &&
+          )}
+          {associadoSelecionado?.sobrenome && (
             <span>{associadoSelecionado.sobrenome}</span>
-          }
+          )}
         </DialogTitle>
         <DialogContent style={{ padding: '12px' }}>
           <DialogContentText>
@@ -347,7 +345,7 @@ const Associados = () => {
             maskChar={null}
             onChange={event => setCPFConfirmacao(event.target.value)}
           >
-            {(inputProps) => (
+            {inputProps => (
               <TextField
                 {...inputProps}
                 label="CPF"
@@ -360,10 +358,7 @@ const Associados = () => {
           </InputMask>
         </DialogContent>
         <DialogActions style={{ padding: '4px' }}>
-          <Button
-            color="primary"
-            onClick={() => onCloseRemoveAssociado()}
-          >
+          <Button color="primary" onClick={() => onCloseRemoveAssociado()}>
             Cancelar
           </Button>
           <div className={classes.wrapper}>
@@ -375,13 +370,14 @@ const Associados = () => {
             >
               Excluir
             </Button>
-            {removing && <CircularProgress size={24} className={classes.buttonProgress} />}
+            {removing && (
+              <CircularProgress size={24} className={classes.buttonProgress} />
+            )}
           </div>
         </DialogActions>
       </Dialog>
     </Container>
   );
-
-}
+};
 
 export default Associados;

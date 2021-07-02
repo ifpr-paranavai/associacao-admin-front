@@ -15,9 +15,9 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 
-import { useStyles } from './estilo.js';
-import { useNotify } from '../../contextos/Notificacao';
 import clsx from 'clsx';
+import { useStyles } from './estilo';
+import { useNotify } from '../../contextos/Notificacao';
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 import LogoBlack from '../../assets/logo-black.png';
 
@@ -31,23 +31,22 @@ export default function PaginaLogin() {
     mostrarSenha: false,
   });
 
-  const logar = async (event) => {
+  const logar = async event => {
     event.preventDefault();
     try {
       setLoading(true);
-      const Servico = new ServicoAutenticacao()
+      const Servico = new ServicoAutenticacao();
       await Servico.logar(values);
 
       window.location.replace('/');
     } catch (e) {
-      notify.showError(e.response.data);
+      notify.showError(e);
     } finally {
       setLoading(false);
     }
   };
 
-
-  const handleChange = (prop) => (event) => {
+  const handleChange = prop => event => {
     setValues({ ...values, [prop]: event.target.value });
   };
 
@@ -55,7 +54,7 @@ export default function PaginaLogin() {
     setValues({ ...values, mostrarSenha: !values.mostrarSenha });
   };
 
-  const handleMouseDownPassword = (event) => {
+  const handleMouseDownPassword = event => {
     event.preventDefault();
   };
 
@@ -64,11 +63,7 @@ export default function PaginaLogin() {
       <Paper elevation={10} className={classes.paper}>
         <form noValidate onSubmit={logar}>
           <Grid align="center" style={{ marginBottom: '24px' }}>
-            <img
-              src={LogoBlack}
-              alt="Logo Amaer"
-              width="300px"
-            />
+            <img src={LogoBlack} alt="Logo Amaer" width="300px" />
           </Grid>
           <h2 style={{ margin: '14px 0' }}>Autenticação</h2>
           <TextField
@@ -79,11 +74,7 @@ export default function PaginaLogin() {
             onChange={handleChange('email')}
           />
           <div style={{ height: 20 }} />
-          <FormControl
-            className={clsx(classes.margin)}
-            variant="outlined"
-            fullWidth
-          >
+          <FormControl className={clsx(classes.margin)} variant="outlined" fullWidth>
             <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"

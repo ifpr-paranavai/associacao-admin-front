@@ -8,7 +8,7 @@ class ServicoAssociado {
         start,
         perPage,
         filter,
-      }
+      },
     });
     return data;
   }
@@ -22,7 +22,7 @@ class ServicoAssociado {
     const { data } = await Axios.put(`${Config.api}/associados`, associado);
     return data;
   }
-  
+
   static async deletarAssociado(_id) {
     await Axios.delete(`${Config.api}/associados/${_id}`);
   }

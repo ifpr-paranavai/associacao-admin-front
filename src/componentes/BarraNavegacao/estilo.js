@@ -1,8 +1,9 @@
 import { makeStyles } from '@material-ui/core/styles';
 import * as cores from '@material-ui/core/colors';
+
 const drawerWidth = 260;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
   },
@@ -60,11 +61,11 @@ const useStyles = makeStyles((theme) => ({
   link: {
     color: cores.grey[500],
     cursor: 'pointer',
-    "&:hover": {
+    '&:hover': {
       backgroundColor: cores.grey[300],
-      color: cores.grey[500]
-    }
-  }
+      color: cores.grey[500],
+    },
+  },
 }));
 
 export { useStyles };

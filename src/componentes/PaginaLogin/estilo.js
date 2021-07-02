@@ -1,14 +1,15 @@
 import { blue } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   container: {
     position: 'relative',
     height: '100vh',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    backgroundImage: 'url(https://static.vecteezy.com/ti/fotos-gratis/p1/1309783-ceu-azul-com-nuvens-gr%C3%A1tis-foto.jpg)',
+    backgroundImage:
+      'url(https://static.vecteezy.com/ti/fotos-gratis/p1/1309783-ceu-azul-com-nuvens-gr%C3%A1tis-foto.jpg)',
   },
   avatar: {
     margin: theme.spacing(1),
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '40px',
     height: '60vh',
     width: '100%',
-    maxWidth: '380px'
+    maxWidth: '380px',
   },
   wrapper: {
     position: 'relative',
