@@ -23,6 +23,11 @@ class ServicoAssociado {
     return data;
   }
 
+  static async buscarPorId(_id) {
+    const { data } = await Axios.get(`${Config.api}/associados/${_id}`);
+    return data;
+  }
+
   static async deletarAssociado(_id) {
     await Axios.delete(`${Config.api}/associados/${_id}`);
   }

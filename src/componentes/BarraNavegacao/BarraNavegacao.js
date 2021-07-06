@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, Link } from 'react-router-dom';
+import { Route, Switch, Link, useHistory } from 'react-router-dom';
 import {
   Drawer,
   CssBaseline,
@@ -10,7 +10,6 @@ import {
   Menu,
   MenuItem,
   Avatar,
-  Typography,
   Divider,
   IconButton,
   ListItemIcon,
@@ -33,6 +32,7 @@ import Classificados from '../../paginas/classificados/Classificados';
 import Fotos from '../../paginas/fotos/Fotos';
 import Videos from '../../paginas/videos/Videos';
 import Site from '../../paginas/site/Site';
+import MinhaConta from '../../paginas/conta/Conta';
 import PaginaLogin from '../PaginaLogin/PaginaLogin';
 
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
@@ -42,6 +42,7 @@ import LogoWhite from '../../assets/logo-amaer.png';
 export default function BarraNavegacao(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const history = useHistory();
   const { location } = useNavigation();
   const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -64,6 +65,11 @@ export default function BarraNavegacao(props) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleAccount = () => {
+    history.push('/minha-conta');
+    handleClose();
   };
 
   const handleSair = () => {
@@ -149,7 +155,7 @@ export default function BarraNavegacao(props) {
                     </Box>
                   </MenuItem>
                   <Divider />
-                  <MenuItem onClick={handleClose}>Minha conta</MenuItem>
+                  <MenuItem onClick={handleAccount}>Minha conta</MenuItem>
                   <MenuItem onClick={handleSair}>Sair</MenuItem>
                 </Menu>
               </div>
@@ -198,8 +204,8 @@ export default function BarraNavegacao(props) {
       >
         <div className={classes.drawerHeader} />
         <Switch>
-          <Route exact path="/login" component={PaginaLogin} />
           <Route exact path="/" component={Inicio} />
+          <Route exact path="/login" component={PaginaLogin} />
           <Route path="/eventos" component={Eventos} />
           <Route path="/associados" component={Associados} />
           <Route path="/atas" component={Atas} />
@@ -208,6 +214,7 @@ export default function BarraNavegacao(props) {
           <Route path="/fotos" component={Fotos} />
           <Route path="/videos" component={Videos} />
           <Route path="/site" component={Site} />
+          <Route path="/minha-conta" component={MinhaConta} />
         </Switch>
       </main>
     </div>
