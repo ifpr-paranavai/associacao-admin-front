@@ -61,7 +61,7 @@ export default function PaginaLogin() {
   return (
     <Box className={classes.container}>
       <Paper elevation={10} className={classes.paper}>
-        <form noValidate onSubmit={logar}>
+        <form autoComplete="off" onSubmit={logar}>
           <Grid align="center" style={{ marginBottom: '24px' }}>
             <img src={LogoBlack} alt="Logo Amaer" width="300px" />
           </Grid>
@@ -70,16 +70,20 @@ export default function PaginaLogin() {
             label="E-mail"
             variant="outlined"
             fullWidth
+            required
             value={values.email}
             onChange={handleChange('email')}
           />
           <div style={{ height: 20 }} />
           <FormControl className={clsx(classes.margin)} variant="outlined" fullWidth>
-            <InputLabel htmlFor="outlined-adornment-password">Senha</InputLabel>
+            <InputLabel required htmlFor="outlined-adornment-password">
+              Senha
+            </InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
               type={values.mostrarSenha ? 'text' : 'password'}
               value={values.senha}
+              required
               onChange={handleChange('senha')}
               endAdornment={
                 <InputAdornment position="end">

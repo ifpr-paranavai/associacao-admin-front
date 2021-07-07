@@ -39,7 +39,7 @@ import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
 
-export default function CadastrarAssociado(props) {
+export default function CadastrarAssociado() {
   const isMobile = useMediaQuery('(max-width:600px)');
   const notify = useNotify();
   const classes = useStyles();
@@ -61,6 +61,8 @@ export default function CadastrarAssociado(props) {
   const [modalidade, setModalidade] = useState('aeromodelismo');
   const [senha, setSenha] = useState('');
   const [tel_celular, setCelular] = useState({ numero: '', whatsapp: false });
+  const [tel_residencial, setTelResidencial] = useState('');
+  const [tel_comercial, setTelComercial] = useState('');
   const [endereco, setEndereco] = useState({
     cep: '',
     estado: '',
@@ -105,6 +107,8 @@ export default function CadastrarAssociado(props) {
     setEmailAlternativo(associado.email_alternativo);
     setModalidade(associado.modalidade);
     setCelular(associado.tel_celular);
+    setTelComercial(associado.tel_comercial);
+    setTelResidencial(associado.tel_residencial);
     setEndereco(associado.endereco);
   }
 
@@ -123,10 +127,14 @@ export default function CadastrarAssociado(props) {
         email,
         email_alternativo,
         modalidade,
-        senha: md5(senha),
         tel_celular,
+        tel_comercial,
+        tel_residencial,
         endereco,
       };
+      if (senha) {
+        data.senha = md5(senha);
+      }
       await ServicoAssociado.atualizarAssociado({
         _id: logged._id,
         ...data,
@@ -152,10 +160,6 @@ export default function CadastrarAssociado(props) {
         bairro: address.neighborhood,
         rua: address.street,
       });
-
-      setTimeout(() => {
-        numberRef.current?.focus();
-      }, 120);
     } catch (error) {
       notify.showError(error.response.data);
     } finally {
@@ -179,8 +183,8 @@ export default function CadastrarAssociado(props) {
         className={classes.wrapper}
       >
         <form autoComplete="off" onSubmit={event => salvarAssociado(event)}>
-          <Breadcrumbs />
-          <div style={{ width: '100%', maxWidth: '800px', paddingTop: '16px' }}>
+          <Breadcrumbs useGoBack />
+          <div style={{ width: '100%', maxWidth: '1200px', paddingTop: '16px' }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Box display="flex" flexDirection="row" alignItems="center">
@@ -345,6 +349,36 @@ export default function CadastrarAssociado(props) {
                 />
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
+                <FormControl
+                  className={clsx(classes.margin, classes.fieldMargin)}
+                  variant="outlined"
+                  fullWidth
+                >
+                  <InputLabel required={false} htmlFor="outlined-adornment-password">
+                    Senha
+                  </InputLabel>
+                  <OutlinedInput
+                    id="outlined-adornment-password"
+                    value={senha}
+                    type={showPassword ? 'text' : 'password'}
+                    required={false}
+                    fullWidth
+                    labelWidth={56}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="Ver senha"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    onChange={event => setSenha(event.target.value)}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 6}>
                 <FormControl variant="outlined" required fullWidth>
                   <InputLabel htmlFor="outlined-adornment-celular">
                     {tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
@@ -389,34 +423,52 @@ export default function CadastrarAssociado(props) {
                   </InputMask>
                 </FormControl>
               </Grid>
+
               <Grid item xs={isMobile ? 12 : 6}>
-                <FormControl
-                  className={clsx(classes.margin, classes.fieldMargin)}
-                  variant="outlined"
-                  fullWidth
-                >
-                  <InputLabel required={false} htmlFor="outlined-adornment-password">
-                    Senha
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel htmlFor="outlined-adornment-celular">
+                    Telefone residencial
                   </InputLabel>
-                  <OutlinedInput
-                    id="outlined-adornment-password"
-                    value={senha}
-                    type={showPassword ? 'text' : 'password'}
-                    required={false}
-                    fullWidth
-                    labelWidth={56}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="Ver senha"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    onChange={event => setSenha(event.target.value)}
-                  />
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    value={tel_residencial}
+                    maskChar={null}
+                    onChange={event => setTelResidencial(event.target.value)}
+                  >
+                    {inputProps => (
+                      <OutlinedInput
+                        {...inputProps}
+                        id="outlined-adornment-celular"
+                        type="phone"
+                        fullWidth
+                        labelWidth={160}
+                      />
+                    )}
+                  </InputMask>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={isMobile ? 12 : 6}>
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel htmlFor="outlined-adornment-celular">
+                    Telefone comercial
+                  </InputLabel>
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    value={tel_comercial}
+                    maskChar={null}
+                    onChange={event => setTelComercial(event.target.value)}
+                  >
+                    {inputProps => (
+                      <OutlinedInput
+                        {...inputProps}
+                        id="outlined-adornment-celular"
+                        type="phone"
+                        fullWidth
+                        labelWidth={160}
+                      />
+                    )}
+                  </InputMask>
                 </FormControl>
               </Grid>
 
