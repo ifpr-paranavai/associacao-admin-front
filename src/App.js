@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { ptBR } from '@material-ui/core/locale';
 import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
 import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
@@ -52,7 +52,7 @@ const App = () => {
   const usuarioNaoLogado = () => <PaginaLogin />;
 
   // Definição do tema e linguagem padrão
-  const theme = createMuiTheme(
+  const theme = createTheme(
     {
       palette: {
         primary: { main: '#1976d2' },

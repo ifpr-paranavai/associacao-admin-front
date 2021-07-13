@@ -307,8 +307,8 @@ const Associados = () => {
           count={total}
           rowsPerPage={perPage}
           page={page}
-          onChangePage={onChangePage}
-          onChangeRowsPerPage={onChangeRowsPerPage}
+          onPageChange={onChangePage}
+          onRowsPerPageChange={onChangeRowsPerPage}
         />
       </TableContainer>
 

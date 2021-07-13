@@ -13,6 +13,11 @@ class ServicoAssociado {
     return data;
   }
 
+  static async obterPendentes() {
+    const { data } = await Axios.get(`${Config.api}/pendentes`);
+    return data;
+  }
+
   static async cadastrarAssociado(associado) {
     const { data } = await Axios.post(`${Config.api}/associados`, associado);
     return data;
