@@ -8,15 +8,18 @@ import {
   Avatar,
   Button,
   LinearProgress,
+  CircularProgress,
 } from '@material-ui/core';
 import { Check, Delete } from '@material-ui/icons';
-import ServicoAssociado from '../../servicos/ServicoAssociado';
 import { useNotify } from '../../contextos/Notificacao';
 import { useStyles } from './estilo';
+import ServicoAssociado from '../../servicos/ServicoAssociado';
 
 const AssociadosPendentes = () => {
   const [pendentes, setPendentes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [removing, setRemoving] = useState([]);
+  const [accepting, setAccepting] = useState([]);
   const notify = useNotify();
 
   async function loadPendings() {
@@ -28,6 +31,41 @@ const AssociadosPendentes = () => {
       notify.showError(error.response.data);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAccept(_id) {
+    try {
+      setAccepting([...accepting, _id]);
+      await ServicoAssociado.atualizarAssociado({
+        _id,
+        ativo: true,
+      });
+      loadPendings();
+    } catch (error) {
+      notify.showError(error.response.data);
+    } finally {
+      const newAccepting = [...accepting];
+      const index = newAccepting.findIndex(acceptingId => acceptingId === _id);
+
+      newAccepting.splice(index, 1);
+      setAccepting([...newAccepting]);
+    }
+  }
+
+  async function handleRemove(_id) {
+    try {
+      setRemoving([...removing, _id]);
+      await ServicoAssociado.deletarAssociado(_id);
+      loadPendings();
+    } catch (error) {
+      notify.showError(error.response.data);
+    } finally {
+      const newRemoving = [...removing];
+      const index = newRemoving.findIndex(removingId => removingId === _id);
+
+      newRemoving.splice(index, 1);
+      setRemoving([...newRemoving]);
     }
   }
 
@@ -90,22 +128,52 @@ const AssociadosPendentes = () => {
               </div>
             </Box>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Button
-                variant="outlined"
-                size="small"
-                style={{ borderColor: '#8c8c8c', color: '#8c8c8c', marginRight: '12px' }}
-              >
-                <Delete fontSize="small" htmlColor="#8c8c8c" />
-                Excluir
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                style={{ borderColor: '#009933', color: '#009933' }}
-              >
-                <Check fontSize="small" htmlColor="#009933" />
-                Aceitar
-              </Button>
+              <div style={{ position: 'relative', marginRight: '12px' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={removing.includes(associado._id)}
+                  style={{
+                    borderColor: '#8c8c8c',
+                    color: '#8c8c8c',
+                  }}
+                  onClick={() => handleRemove(associado._id)}
+                >
+                  <Delete fontSize="small" htmlColor="#8c8c8c" />
+                  Excluir
+                </Button>
+
+                {removing.includes(associado._id) && (
+                  <CircularProgress
+                    size={20}
+                    color="primary"
+                    thickness={4}
+                    className={classes.buttonProgress}
+                  />
+                )}
+              </div>
+
+              <div style={{ position: 'relative' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={accepting.includes(associado._id)}
+                  style={{ borderColor: '#009933', color: '#009933' }}
+                  onClick={() => handleAccept(associado._id)}
+                >
+                  <Check fontSize="small" htmlColor="#009933" />
+                  Aceitar
+                </Button>
+
+                {accepting.includes(associado._id) && (
+                  <CircularProgress
+                    size={20}
+                    color="primary"
+                    thickness={4}
+                    className={classes.buttonProgress}
+                  />
+                )}
+              </div>
             </div>
           </Box>
         ))}
