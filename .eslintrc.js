@@ -15,6 +15,7 @@ module.exports = {
   plugins: ['react', 'prettier'],
   rules: {
     camelcase: 'off',
+    'no-param-reassign': 'off',
     'prettier/prettier': 'error',
     'no-plusplus': 'off',
     'class-methods-use-this': 'off',
