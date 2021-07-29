@@ -16,15 +16,18 @@ import {
 } from '@material-ui/core';
 
 import clsx from 'clsx';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as AutenticacaoActions from '../../store/ducks/autenticacao/actions';
+
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
-import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 import LogoBlack from '../../assets/logo-black.png';
 
-export default function PaginaLogin() {
+function PaginaLogin(props) {
   const classes = useStyles();
   const notify = useNotify();
-  const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     email: '',
     senha: '',
@@ -34,15 +37,12 @@ export default function PaginaLogin() {
   const logar = async event => {
     event.preventDefault();
     try {
-      setLoading(true);
-      const Servico = new ServicoAutenticacao();
-      await Servico.logar(values);
+      const { auth } = props;
+      await auth(values);
 
-      window.location.replace('/');
+      // window.location.replace('/');
     } catch (e) {
       notify.showError(e);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -107,14 +107,24 @@ export default function PaginaLogin() {
               variant="contained"
               color="primary"
               fullWidth
-              disabled={loading}
+              disabled={props.loading}
             >
               Entrar
             </Button>
-            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+            {props.loading && (
+              <CircularProgress size={24} className={classes.buttonProgress} />
+            )}
           </div>
         </form>
       </Paper>
     </Box>
   );
 }
+
+const mapStateToProps = ({ autenticacao }) => ({
+  loading: autenticacao.loading,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators(AutenticacaoActions, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(PaginaLogin);

@@ -16,6 +16,7 @@ module.exports = {
   rules: {
     camelcase: 'off',
     'no-param-reassign': 'off',
+    'no-useless-catch': 'off',
     'prettier/prettier': 'error',
     'no-plusplus': 'off',
     'class-methods-use-this': 'off',

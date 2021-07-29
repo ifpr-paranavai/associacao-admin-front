@@ -1,15 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { useDispatch } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import createSagaMiddleware from '@redux-saga/core';
 
-import associados from './associados';
-import autenticacao from './autenticacao';
+import rootReducer from './ducks/rootReducer';
+import rootSaga from './ducks/rootSaga';
 
-const store = configureStore({
-  reducer: {
-    associados,
-    autenticacao,
-  },
-});
+const sagaMiddleware = createSagaMiddleware();
 
-export const useAppDispatch = () => useDispatch();
+const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
+
+sagaMiddleware.run(rootSaga);
+
 export default store;

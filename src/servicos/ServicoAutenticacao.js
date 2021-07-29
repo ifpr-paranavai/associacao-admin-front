@@ -9,17 +9,15 @@ export default class ServicoAutenticacao {
       email: email.toLowerCase(),
       senha: md5(senha),
     });
-    this.salvarAssociadoLocalStorage(response.data);
-    return response.logar;
+    this.salvarAssociadoToken(response.data);
+    return response.data;
   } // login()
 
-  salvarAssociadoLocalStorage(associado) {
-    localStorage.setItem('associadoLogado', JSON.stringify(associado));
+  salvarAssociadoToken(associado) {
     localStorage.setItem('associadoToken', associado.token);
-  } // removerAssociadoLocalStorage
+  } // salvarAssociadoToken
 
   removerAssociadoLocalStorage() {
-    localStorage.removeItem('associadoLogado');
     localStorage.removeItem('associadoToken');
   } // removerAssociadoLocalStorage
 
