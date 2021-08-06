@@ -3,7 +3,6 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { ptBR } from '@material-ui/core/locale';
-
 import BarraNavegacao from './componentes/BarraNavegacao/BarraNavegacao';
 import PaginaLogin from './componentes/PaginaLogin/PaginaLogin';
 

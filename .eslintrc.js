@@ -17,6 +17,7 @@ module.exports = {
     camelcase: 'off',
     'no-param-reassign': 'off',
     'no-useless-catch': 'off',
+    'prefer-object-spread': 'off',
     'prettier/prettier': 'error',
     'no-plusplus': 'off',
     'class-methods-use-this': 'off',

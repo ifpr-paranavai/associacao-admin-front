@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AccountCircle, Visibility, VisibilityOff } from '@material-ui/icons';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 import {
   Grid,
   Box,
@@ -16,18 +16,15 @@ import {
 } from '@material-ui/core';
 
 import clsx from 'clsx';
-
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as AutenticacaoActions from '../../store/ducks/autenticacao/actions';
-
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
+import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 import LogoBlack from '../../assets/logo-black.png';
 
-function PaginaLogin(props) {
+export default function PaginaLogin() {
   const classes = useStyles();
   const notify = useNotify();
+  const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     email: '',
     senha: '',
@@ -37,12 +34,15 @@ function PaginaLogin(props) {
   const logar = async event => {
     event.preventDefault();
     try {
-      const { auth } = props;
-      await auth(values);
+      setLoading(true);
+      const Servico = new ServicoAutenticacao();
+      await Servico.logar(values);
 
-      // window.location.replace('/');
+      window.location.replace('/');
     } catch (e) {
       notify.showError(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,24 +107,14 @@ function PaginaLogin(props) {
               variant="contained"
               color="primary"
               fullWidth
-              disabled={props.loading}
+              disabled={loading}
             >
               Entrar
             </Button>
-            {props.loading && (
-              <CircularProgress size={24} className={classes.buttonProgress} />
-            )}
+            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
           </div>
         </form>
       </Paper>
     </Box>
   );
 }
-
-const mapStateToProps = ({ autenticacao }) => ({
-  loading: autenticacao.loading,
-});
-
-const mapDispatchToProps = dispatch => bindActionCreators(AutenticacaoActions, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(PaginaLogin);
