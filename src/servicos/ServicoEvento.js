@@ -7,7 +7,7 @@ class ServicoEvento {
       const response = await Axios.get(`${Config.api}/eventos`);
       return response.data;
     } catch (error) {
-      console.error('Erro ao obter dados da API:', error);
+      // console.error('Erro ao obter dados da API:', error);
       throw error;
     }
   }

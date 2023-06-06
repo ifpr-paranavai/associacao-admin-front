@@ -62,7 +62,7 @@ function Eventos() {
         const dadosAPI = await ServicoEvento.listarEventos();
         setDados(dadosAPI);
       } catch (error) {
-        console.error('Erro ao buscar dados da API:', error);
+        // console.error('Erro ao buscar dados da API:', error);
       }
     }
     fetchData();
@@ -103,7 +103,7 @@ function Eventos() {
             <TableRow>
               <TableCell>Titulo</TableCell>
               <TableCell>Descrição</TableCell>
-              <TableCell>Link</TableCell>
+              <TableCell>Local</TableCell>
               <TableCell>Data</TableCell>
               <TableCell />
             </TableRow>
@@ -111,13 +111,13 @@ function Eventos() {
           <TableBody>
             {dados.map(item => (
               <TableRow key={item.id}>
-                <TableCell>{item.titulo}</TableCell>
-                <TableCell>{item.descricao}</TableCell>
-                <TableCell>{item.link}</TableCell>
-                <TableCell>
+                <TableCell className={styles.celula}>{item.titulo}</TableCell>
+                <TableCell className={styles.celula}>{item.descricao}</TableCell>
+                <TableCell className={styles.celula}>{item.local}</TableCell>
+                <TableCell className={styles.celula}>
                   {formatarData(item.data_inicio)} - {formatarData(item.data_fim)}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell className={styles.celula}>
                   <IconButton aria-label="editar">
                     <EditIcon />
                   </IconButton>

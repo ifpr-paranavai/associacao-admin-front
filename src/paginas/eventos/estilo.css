@@ -8,7 +8,9 @@
 }
 
 .table {
+  width: 100%;
   position: relative;
+  table-layout: fixed;
 }
 
 .tableLoading {
@@ -34,4 +36,8 @@
   left: 50%;
   margin-top: -12;
   margin-left: -12;
+}
+
+.celula{
+  width: 25%;
 }
