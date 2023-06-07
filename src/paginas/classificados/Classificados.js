@@ -36,6 +36,7 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
+import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
 import ServicoClassificado from '../../servicos/ServicoClassificado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
@@ -45,7 +46,44 @@ import { useNavigation } from '../../contextos/Navegacao';
 import { formatarData } from '../../uteis/formatarData';
 
 function Classificados() {
-  const [dados, setDados] = useState([]);
+  const [classificados, setClassificados] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [classificadoSelecionado, setClassificadoSelecionado] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const notify = useNotify();
+
+  const abrirFormulario = () => {
+    setOpen(true);
+  };
+  const fecharFormulario = () => {
+    setOpen(false);
+  };
+
+  function onSaveClassificado() {
+    fecharFormulario();
+  }
+
+  function onCloseRemoveClassificado() {
+    setDeleteDialog(false);
+    setClassificadoSelecionado(null);
+  }
+
+  async function handleRemoveClassificado() {
+    try {
+      setRemoving(true);
+      await ServicoClassificado.deletarClassificado(classificadoSelecionado.id);
+      onCloseRemoveClassificado();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -58,8 +96,8 @@ function Classificados() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const dadosAPI = await ServicoClassificado.listarClassifcados();
-        setDados(dadosAPI);
+        const dadosAPI = await ServicoClassificado.listarClassificados();
+        setClassificados(dadosAPI);
       } catch (error) {
         // console.error('Erro ao buscar dados da API:', error);
       }
@@ -80,7 +118,7 @@ function Classificados() {
         paddingTop="12px"
       >
         <TextField
-          placeholder="Buscar por nome ou valor"
+          placeholder="Buscar por titulo ou data"
           variant="outlined"
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
@@ -92,7 +130,12 @@ function Classificados() {
             ),
           }}
         />
-        <Button variant="contained" color="primary" startIcon={<AddIcon />}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={abrirFormulario}
+        >
           Adicionar
         </Button>
       </Box>
@@ -102,30 +145,39 @@ function Classificados() {
             <TableRow>
               <TableCell>Titulo</TableCell>
               <TableCell>Descrição</TableCell>
-              <TableCell>Imagem</TableCell>
+              <TableCell>Foto_video</TableCell>
               <TableCell>Preço</TableCell>
               <TableCell>Contato</TableCell>
-              <TableCell>Usuario</TableCell>
+              <TableCell>Usuário</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
           <TableBody>
-            {dados.map(item => (
-              <TableRow key={item.id}>
-                <TableCell className={styles.celula}>{item.titulo}</TableCell>
-                <TableCell className={styles.celula}>{item.descricao}</TableCell>
-                <TableCell className={styles.celula}>{item.imagem}</TableCell>
-                <TableCell className={styles.celula}>{item.preco}</TableCell>
-                <TableCell className={styles.celula}>{item.contato}</TableCell>
-                <TableCell className={styles.celula}>{item.usuario}</TableCell>
-                <TableCell className={styles.celula}>
-                  {formatarData(item.data_inicio)} - {formatarData(item.data_fim)}
-                </TableCell>
-                <TableCell className={styles.celula}>
-                  <IconButton aria-label="editar">
+            {classificados.map(classificado => (
+              <TableRow key={classificado.id}>
+                <TableCell className={styles.celula}>{classificado.titulo}</TableCell>
+                <TableCell className={styles.celula}>{classificado.descricao}</TableCell>
+                <TableCell className={styles.celula}>{classificado.foto_video}</TableCell>
+                <TableCell className={styles.celula}>{classificado.preco}</TableCell>
+                <TableCell className={styles.celula}>{classificado.usuario}</TableCell>
+                <TableCell className={styles.celula}>{classificado.contato}</TableCell>
+                <TableCell align="right">
+                  <IconButton
+                    aria-label="editar"
+                    onClick={() => {
+                      setClassificadoSelecionado(classificado);
+                      setOpen(true);
+                    }}
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton aria-label="deletar">
+                  <IconButton
+                    aria-label="deletar"
+                    onClick={() => {
+                      setClassificadoSelecionado(classificado);
+                      setDeleteDialog(true);
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -134,6 +186,42 @@ function Classificados() {
           </TableBody>
         </Table>
       </TableContainer>
+      <CadastrarClassificado
+        open={open}
+        classificado={classificadoSelecionado}
+        fecharFormulario={fecharFormulario}
+        onSave={() => onSaveClassificado()}
+      />
+      <Dialog
+        open={deleteDialog}
+        onClose={() => onCloseRemoveClassificado()}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
+          Excluir associado:
+          {classificadoSelecionado && (
+            <span style={{ marginRight: '10px', marginLeft: '10px' }}>
+              {classificadoSelecionado.titulo}
+            </span>
+          )}
+        </DialogTitle>
+        <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
+          <Button color="primary" onClick={() => onCloseRemoveClassificado()}>
+            Cancelar
+          </Button>
+          <div className={styles.wrapper}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={removing}
+              onClick={() => handleRemoveClassificado()}
+            >
+              Excluir
+            </Button>
+            {removing && <CircularProgress size={24} className={styles.buttonProgress} />}
+          </div>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
