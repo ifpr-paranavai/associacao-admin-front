@@ -100,6 +100,13 @@ function CadastrarClassificado(props) {
     }
   }
 
+  useEffect(() => {
+    if (!props.classificado) {
+      return;
+    }
+    setClassificadoState();
+  }, [props.classificado]);
+
   function limparState() {
     setImagem({ src: '', alt: '' });
     setTitulo('');

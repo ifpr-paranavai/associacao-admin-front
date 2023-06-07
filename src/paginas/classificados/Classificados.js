@@ -147,8 +147,8 @@ function Classificados() {
               <TableCell>Descrição</TableCell>
               <TableCell>Foto_video</TableCell>
               <TableCell>Preço</TableCell>
-              <TableCell>Contato</TableCell>
               <TableCell>Usuário</TableCell>
+              <TableCell>Contato</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
