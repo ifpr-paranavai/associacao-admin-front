@@ -101,6 +101,13 @@ function CadastrarEvento(props) {
     }
   }
 
+  useEffect(() => {
+    if (!props.evento) {
+      return;
+    }
+    setEventoState();
+  }, [props.evento]);
+
   function limparState() {
     setImagem({ src: '', alt: '' });
     setTitulo('');
