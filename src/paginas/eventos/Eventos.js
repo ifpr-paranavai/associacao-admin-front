@@ -36,6 +36,7 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
+import CadastrarEvento from '../../componentes/CadastrarEvento/CadastrarEvento';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 
@@ -46,6 +47,14 @@ import { formatarData } from '../../uteis/formatarData';
 
 function Eventos() {
   const [dados, setDados] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  const abrirFormulario = () => {
+    setOpen(true);
+  };
+  const fecharFormulario = () => {
+    setOpen(false);
+  };
 
   const { setLocation } = useNavigation();
   useEffect(() => {
@@ -93,7 +102,12 @@ function Eventos() {
             ),
           }}
         />
-        <Button variant="contained" color="primary" startIcon={<AddIcon />}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={abrirFormulario}
+        >
           Adicionar
         </Button>
       </Box>
@@ -117,7 +131,7 @@ function Eventos() {
                 <TableCell className={styles.celula}>
                   {formatarData(item.data_inicio)} - {formatarData(item.data_fim)}
                 </TableCell>
-                <TableCell className={styles.celula}>
+                <TableCell align="right">
                   <IconButton aria-label="editar">
                     <EditIcon />
                   </IconButton>
@@ -130,6 +144,7 @@ function Eventos() {
           </TableBody>
         </Table>
       </TableContainer>
+      <CadastrarEvento open={open} fecharFormulario={fecharFormulario} />
     </Container>
   );
 }

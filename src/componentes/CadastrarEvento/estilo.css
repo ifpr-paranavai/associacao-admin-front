@@ -1,0 +1,33 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.margin {
+  margin: 0px;
+}
+
+.textField {
+  width: 100%;
+}
+
+.fieldMargin {
+  margin-top: 2px;
+}
+
+.title {
+  font-weight: 500;
+}
+
+.wrapper {
+  position: relative;
+}
+
+.buttonProgress {
+  color: blue;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12;
+  margin-left: -12;
+}
