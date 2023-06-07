@@ -83,16 +83,16 @@ function CadastrarEvento(props) {
       };
       if (props.evento?.id) {
         await ServicoEvento.atualizarEvento(
-          { id: props.evento.id, ...data },
-          props.evento.id,
+          data,
+          props.evento.id, // passando o ID para a url
         );
       } else {
         await ServicoEvento.cadastrarEvento(data);
       }
       notify.showSuccess('Evento salvo com sucesso!');
       setTimeout(() => {
-        // props.onSave();
-      }, 60);
+        window.location.reload();
+      }, 1000);
       limparState();
     } catch (error) {
       notify.showError(`${error}`);

@@ -49,6 +49,9 @@ function Eventos() {
   const [eventos, setEventos] = useState([]);
   const [open, setOpen] = useState(false);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const notify = useNotify();
 
   const abrirFormulario = () => {
     setOpen(true);
@@ -59,6 +62,26 @@ function Eventos() {
 
   function onSaveEvento() {
     fecharFormulario();
+  }
+
+  function onCloseRemoveEvento() {
+    setDeleteDialog(false);
+    setEventoSelecionado(null);
+  }
+
+  async function handleRemoveEvento() {
+    try {
+      setRemoving(true);
+      await ServicoEvento.deletarEvento(eventoSelecionado.id);
+      onCloseRemoveEvento();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
   }
 
   const { setLocation } = useNavigation();
@@ -146,7 +169,13 @@ function Eventos() {
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton aria-label="deletar">
+                  <IconButton
+                    aria-label="deletar"
+                    onClick={() => {
+                      setEventoSelecionado(evento);
+                      setDeleteDialog(true);
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -161,6 +190,36 @@ function Eventos() {
         fecharFormulario={fecharFormulario}
         onSave={() => onSaveEvento()}
       />
+      <Dialog
+        open={deleteDialog}
+        onClose={() => onCloseRemoveEvento()}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
+          Excluir associado:
+          {eventoSelecionado && (
+            <span style={{ marginRight: '10px', marginLeft: '10px' }}>
+              {eventoSelecionado.titulo}
+            </span>
+          )}
+        </DialogTitle>
+        <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
+          <Button color="primary" onClick={() => onCloseRemoveEvento()}>
+            Cancelar
+          </Button>
+          <div className={styles.wrapper}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={removing}
+              onClick={() => handleRemoveEvento()}
+            >
+              Excluir
+            </Button>
+            {removing && <CircularProgress size={24} className={styles.buttonProgress} />}
+          </div>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
