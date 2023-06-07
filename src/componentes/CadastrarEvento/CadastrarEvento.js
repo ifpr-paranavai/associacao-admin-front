@@ -82,10 +82,10 @@ function CadastrarEvento(props) {
         ativo: true,
       };
       if (props.evento?.id) {
-        await ServicoEvento.atualizarEvento({
-          id: props.evento.id,
-          ...data,
-        });
+        await ServicoEvento.atualizarEvento(
+          { id: props.evento.id, ...data },
+          props.evento.id,
+        );
       } else {
         await ServicoEvento.cadastrarEvento(data);
       }
@@ -95,7 +95,7 @@ function CadastrarEvento(props) {
       }, 60);
       limparState();
     } catch (error) {
-      notify.showError(error.response.data);
+      notify.showError(`${error}`);
     } finally {
       setSaving(false);
     }

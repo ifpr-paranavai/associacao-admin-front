@@ -46,8 +46,9 @@ import { useNavigation } from '../../contextos/Navegacao';
 import { formatarData } from '../../uteis/formatarData';
 
 function Eventos() {
-  const [dados, setDados] = useState([]);
+  const [eventos, setEventos] = useState([]);
   const [open, setOpen] = useState(false);
+  const [eventoSelecionado, setEventoSelecionado] = useState(null);
 
   const abrirFormulario = () => {
     setOpen(true);
@@ -55,6 +56,10 @@ function Eventos() {
   const fecharFormulario = () => {
     setOpen(false);
   };
+
+  function onSaveEvento() {
+    fecharFormulario();
+  }
 
   const { setLocation } = useNavigation();
   useEffect(() => {
@@ -69,7 +74,7 @@ function Eventos() {
     async function fetchData() {
       try {
         const dadosAPI = await ServicoEvento.listarEventos();
-        setDados(dadosAPI);
+        setEventos(dadosAPI);
       } catch (error) {
         // console.error('Erro ao buscar dados da API:', error);
       }
@@ -123,16 +128,22 @@ function Eventos() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {dados.map(item => (
-              <TableRow key={item.id}>
-                <TableCell className={styles.celula}>{item.titulo}</TableCell>
-                <TableCell className={styles.celula}>{item.descricao}</TableCell>
-                <TableCell className={styles.celula}>{item.local}</TableCell>
+            {eventos.map(evento => (
+              <TableRow key={evento.id}>
+                <TableCell className={styles.celula}>{evento.titulo}</TableCell>
+                <TableCell className={styles.celula}>{evento.descricao}</TableCell>
+                <TableCell className={styles.celula}>{evento.local}</TableCell>
                 <TableCell className={styles.celula}>
-                  {formatarData(item.data_inicio)} - {formatarData(item.data_fim)}
+                  {formatarData(evento.data_inicio)} - {formatarData(evento.data_fim)}
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton aria-label="editar">
+                  <IconButton
+                    aria-label="editar"
+                    onClick={() => {
+                      setEventoSelecionado(evento);
+                      setOpen(true);
+                    }}
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton aria-label="deletar">
@@ -144,7 +155,12 @@ function Eventos() {
           </TableBody>
         </Table>
       </TableContainer>
-      <CadastrarEvento open={open} fecharFormulario={fecharFormulario} />
+      <CadastrarEvento
+        open={open}
+        evento={eventoSelecionado}
+        fecharFormulario={fecharFormulario}
+        onSave={() => onSaveEvento()}
+      />
     </Container>
   );
 }
