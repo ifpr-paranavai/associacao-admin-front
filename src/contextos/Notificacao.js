@@ -58,8 +58,8 @@ export const NotificationProvider = ({ children }) => {
 
   return (
     <NotificationContext.Provider value={value}>
-      <Snackbar open={open} autoHideDuration={2800} onClose={handleClose}>
-        <Alert variant="filled" severity={type} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={2800}>
+        <Alert variant="filled" severity={type}>
           {message}
         </Alert>
       </Snackbar>
