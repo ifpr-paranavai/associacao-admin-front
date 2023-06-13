@@ -19,6 +19,7 @@ import {
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -36,6 +37,8 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
+import Axios from 'axios';
+import Config from '../../uteis/configuracao';
 import CadastrarAta from '../../componentes/CadastrarAta/CadastrarAta';
 import ServicoAta from '../../servicos/ServicoAta';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -144,7 +147,6 @@ function Atas() {
             <TableRow>
               <TableCell>Titulo</TableCell>
               <TableCell>Descrição</TableCell>
-              <TableCell>Anexo</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
@@ -153,7 +155,6 @@ function Atas() {
               <TableRow key={ata.id}>
                 <TableCell className={styles.celula}>{ata.titulo}</TableCell>
                 <TableCell className={styles.celula}>{ata.descricao}</TableCell>
-                <TableCell className={styles.celula}>{ata.anexo}</TableCell>
                 <TableCell align="right">
                   <IconButton
                     aria-label="editar"

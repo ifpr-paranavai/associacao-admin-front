@@ -35,7 +35,8 @@ import md5 from 'md5';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
-import ImageUploader from '../ImageUploader/ImageUploader';
+import Axios from 'axios';
+import Config from '../../uteis/configuracao';
 import ServicoAta from '../../servicos/ServicoAta';
 import { useNotify } from '../../contextos/Notificacao';
 import styles from './estilo.css';
@@ -48,17 +49,14 @@ function CadastrarAta(props) {
   const [saving, setSaving] = useState(false);
   const [searching, setSearching] = useState(false);
 
-  const [imagem, setImagem] = useState({ src: '', alt: '' });
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [anexo, setAnexo] = useState('');
+  const [anexo, setAnexo] = useState(null);
 
   function setAtaState() {
     const { ata } = props;
-    setImagem(ata.imagem);
     setTitulo(ata.titulo);
     setDescricao(ata.descricao);
-    setAnexo(ata.anexo);
   }
 
   async function salvarAta(event) {
@@ -66,18 +64,22 @@ function CadastrarAta(props) {
     try {
       setSaving(true);
       const data = {
-        imagem,
         titulo,
         descricao,
-        anexo,
       };
+      let idAta;
       if (props.ata?.id) {
-        await ServicoAta.atualizarAta(
-          data,
-          props.ata.id, // passando o ID para a url
-        );
+        await ServicoAta.atualizarAta(data, props.ata.id);
+        idAta = props.ata.id;
       } else {
-        await ServicoAta.cadastrarAta(data);
+        const novoAta = await ServicoAta.cadastrarAta(data);
+        idAta = novoAta.id;
+      }
+      // lógica para lidar com o upload de anexos aqui
+      if (anexo) {
+        const formData = new FormData();
+        formData.append('anexo', anexo);
+        await Axios.post(`${Config.api}/atas/${idAta}/anexo`, formData);
       }
       notify.showSuccess('Ata salva com sucesso!');
       setTimeout(() => {
@@ -99,10 +101,8 @@ function CadastrarAta(props) {
   }, [props.ata]);
 
   function limparState() {
-    setImagem({ src: '', alt: '' });
     setTitulo('');
     setDescricao('');
-    setAnexo('');
   }
 
   return (
@@ -124,14 +124,6 @@ function CadastrarAta(props) {
                     Dados da ata
                   </Typography>
                 </Box>
-              </Grid>
-
-              <Grid item xs={12}>
-                <ImageUploader
-                  image={imagem}
-                  className={styles.fieldMargin}
-                  onUpload={image => setImagem(image)}
-                />
               </Grid>
 
               <Grid item xs={12}>
@@ -179,22 +171,28 @@ function CadastrarAta(props) {
               </Grid>
 
               <Grid item xs={12}>
-                <FormControl
-                  variant="outlined"
-                  fullWidth
-                  required
-                  className={styles.fieldMargin}
-                >
-                  <TextField
-                    autoFocus // para iniciar com o cursor no campo
-                    value={anexo}
-                    label="Anexo"
-                    type="text"
-                    className={styles.fieldMargin}
-                    fullWidth
-                    variant="outlined"
-                    onChange={event => setAnexo(event.target.value)}
+                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
+                  <input
+                    accept="*/*"
+                    style={{ display: 'none' }}
+                    id="anexo-upload"
+                    type="file"
+                    onChange={event => {
+                      const file = event.target.files[0];
+                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
+                    }}
                   />
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                  <label htmlFor="anexo-upload">
+                    <Button variant="contained" color="primary" component="span">
+                      Selecionar Anexo
+                    </Button>
+                  </label>
+                  {anexo && (
+                    <Typography variant="body1" className={styles.fileLabel}>
+                      {anexo.name}
+                    </Typography>
+                  )}
                 </FormControl>
               </Grid>
             </Grid>
