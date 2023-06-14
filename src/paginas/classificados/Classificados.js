@@ -19,6 +19,8 @@ import {
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -36,6 +38,8 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
+import Axios from 'axios';
+import Config from '../../uteis/configuracao';
 import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
 import ServicoClassificado from '../../servicos/ServicoClassificado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -81,6 +85,43 @@ function Classificados() {
       notify.showError(error.message);
     } finally {
       setRemoving(false);
+    }
+  }
+
+  async function handleDownloadAnexo(id) {
+    try {
+      const response = await Axios.get(
+        `${Config.api}/classificados/${id}/anexo/download`,
+        {
+          responseType: 'blob',
+        },
+      );
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `anexo_${id}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      notify.showError(`${error}`);
+    }
+  }
+
+  async function handlePreviewAnexo(id) {
+    try {
+      const response = await Axios.get(
+        `${Config.api}/classificados/${id}/anexo/download`,
+        {
+          responseType: 'blob',
+        },
+      );
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      notify.showError(`${error}`);
     }
   }
 
@@ -157,7 +198,25 @@ function Classificados() {
               <TableRow key={classificado.id}>
                 <TableCell className={styles.celula}>{classificado.titulo}</TableCell>
                 <TableCell className={styles.celula}>{classificado.descricao}</TableCell>
-                <TableCell className={styles.celula}>{classificado.foto_video}</TableCell>
+                <TableCell className={styles.celula}>
+                  {classificado.foto_video}
+                  <IconButton
+                    aria-label="visualizar"
+                    onClick={() => {
+                      handlePreviewAnexo(classificado.id);
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download"
+                    onClick={() => {
+                      handleDownloadAnexo(classificado.id);
+                    }}
+                  >
+                    <GetAppIcon />
+                  </IconButton>
+                </TableCell>
                 <TableCell className={styles.celula}>{classificado.preco}</TableCell>
                 <TableCell className={styles.celula}>{classificado.usuario}</TableCell>
                 <TableCell className={styles.celula}>{classificado.contato}</TableCell>

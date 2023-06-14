@@ -35,7 +35,8 @@ import md5 from 'md5';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
-import ImageUploader from '../ImageUploader/ImageUploader';
+import Axios from 'axios';
+import Config from '../../uteis/configuracao';
 import ServicoClassificado from '../../servicos/ServicoClassificado';
 import { useNotify } from '../../contextos/Notificacao';
 import styles from './estilo.css';
@@ -48,20 +49,17 @@ function CadastrarClassificado(props) {
   const [saving, setSaving] = useState(false);
   const [searching, setSearching] = useState(false);
 
-  const [imagem, setImagem] = useState({ src: '', alt: '' });
+  const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [foto_video, setFoto_video] = useState('');
   const [preco, setPreco] = useState('');
   const [usuario, setUsuario] = useState('');
   const [contato, setContato] = useState('');
 
   function setClassificadoState() {
     const { classificado } = props;
-    setImagem(classificado.imagem);
     setTitulo(classificado.titulo);
     setDescricao(classificado.descricao);
-    setFoto_video(classificado.foto_video);
     setPreco(classificado.preco);
     setUsuario(classificado.usuario);
     setContato(classificado.contato);
@@ -72,21 +70,25 @@ function CadastrarClassificado(props) {
     try {
       setSaving(true);
       const data = {
-        imagem,
         titulo,
         descricao,
-        foto_video,
         preco,
         usuario,
         contato,
       };
+      let idClassificado;
       if (props.classificado?.id) {
-        await ServicoClassificado.atualizarClassificado(
-          data,
-          props.classificado.id, // passando o ID para a url
-        );
+        await ServicoClassificado.atualizarClassificado(data, props.classificado.id);
+        idClassificado = props.classificado.id;
       } else {
-        await ServicoClassificado.cadastrarClassificado(data);
+        const novoClassificado = await ServicoClassificado.cadastrarClassificado(data);
+        idClassificado = novoClassificado.id;
+      }
+      // lógica para lidar com o upload de anexos aqui
+      if (anexo) {
+        const formData = new FormData();
+        formData.append('anexo', anexo);
+        await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
       }
       notify.showSuccess('Classificado salvo com sucesso!');
       setTimeout(() => {
@@ -108,10 +110,8 @@ function CadastrarClassificado(props) {
   }, [props.classificado]);
 
   function limparState() {
-    setImagem({ src: '', alt: '' });
     setTitulo('');
     setDescricao('');
-    setFoto_video('');
     setPreco('');
     setUsuario('');
     setContato('');
@@ -136,14 +136,6 @@ function CadastrarClassificado(props) {
                     Dados do classificado
                   </Typography>
                 </Box>
-              </Grid>
-
-              <Grid item xs={12}>
-                <ImageUploader
-                  image={imagem}
-                  className={styles.fieldMargin}
-                  onUpload={image => setImagem(image)}
-                />
               </Grid>
 
               <Grid item xs={12}>
@@ -199,26 +191,6 @@ function CadastrarClassificado(props) {
                 >
                   <TextField
                     autoFocus // para iniciar com o cursor no campo
-                    value={foto_video}
-                    label="Imagem/video do classificado"
-                    type="text"
-                    className={styles.fieldMargin}
-                    fullWidth
-                    variant="outlined"
-                    onChange={event => setFoto_video(event.target.value)}
-                  />
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormControl
-                  variant="outlined"
-                  fullWidth
-                  required
-                  className={styles.fieldMargin}
-                >
-                  <TextField
-                    autoFocus // para iniciar com o cursor no campo
                     value={preco}
                     label="Preço"
                     type="text"
@@ -254,6 +226,34 @@ function CadastrarClassificado(props) {
                   variant="outlined"
                   onChange={event => setContato(event.target.value)}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
+                  <input
+                    accept=".png,.jpg,.jpeg,.mp4,.mov" // aceita apenas imagens e vídeos
+                    style={{ display: 'none' }}
+                    id="anexo-upload"
+                    type="file"
+                    onChange={event => {
+                      const file = event.target.files[0];
+                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
+                    }}
+                  />
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                  <label htmlFor="anexo-upload">
+                    <Button variant="contained" color="primary" component="span">
+                      Selecionar Anexo
+                    </Button>
+                    <span style={{ marginLeft: '10px', color: 'red' }}>
+                      *Somente Video e imagens
+                    </span>
+                  </label>
+                  {anexo && (
+                    <Typography variant="body1" className={styles.fileLabel}>
+                      {anexo.name}
+                    </Typography>
+                  )}
+                </FormControl>
               </Grid>
             </Grid>
           </DialogContent>
