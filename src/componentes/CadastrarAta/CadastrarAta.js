@@ -173,7 +173,7 @@ function CadastrarAta(props) {
               <Grid item xs={12}>
                 <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
                   <input
-                    accept="*/*"
+                    accept="application/pdf" // aceita apenas arquivos PDF
                     style={{ display: 'none' }}
                     id="anexo-upload"
                     type="file"
@@ -187,6 +187,7 @@ function CadastrarAta(props) {
                     <Button variant="contained" color="primary" component="span">
                       Selecionar Anexo
                     </Button>
+                    <span style={{ marginLeft: '10px', color: 'red' }}>*Somente PDF</span>
                   </label>
                   {anexo && (
                     <Typography variant="body1" className={styles.fileLabel}>

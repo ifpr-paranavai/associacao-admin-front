@@ -86,6 +86,24 @@ function Atas() {
     }
   }
 
+  async function handleDownloadAnexo(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/atas/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `anexo_${id}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      notify.showError(`${error}`);
+    }
+  }
+
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -173,6 +191,14 @@ function Atas() {
                     }}
                   >
                     <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download"
+                    onClick={() => {
+                      handleDownloadAnexo(ata.id);
+                    }}
+                  >
+                    <GetAppIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
