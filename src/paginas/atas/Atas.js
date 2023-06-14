@@ -20,6 +20,7 @@ import {
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -104,6 +105,19 @@ function Atas() {
     }
   }
 
+  async function handlePreviewAnexo(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/atas/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      notify.showError(`${error}`);
+    }
+  }
+
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -175,6 +189,14 @@ function Atas() {
                 <TableCell className={styles.celula}>{ata.descricao}</TableCell>
                 <TableCell align="right">
                   <IconButton
+                    aria-label="visualizar"
+                    onClick={() => {
+                      handlePreviewAnexo(ata.id);
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                  <IconButton
                     aria-label="editar"
                     onClick={() => {
                       setAtaSelecionado(ata);
@@ -184,6 +206,14 @@ function Atas() {
                     <EditIcon />
                   </IconButton>
                   <IconButton
+                    aria-label="download"
+                    onClick={() => {
+                      handleDownloadAnexo(ata.id);
+                    }}
+                  >
+                    <GetAppIcon />
+                  </IconButton>
+                  <IconButton
                     aria-label="deletar"
                     onClick={() => {
                       setAtaSelecionado(ata);
@@ -191,14 +221,6 @@ function Atas() {
                     }}
                   >
                     <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download"
-                    onClick={() => {
-                      handleDownloadAnexo(ata.id);
-                    }}
-                  >
-                    <GetAppIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
