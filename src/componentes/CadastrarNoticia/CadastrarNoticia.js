@@ -35,7 +35,8 @@ import md5 from 'md5';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
-import ImageUploader from '../ImageUploader/ImageUploader';
+import Axios from 'axios';
+import Config from '../../uteis/configuracao';
 import ServicoNoticia from '../../servicos/ServicoNoticia';
 import { useNotify } from '../../contextos/Notificacao';
 import styles from './estilo.css';
@@ -48,14 +49,13 @@ function CadastrarNoticia(props) {
   const [saving, setSaving] = useState(false);
   const [searching, setSearching] = useState(false);
 
-  const [imagem, setImagem] = useState({ src: '', alt: '' });
+  const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [data_inicio, setDataInicio] = useState(null);
 
   function setNoticiaState() {
     const { noticia } = props;
-    setImagem(noticia.imagem);
     setTitulo(noticia.titulo);
     setDescricao(noticia.descricao);
     setDataInicio(noticia.data_inicio);
@@ -66,20 +66,28 @@ function CadastrarNoticia(props) {
     try {
       setSaving(true);
       const data = {
-        imagem,
         titulo,
         descricao,
         data_inicio,
       };
+      let idNoticia;
       if (props.noticia?.id) {
         await ServicoNoticia.atualizarNoticia(
           data,
           props.noticia.id, // passando o ID para a url
         );
+        idNoticia = props.noticia.id;
       } else {
-        await ServicoNoticia.cadastrarNoticia(data);
+        const novoNoticia = await ServicoNoticia.cadastrarNoticia(data);
+        idNoticia = novoNoticia.id;
       }
-      notify.showSuccess('Noticia salvo com sucesso!');
+      // lógica para lidar com o upload de anexos aqui
+      if (anexo) {
+        const formData = new FormData();
+        formData.append('anexo', anexo);
+        await Axios.post(`${Config.api}/noticias/${idNoticia}/anexo`, formData);
+      }
+      notify.showSuccess('Noticia salva com sucesso!');
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -99,7 +107,6 @@ function CadastrarNoticia(props) {
   }, [props.noticia]);
 
   function limparState() {
-    setImagem({ src: '', alt: '' });
     setTitulo('');
     setDescricao('');
     setDataInicio(null);
@@ -124,14 +131,6 @@ function CadastrarNoticia(props) {
                     Dados do noticia
                   </Typography>
                 </Box>
-              </Grid>
-
-              <Grid item xs={12}>
-                <ImageUploader
-                  image={imagem}
-                  className={styles.fieldMargin}
-                  onUpload={image => setImagem(image)}
-                />
               </Grid>
 
               <Grid item xs={12}>
@@ -190,6 +189,34 @@ function CadastrarNoticia(props) {
                   onChange={event => setDataInicio(event.target.value)}
                 />
               </Grid>
+              <Grid item xs={12}>
+                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
+                  <input
+                    accept=".png,.jpg,.jpeg" // aceita apenas imagens
+                    style={{ display: 'none' }}
+                    id="anexo-upload"
+                    type="file"
+                    onChange={event => {
+                      const file = event.target.files[0];
+                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
+                    }}
+                  />
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                  <label htmlFor="anexo-upload">
+                    <Button variant="contained" color="primary" component="span">
+                      Selecionar Anexo
+                    </Button>
+                    <span style={{ marginLeft: '10px', color: 'red' }}>
+                      *Somente Video e imagens
+                    </span>
+                  </label>
+                  {anexo && (
+                    <Typography variant="body1" className={styles.fileLabel}>
+                      {anexo.name}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
             </Grid>
           </DialogContent>
           <DialogActions style={{ padding: '16px' }}>
@@ -197,7 +224,11 @@ function CadastrarNoticia(props) {
               color="primary"
               style={{ marginRight: '12px' }}
               disabled={saving}
-              onClick={props.fecharFormulario}
+              onClick={() => {
+                limparState();
+                window.location.reload();
+                props.fecharFormulario();
+              }}
             >
               Cancelar
             </Button>

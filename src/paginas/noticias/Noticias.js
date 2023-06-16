@@ -19,6 +19,7 @@ import {
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -36,6 +37,8 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
+import Axios from 'axios';
+import Config from '../../uteis/configuracao';
 import CadastrarNoticia from '../../componentes/CadastrarNoticia/CadastrarNoticia';
 import ServicoNoticia from '../../servicos/ServicoNoticia';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -81,6 +84,19 @@ function Noticias() {
       notify.showError(error.message);
     } finally {
       setRemoving(false);
+    }
+  }
+
+  async function handlePreviewAnexo(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/noticias/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      notify.showError(`${error}`);
     }
   }
 
@@ -144,6 +160,7 @@ function Noticias() {
           <TableHead>
             <TableRow>
               <TableCell>Titulo</TableCell>
+              <TableCell>Imagem</TableCell>
               <TableCell>Descrição</TableCell>
               <TableCell>Data</TableCell>
               <TableCell />
@@ -153,6 +170,17 @@ function Noticias() {
             {noticias.map(noticia => (
               <TableRow key={noticia.id}>
                 <TableCell className={styles.celula}>{noticia.titulo}</TableCell>
+                <TableCell className={styles.celula}>
+                  {noticia.imagem}
+                  <IconButton
+                    aria-label="visualizar"
+                    onClick={() => {
+                      handlePreviewAnexo(noticia.id);
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                </TableCell>
                 <TableCell className={styles.celula}>{noticia.descricao}</TableCell>
                 <TableCell className={styles.celula}>
                   {formatarData(noticia.data_inicio)}
