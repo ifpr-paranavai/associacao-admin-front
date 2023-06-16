@@ -203,7 +203,11 @@ function CadastrarAta(props) {
               color="primary"
               style={{ marginRight: '12px' }}
               disabled={saving}
-              onClick={props.fecharFormulario}
+              onClick={() => {
+                limparState();
+                window.location.reload();
+                props.fecharFormulario();
+              }}
             >
               Cancelar
             </Button>
