@@ -234,7 +234,10 @@ function Videos() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => onCloseRemoveVideo()}
+        onClose={() => {
+          onCloseRemoveVideo();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -246,7 +249,13 @@ function Videos() {
           )}
         </DialogTitle>
         <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
-          <Button color="primary" onClick={() => onCloseRemoveVideo()}>
+          <Button
+            color="primary"
+            onClick={() => {
+              onCloseRemoveVideo();
+              window.location.reload();
+            }}
+          >
             Cancelar
           </Button>
           <div className={styles.wrapper}>

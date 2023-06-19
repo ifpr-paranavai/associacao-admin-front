@@ -105,7 +105,10 @@ function CadastrarFoto(props) {
     <div>
       <Dialog
         open={props.open}
-        onClose={props.fecharFormulario}
+        onClose={() => {
+          props.fecharFormulario();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
         fullScreen={isMobile}

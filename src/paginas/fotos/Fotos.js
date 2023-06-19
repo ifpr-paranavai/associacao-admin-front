@@ -269,7 +269,10 @@ function Fotos() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => onCloseRemoveFoto()}
+        onClose={() => {
+          onCloseRemoveFoto();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -281,7 +284,13 @@ function Fotos() {
           )}
         </DialogTitle>
         <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
-          <Button color="primary" onClick={() => onCloseRemoveFoto()}>
+          <Button
+            color="primary"
+            onClick={() => {
+              onCloseRemoveFoto();
+              window.location.reload();
+            }}
+          >
             Cancelar
           </Button>
           <div className={styles.wrapper}>
