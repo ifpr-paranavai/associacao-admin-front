@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
+  Checkbox,
   Avatar,
   IconButton,
   Container,
@@ -49,6 +50,7 @@ import { useNavigation } from '../../contextos/Navegacao';
 import { formatarData } from '../../uteis/formatarData';
 
 function Noticias() {
+  const [selectedNoticias, setSelectedNoticias] = useState([]);
   const [noticias, setNoticias] = useState([]);
   const [open, setOpen] = useState(false);
   const [noticiaSelecionado, setNoticiaSelecionado] = useState(null);
@@ -100,6 +102,42 @@ function Noticias() {
     }
   }
 
+  async function handlePreview(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/noticias/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      return url;
+    } catch (error) {
+      notify.showError(`${error}`);
+    }
+  }
+
+  async function handleDeleteSelected() {
+    try {
+      setRemoving(true);
+      await Promise.all(selectedNoticias.map(id => ServicoNoticia.deletarNoticia(id)));
+      setSelectedNoticias([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
+  const handleSelectNoticia = (event, id) => {
+    if (event.target.checked) {
+      setSelectedNoticias(prevSelected => [...prevSelected, id]);
+    } else {
+      setSelectedNoticias(prevSelected => prevSelected.filter(item => item !== id));
+    }
+  };
+
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -113,7 +151,13 @@ function Noticias() {
     async function fetchData() {
       try {
         const dadosAPI = await ServicoNoticia.listarNoticias();
-        setNoticias(dadosAPI);
+        const noticiasComUrl = await Promise.all(
+          dadosAPI.map(async noticia => {
+            const url = await handlePreview(noticia.id);
+            return { ...noticia, url };
+          }),
+        );
+        setNoticias(noticiasComUrl);
       } catch (error) {
         // console.error('Erro ao buscar dados da API:', error);
       }
@@ -146,19 +190,31 @@ function Noticias() {
             ),
           }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={abrirFormulario}
-        >
-          Adicionar
-        </Button>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={abrirFormulario}
+            style={{ marginRight: '8px' }}
+          >
+            Adicionar
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<DeleteIcon />}
+            onClick={handleDeleteSelected}
+          >
+            Excluir
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table className={styles.table}>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>Titulo</TableCell>
               <TableCell>Imagem</TableCell>
               <TableCell>Descrição</TableCell>
@@ -169,17 +225,12 @@ function Noticias() {
           <TableBody>
             {noticias.map(noticia => (
               <TableRow key={noticia.id}>
+                <TableCell padding="checkbox">
+                  <Checkbox onChange={event => handleSelectNoticia(event, noticia.id)} />
+                </TableCell>
                 <TableCell className={styles.celula}>{noticia.titulo}</TableCell>
-                <TableCell className={styles.celula}>
-                  {noticia.imagem}
-                  <IconButton
-                    aria-label="visualizar"
-                    onClick={() => {
-                      handlePreviewAnexo(noticia.id);
-                    }}
-                  >
-                    <VisibilityIcon />
-                  </IconButton>
+                <TableCell>
+                  <img src={noticia.url} alt="Preview" width="100" />
                 </TableCell>
                 <TableCell className={styles.celula}>{noticia.descricao}</TableCell>
                 <TableCell className={styles.celula}>
@@ -218,7 +269,10 @@ function Noticias() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => onCloseRemoveNoticia()}
+        onClose={() => {
+          onCloseRemoveNoticia();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -230,7 +284,13 @@ function Noticias() {
           )}
         </DialogTitle>
         <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
-          <Button color="primary" onClick={() => onCloseRemoveNoticia()}>
+          <Button
+            color="primary"
+            onClick={() => {
+              onCloseRemoveNoticia();
+              window.location.reload();
+            }}
+          >
             Cancelar
           </Button>
           <div className={styles.wrapper}>
