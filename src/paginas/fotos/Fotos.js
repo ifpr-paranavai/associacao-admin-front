@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
+  Checkbox,
   Avatar,
   IconButton,
   Container,
@@ -49,6 +50,7 @@ import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
 
 function Fotos() {
+  const [selectedFotos, setSelectedFotos] = useState([]);
   const [fotos, setFotos] = useState([]);
   const [open, setOpen] = useState(false);
   const [fotoSelecionado, setFotoSelecionado] = useState(null);
@@ -104,6 +106,29 @@ function Fotos() {
       setRemoving(false);
     }
   }
+
+  async function handleDeleteSelected() {
+    try {
+      setRemoving(true);
+      await Promise.all(selectedFotos.map(id => ServicoFoto.deletarFoto(id)));
+      setSelectedFotos([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
+  const handleSelectFoto = (event, id) => {
+    if (event.target.checked) {
+      setSelectedFotos(prevSelected => [...prevSelected, id]);
+    } else {
+      setSelectedFotos(prevSelected => prevSelected.filter(item => item !== id));
+    }
+  };
 
   async function handleDownloadAnexo(id) {
     try {
@@ -195,19 +220,31 @@ function Fotos() {
             ),
           }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={abrirFormulario}
-        >
-          Adicionar
-        </Button>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={abrirFormulario}
+            style={{ marginRight: '8px' }}
+          >
+            Adicionar
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<DeleteIcon />}
+            onClick={handleDeleteSelected}
+          >
+            Excluir
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table className={styles.table}>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>Titulo</TableCell>
               <TableCell>Fotos</TableCell>
               <TableCell />
@@ -216,6 +253,9 @@ function Fotos() {
           <TableBody>
             {fotos.map(foto => (
               <TableRow key={foto.id}>
+                <TableCell padding="checkbox">
+                  <Checkbox onChange={event => handleSelectFoto(event, foto.id)} />
+                </TableCell>
                 <TableCell className={styles.celula}>{foto.titulo}</TableCell>
                 <TableCell>
                   <img src={foto.url} alt="Preview" width="100" />

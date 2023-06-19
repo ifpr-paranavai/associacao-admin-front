@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
+  Checkbox,
   Avatar,
   IconButton,
   Container,
@@ -49,6 +50,7 @@ import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
 
 function Videos() {
+  const [selectedVideos, setSelectedVideos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [open, setOpen] = useState(false);
   const [videoSelecionado, setVideoSelecionado] = useState(null);
@@ -86,6 +88,29 @@ function Videos() {
       setRemoving(false);
     }
   }
+
+  async function handleDeleteSelected() {
+    try {
+      setRemoving(true);
+      await Promise.all(selectedVideos.map(id => ServicoVideo.deletarVideo(id)));
+      setSelectedVideos([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
+  const handleSelectVideo = (event, id) => {
+    if (event.target.checked) {
+      setSelectedVideos(prevSelected => [...prevSelected, id]);
+    } else {
+      setSelectedVideos(prevSelected => prevSelected.filter(item => item !== id));
+    }
+  };
 
   async function handleDownloadAnexo(id) {
     try {
@@ -164,19 +189,31 @@ function Videos() {
             ),
           }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={abrirFormulario}
-        >
-          Adicionar
-        </Button>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={abrirFormulario}
+            style={{ marginRight: '8px' }}
+          >
+            Adicionar
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<DeleteIcon />}
+            onClick={handleDeleteSelected}
+          >
+            Excluir
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table className={styles.table}>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>Titulo</TableCell>
               <TableCell />
             </TableRow>
@@ -184,6 +221,9 @@ function Videos() {
           <TableBody>
             {videos.map(video => (
               <TableRow key={video.id}>
+                <TableCell padding="checkbox">
+                  <Checkbox onChange={event => handleSelectVideo(event, video.id)} />
+                </TableCell>
                 <TableCell className={styles.celula}>{video.titulo}</TableCell>
                 <TableCell align="right">
                   <IconButton
