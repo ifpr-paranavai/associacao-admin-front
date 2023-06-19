@@ -253,7 +253,10 @@ function Classificados() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => onCloseRemoveClassificado()}
+        onClose={() => {
+          onCloseRemoveClassificado();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -265,7 +268,13 @@ function Classificados() {
           )}
         </DialogTitle>
         <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
-          <Button color="primary" onClick={() => onCloseRemoveClassificado()}>
+          <Button
+            color="primary"
+            onClick={() => {
+              onCloseRemoveClassificado();
+              window.location.reload();
+            }}
+          >
             Cancelar
           </Button>
           <div className={styles.wrapper}>

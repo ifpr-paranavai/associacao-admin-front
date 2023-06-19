@@ -121,7 +121,10 @@ function CadastrarClassificado(props) {
     <div>
       <Dialog
         open={props.open}
-        onClose={props.fecharFormulario}
+        onClose={() => {
+          props.fecharFormulario();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
         fullScreen={isMobile}
@@ -262,7 +265,11 @@ function CadastrarClassificado(props) {
               color="primary"
               style={{ marginRight: '12px' }}
               disabled={saving}
-              onClick={props.fecharFormulario}
+              onClick={() => {
+                limparState();
+                window.location.reload();
+                props.fecharFormulario();
+              }}
             >
               Cancelar
             </Button>
