@@ -90,6 +90,10 @@ function Videos() {
   }
 
   async function handleDeleteSelected() {
+    if (selectedVideos.length === 0) {
+      // Não há videos selecionados, retornar ou realizar outra ação.
+      return;
+    }
     try {
       setRemoving(true);
       await Promise.all(selectedVideos.map(id => ServicoVideo.deletarVideo(id)));

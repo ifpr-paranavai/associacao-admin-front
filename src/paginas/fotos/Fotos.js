@@ -108,6 +108,10 @@ function Fotos() {
   }
 
   async function handleDeleteSelected() {
+    if (selectedFotos.length === 0) {
+      // Não há fotos selecionadas, retornar ou realizar outra ação.
+      return;
+    }
     try {
       setRemoving(true);
       await Promise.all(selectedFotos.map(id => ServicoFoto.deletarFoto(id)));
