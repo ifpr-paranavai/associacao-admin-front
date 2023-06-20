@@ -35,7 +35,9 @@ import md5 from 'md5';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
+import Axios from 'axios';
 import ImageUploader from '../ImageUploader/ImageUploader';
+import Config from '../../uteis/configuracao';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import { useNotify } from '../../contextos/Notificacao';
 import styles from './estilo.css';
@@ -48,6 +50,7 @@ function CadastrarEvento(props) {
   const [saving, setSaving] = useState(false);
   const [searching, setSearching] = useState(false);
 
+  const [anexo, setAnexo] = useState(null);
   const [imagem, setImagem] = useState({ src: '', alt: '' });
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -81,13 +84,21 @@ function CadastrarEvento(props) {
         data_fim,
         ativo: true,
       };
+      let idEvento;
       if (props.evento?.id) {
         await ServicoEvento.atualizarEvento(
           data,
           props.evento.id, // passando o ID para a url
         );
+        idEvento = props.evento.id;
       } else {
-        await ServicoEvento.cadastrarEvento(data);
+        const novoEvento = await ServicoEvento.cadastrarEvento(data);
+        idEvento = novoEvento.id;
+      }
+      if (anexo) {
+        const formData = new FormData();
+        formData.append('anexo', anexo);
+        await Axios.post(`${Config.api}/noticias/${idEvento}/anexo`, formData);
       }
       notify.showSuccess('Evento salvo com sucesso!');
       setTimeout(() => {
@@ -140,11 +151,32 @@ function CadastrarEvento(props) {
               </Grid>
 
               <Grid item xs={12}>
-                <ImageUploader
-                  image={imagem}
-                  className={styles.fieldMargin}
-                  onUpload={image => setImagem(image)}
-                />
+                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
+                  <input
+                    accept=".png,.jpg,.jpeg" // aceita apenas imagens
+                    style={{ display: 'none' }}
+                    id="anexo-upload"
+                    type="file"
+                    onChange={event => {
+                      const file = event.target.files[0];
+                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
+                    }}
+                  />
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                  <label htmlFor="anexo-upload">
+                    <Button variant="contained" color="primary" component="span">
+                      Selecionar Anexo
+                    </Button>
+                    <span style={{ marginLeft: '10px', color: 'red' }}>
+                      *Somente Video e imagens
+                    </span>
+                  </label>
+                  {anexo && (
+                    <Typography variant="body1" className={styles.fileLabel}>
+                      {anexo.name}
+                    </Typography>
+                  )}
+                </FormControl>
               </Grid>
 
               <Grid item xs={12}>

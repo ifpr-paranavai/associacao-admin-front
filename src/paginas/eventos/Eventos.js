@@ -36,10 +36,11 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
+import Axios from 'axios';
 import CadastrarEvento from '../../componentes/CadastrarEvento/CadastrarEvento';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
-
+import Config from '../../uteis/configuracao';
 import styles from './estilo.css';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
@@ -84,6 +85,32 @@ function Eventos() {
     }
   }
 
+  async function handlePreviewAnexo(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      notify.showError(`${error}`);
+    }
+  }
+
+  async function handlePreview(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      return url;
+    } catch (error) {
+      notify.showError(`${error}`);
+    }
+  }
+
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -97,7 +124,13 @@ function Eventos() {
     async function fetchData() {
       try {
         const dadosAPI = await ServicoEvento.listarEventos();
-        setEventos(dadosAPI);
+        const eventosComUrl = await Promise.all(
+          dadosAPI.map(async evento => {
+            const url = await handlePreview(evento.id);
+            return { ...evento, url };
+          }),
+        );
+        setEventos(eventosComUrl);
       } catch (error) {
         // console.error('Erro ao buscar dados da API:', error);
       }
@@ -144,6 +177,7 @@ function Eventos() {
           <TableHead>
             <TableRow>
               <TableCell>Titulo</TableCell>
+              <TableCell>Imagem</TableCell>
               <TableCell>Descrição</TableCell>
               <TableCell>Local</TableCell>
               <TableCell>Data</TableCell>
@@ -154,6 +188,9 @@ function Eventos() {
             {eventos.map(evento => (
               <TableRow key={evento.id}>
                 <TableCell className={styles.celula}>{evento.titulo}</TableCell>
+                <TableCell>
+                  <img src={evento.imagem} alt="Preview" width="100" />
+                </TableCell>
                 <TableCell className={styles.celula}>{evento.descricao}</TableCell>
                 <TableCell className={styles.celula}>{evento.local}</TableCell>
                 <TableCell className={styles.celula}>
