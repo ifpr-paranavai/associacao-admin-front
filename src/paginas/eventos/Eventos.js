@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
+  Checkbox,
   Avatar,
   IconButton,
   Container,
@@ -47,6 +48,7 @@ import { useNavigation } from '../../contextos/Navegacao';
 import { formatarData } from '../../uteis/formatarData';
 
 function Eventos() {
+  const [selectedEventos, setSelectedEventos] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [open, setOpen] = useState(false);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
@@ -97,6 +99,34 @@ function Eventos() {
       notify.showError(`${error}`);
     }
   }
+
+  async function handleDeleteSelected() {
+    if (selectedEventos.length === 0) {
+      // Não há eventos selecionados, retornar ou realizar outra ação.
+      return;
+    }
+
+    try {
+      setRemoving(true);
+      await Promise.all(selectedEventos.map(id => ServicoEvento.deletarEvento(id)));
+      setSelectedEventos([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
+  const handleSelectEvento = (event, id) => {
+    if (event.target.checked) {
+      setSelectedEventos(prevSelected => [...prevSelected, id]);
+    } else {
+      setSelectedEventos(prevSelected => prevSelected.filter(item => item !== id));
+    }
+  };
 
   const { setLocation } = useNavigation();
   useEffect(() => {
@@ -150,19 +180,31 @@ function Eventos() {
             ),
           }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={abrirFormulario}
-        >
-          Adicionar
-        </Button>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={abrirFormulario}
+            style={{ marginRight: '8px' }}
+          >
+            Adicionar
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<DeleteIcon />}
+            onClick={handleDeleteSelected}
+          >
+            Excluir
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table className={styles.table}>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>Titulo</TableCell>
               <TableCell>Imagem</TableCell>
               <TableCell>Descrição</TableCell>
@@ -174,6 +216,9 @@ function Eventos() {
           <TableBody>
             {eventos.map(evento => (
               <TableRow key={evento.id}>
+                <TableCell padding="checkbox">
+                  <Checkbox onChange={event => handleSelectEvento(event, evento.id)} />
+                </TableCell>
                 <TableCell className={styles.celula}>{evento.titulo}</TableCell>
                 <TableCell>
                   <img src={evento.url} alt="Preview" width="100" />
