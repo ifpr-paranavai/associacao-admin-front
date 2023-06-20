@@ -3,6 +3,11 @@ import {
   Box,
   Paper,
   Checkbox,
+  Card,
+  Grid,
+  CardContent,
+  CardMedia,
+  CardActions,
   Avatar,
   IconButton,
   Container,
@@ -214,57 +219,50 @@ function Noticias() {
           </Button>
         </Box>
       </Box>
-      <TableContainer component={Paper}>
-        <Table className={styles.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Titulo</TableCell>
-              <TableCell>Imagem</TableCell>
-              <TableCell>Descrição</TableCell>
-              <TableCell>Data</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {noticias.map(noticia => (
-              <TableRow key={noticia.id}>
-                <TableCell padding="checkbox">
-                  <Checkbox onChange={event => handleSelectNoticia(event, noticia.id)} />
-                </TableCell>
-                <TableCell className={styles.celula}>{noticia.titulo}</TableCell>
-                <TableCell>
-                  <img src={noticia.url} alt="Preview" width="100" />
-                </TableCell>
-                <TableCell className={styles.celula}>{noticia.descricao}</TableCell>
-                <TableCell className={styles.celula}>
-                  {formatarData(noticia.data_inicio)}
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    aria-label="editar"
-                    onClick={() => {
-                      setNoticiaSelecionado(noticia);
-                      setOpen(true);
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="deletar"
-                    onClick={() => {
-                      setNoticiaSelecionado(noticia);
-                      setDeleteDialog(true);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Grid container spacing={3}>
+        {noticias.map(noticia => (
+          <Grid item key={noticia.id} xs={12} sm={6} md={4}>
+            <Card style={{ borderRadius: '16px' }}>
+              <CardMedia
+                component="img"
+                alt="Imagem da notícia"
+                height="220"
+                image={noticia.url}
+                title="Imagem da notícia"
+              />
+              <CardContent>
+                <h2>{noticia.titulo}</h2>
+                <p>{noticia.descricao}</p>
+                <p>{formatarData(noticia.data_inicio)}</p>
+              </CardContent>
+              <CardActions>
+                <Checkbox
+                  onChange={event => handleSelectNoticia(event, noticia.id)}
+                  checked={selectedNoticias.includes(noticia.id)}
+                />
+                <IconButton
+                  aria-label="editar"
+                  onClick={() => {
+                    setNoticiaSelecionado(noticia);
+                    setOpen(true);
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  aria-label="deletar"
+                  onClick={() => {
+                    setNoticiaSelecionado(noticia);
+                    setDeleteDialog(true);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
       <CadastrarNoticia
         open={open}
         noticia={noticiaSelecionado}
