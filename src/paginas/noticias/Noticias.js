@@ -116,6 +116,10 @@ function Noticias() {
   }
 
   async function handleDeleteSelected() {
+    if (selectedNoticias.length === 0) {
+      // Não há eventos selecionados, retornar ou realizar outra ação.
+      return;
+    }
     try {
       setRemoving(true);
       await Promise.all(selectedNoticias.map(id => ServicoNoticia.deletarNoticia(id)));
