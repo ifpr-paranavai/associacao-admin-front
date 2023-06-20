@@ -51,7 +51,6 @@ function CadastrarEvento(props) {
   const [searching, setSearching] = useState(false);
 
   const [anexo, setAnexo] = useState(null);
-  const [imagem, setImagem] = useState({ src: '', alt: '' });
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [link, setLink] = useState('');
@@ -61,7 +60,6 @@ function CadastrarEvento(props) {
 
   function setEventoState() {
     const { evento } = props;
-    setImagem(evento.imagem);
     setTitulo(evento.titulo);
     setDescricao(evento.descricao);
     setLink(evento.link);
@@ -75,7 +73,6 @@ function CadastrarEvento(props) {
     try {
       setSaving(true);
       const data = {
-        imagem,
         titulo,
         descricao,
         link,
@@ -98,7 +95,7 @@ function CadastrarEvento(props) {
       if (anexo) {
         const formData = new FormData();
         formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/noticias/${idEvento}/anexo`, formData);
+        await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
       }
       notify.showSuccess('Evento salvo com sucesso!');
       setTimeout(() => {
@@ -120,7 +117,6 @@ function CadastrarEvento(props) {
   }, [props.evento]);
 
   function limparState() {
-    setImagem({ src: '', alt: '' });
     setTitulo('');
     setDescricao('');
     setLink('');
@@ -133,7 +129,10 @@ function CadastrarEvento(props) {
     <div>
       <Dialog
         open={props.open}
-        onClose={props.fecharFormulario}
+        onClose={() => {
+          props.fecharFormulario();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
         fullScreen={isMobile}
@@ -298,7 +297,11 @@ function CadastrarEvento(props) {
               color="primary"
               style={{ marginRight: '12px' }}
               disabled={saving}
-              onClick={props.fecharFormulario}
+              onClick={() => {
+                limparState();
+                props.fecharFormulario();
+                window.location.reload();
+              }}
             >
               Cancelar
             </Button>

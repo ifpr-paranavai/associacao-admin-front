@@ -85,19 +85,6 @@ function Eventos() {
     }
   }
 
-  async function handlePreviewAnexo(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
   async function handlePreview(id) {
     try {
       const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
@@ -189,7 +176,7 @@ function Eventos() {
               <TableRow key={evento.id}>
                 <TableCell className={styles.celula}>{evento.titulo}</TableCell>
                 <TableCell>
-                  <img src={evento.imagem} alt="Preview" width="100" />
+                  <img src={evento.url} alt="Preview" width="100" />
                 </TableCell>
                 <TableCell className={styles.celula}>{evento.descricao}</TableCell>
                 <TableCell className={styles.celula}>{evento.local}</TableCell>
@@ -229,7 +216,10 @@ function Eventos() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => onCloseRemoveEvento()}
+        onClose={() => {
+          onCloseRemoveEvento();
+          window.location.reload();
+        }}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -241,7 +231,13 @@ function Eventos() {
           )}
         </DialogTitle>
         <DialogActions style={{ justifyContent: 'space-around', padding: '10px' }}>
-          <Button color="primary" onClick={() => onCloseRemoveEvento()}>
+          <Button
+            color="primary"
+            onClick={() => {
+              onCloseRemoveEvento();
+              window.location.reload();
+            }}
+          >
             Cancelar
           </Button>
           <div className={styles.wrapper}>
