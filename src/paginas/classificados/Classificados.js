@@ -76,6 +76,10 @@ function Classificados() {
   }
 
   async function handleDeleteSelected() {
+    if (selectedClassificados.length === 0) {
+      // Não há eventos selecionados, retornar ou realizar outra ação.
+      return;
+    }
     try {
       setRemoving(true);
       await Promise.all(
