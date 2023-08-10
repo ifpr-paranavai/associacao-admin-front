@@ -56,6 +56,7 @@ function Videos() {
   const [videoSelecionado, setVideoSelecionado] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [progress, setProgress] = useState(0);
   const notify = useNotify();
 
   const abrirFormulario = () => {
@@ -116,10 +117,17 @@ function Videos() {
     }
   };
 
-  async function handleDownloadAnexo(id) {
+  const handleDownloadAnexo = async id => {
+    setProgress(0);
     try {
       const response = await Axios.get(`${Config.api}/videos/${id}/anexo/download`, {
         responseType: 'blob',
+        onDownloadProgress: progressEvent => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          setProgress(percentCompleted);
+        },
       });
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
       const url = window.URL.createObjectURL(blob);
@@ -132,7 +140,8 @@ function Videos() {
     } catch (error) {
       notify.showError(`${error}`);
     }
-  }
+    setProgress(0);
+  };
 
   async function handlePreviewAnexo(id) {
     try {
@@ -256,6 +265,9 @@ function Videos() {
                   >
                     <VisibilityIcon />
                   </IconButton>
+                  {progress > 0 && (
+                    <LinearProgress variant="determinate" value={progress} />
+                  )}
                   <IconButton
                     aria-label="download"
                     onClick={() => {
