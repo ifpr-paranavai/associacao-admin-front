@@ -27,7 +27,6 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
 import InputMask from 'react-input-mask';
 
 import {
@@ -39,12 +38,11 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
-import Axios from 'axios';
+import axios from 'axios';
 import Config from '../../uteis/configuracao';
 import CadastrarVideo from '../../componentes/CadastrarVideo/CadastrarVideo';
 import ServicoVideo from '../../servicos/ServicoVideo';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
-
 import styles from './estilo.css';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
@@ -57,6 +55,8 @@ function Videos() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [cancelToken, setCancelToken] = useState(null);
   const notify = useNotify();
 
   const abrirFormulario = () => {
@@ -118,9 +118,21 @@ function Videos() {
   };
 
   const handleDownloadAnexo = async id => {
-    setProgress(0);
+    if (loading) {
+      cancelToken.cancel('Download cancelado pelo usuário.');
+      setCancelToken(null);
+      setLoading(false);
+      setProgress(0); // adicionado para definir o progresso como 0
+      return;
+    }
+
+    const newCancelToken = axios.CancelToken.source();
+    setCancelToken(newCancelToken);
+
+    setLoading(true);
+
     try {
-      const response = await Axios.get(`${Config.api}/videos/${id}/anexo/download`, {
+      const response = await axios.get(`${Config.api}/videos/${id}/anexo/download`, {
         responseType: 'blob',
         onDownloadProgress: progressEvent => {
           const percentCompleted = Math.round(
@@ -128,24 +140,18 @@ function Videos() {
           );
           setProgress(percentCompleted);
         },
+        cancelToken: newCancelToken.token,
       });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `anexo_${id}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      notify.showError(`${error}`);
+    } finally {
+      setCancelToken(null);
+      setLoading(false);
+      setProgress(0);
     }
-    setProgress(0);
   };
 
   async function handlePreviewAnexo(id) {
     try {
-      const response = await Axios.get(`${Config.api}/videos/${id}/anexo/download`, {
+      const response = await axios.get(`${Config.api}/videos/${id}/anexo/download`, {
         responseType: 'blob',
       });
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -265,9 +271,6 @@ function Videos() {
                   >
                     <VisibilityIcon />
                   </IconButton>
-                  {progress > 0 && (
-                    <LinearProgress variant="determinate" value={progress} />
-                  )}
                   <IconButton
                     aria-label="download"
                     onClick={() => {
@@ -276,6 +279,14 @@ function Videos() {
                   >
                     <GetAppIcon />
                   </IconButton>
+                  {progress > 0 && (
+                    <CircularProgress
+                      variant="determinate"
+                      value={progress}
+                      size={30} // Defina o tamanho do círculo de progresso conforme necessário
+                      thickness={5} // Defina a espessura do círculo de progresso conforme necessário
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             ))}
