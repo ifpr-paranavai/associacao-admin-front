@@ -40,7 +40,7 @@ export default function PaginaLogin() {
 
       window.location.replace('/');
     } catch (e) {
-      notify.showError(e);
+      notify.showError(e.message);
     } finally {
       setLoading(false);
     }
