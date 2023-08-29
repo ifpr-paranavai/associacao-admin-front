@@ -100,7 +100,7 @@ export default function PaginaLogin() {
               labelWidth={70}
             />
           </FormControl>
-          <div style={{ height: 40 }} />
+          <div style={{ height: 20 }} />
           <div className={classes.wrapper}>
             <Button
               type="submit"
