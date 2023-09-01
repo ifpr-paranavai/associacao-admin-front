@@ -91,9 +91,10 @@ function CadastrarAssociado(props) {
         bairro,
         estado,
         cidade,
+        senha: '12345',
       };
 
-      if (associado) {
+      if (associado.id) {
         await ServicoAssociado.atualizarAssociado(associadoData, associado.id);
       } else {
         await ServicoAssociado.cadastrarAssociado(associadoData);
@@ -192,7 +193,7 @@ function CadastrarAssociado(props) {
               <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
                 <TextField
                   value={dataNascimento}
-                  label="Data de nascimento"
+                  type="date"
                   required
                   variant="outlined"
                   onChange={event => setDataNascimento(event.target.value)}
