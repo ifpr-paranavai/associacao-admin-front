@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
-  Avatar,
   IconButton,
   Container,
   TableContainer,
@@ -11,7 +10,6 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TablePagination,
   Button,
   LinearProgress,
   CircularProgress,
@@ -60,7 +58,10 @@ const Associados = () => {
   const [associados, setAssociados] = useState([]);
   const classes = useStyles();
 
-  const abrirFormulario = () => {
+  const abrirFormulario = associado => {
+    if (associado) {
+      setAssociadoSelecionado(associado);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {
@@ -73,7 +74,6 @@ const Associados = () => {
 
   function onCloseRemoveAssociado() {
     setDeleteDialog(false);
-    setAssociadoSelecionado(null);
   }
 
   async function handleRemoveAssociado() {
@@ -88,19 +88,6 @@ const Associados = () => {
       notify.showError(error.message);
     } finally {
       setRemoving(false);
-    }
-  }
-
-  async function handlePreview(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      return url;
-    } catch (error) {
-      notify.showError(`${error}`);
     }
   }
 
@@ -231,7 +218,7 @@ const Associados = () => {
                       aria-label="editar"
                       onClick={() => {
                         setAssociadoSelecionado(associado);
-                        setOpen(true);
+                        abrirFormulario(associado);
                       }}
                     >
                       <EditIcon />

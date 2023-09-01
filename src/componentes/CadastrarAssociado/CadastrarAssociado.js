@@ -20,76 +20,78 @@ function CadastrarAssociado(props) {
   const notify = useNotify();
 
   const [saving, setSaving] = useState(false);
-  const [associadoData, setAssociadoData] = useState({
-    numero: '',
-    bairro: '',
-    rua: '',
-    cep: '',
-    cidade: '',
-    estado: '',
-    tel_celular: '',
-    whatsapp: '',
-    nome: '',
-    sobrenome: '',
-    data_nascimento: null,
-    cpf: '',
-    rg: '',
-    tel_residencial: '',
-    tel_comercial: '',
-    email: '',
-    email_alternativo: '',
-    modalidade: '',
-    receber_comunicado: false,
-    perfil: '',
-    data_cadastro: new Date(),
-  });
-
-  const [cpfConfirmacao, setCPFConfirmacao] = useState('');
+  const [nome, setNome] = useState('');
+  const [sobrenome, setSobrenome] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [rg, setRg] = useState('');
+  const [telCelular, setTelCelular] = useState('');
+  const [whatsapp, setWhatsapp] = useState(false);
+  const [telComercial, setTelComercial] = useState('');
+  const [telResidencial, setTelResidencial] = useState('');
+  const [email, setEmail] = useState('');
+  const [emailAlternativo, setEmailAlternativo] = useState('');
+  const [cep, setCep] = useState('');
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [estado, setEstado] = useState('');
+  const [cidade, setCidade] = useState('');
 
   const { associado, fecharFormulario, onSave } = props;
 
   useEffect(() => {
     if (associado) {
-      setAssociadoData(associado);
+      setNome(associado.nome || '');
+      setSobrenome(associado.sobrenome || '');
+      setDataNascimento(associado.data_nascimento || '');
+      setCpf(associado.cpf || '');
+      setRg(associado.rg || '');
+      setTelCelular(associado.tel_celular || '');
+      setWhatsapp(!!associado.whatsapp); // Converte para booleano
+      setTelComercial(associado.tel_comercial || '');
+      setTelResidencial(associado.tel_residencial || '');
+      setEmail(associado.email || '');
+      setEmailAlternativo(associado.email_alternativo || '');
+      setCep(associado.cep || '');
+      setRua(associado.rua || '');
+      setNumero(associado.numero || '');
+      setBairro(associado.bairro || '');
+      setEstado(associado.estado || '');
+      setCidade(associado.cidade || '');
     }
   }, [associado]);
 
   const limparState = () => {
-    setAssociadoData({
-      numero: '',
-      bairro: '',
-      rua: '',
-      cep: '',
-      cidade: '',
-      estado: '',
-      tel_celular: '',
-      whatsapp: '',
-      nome: '',
-      sobrenome: '',
-      data_nascimento: null,
-      cpf: '',
-      rg: '',
-      tel_residencial: '',
-      tel_comercial: '',
-      email: '',
-      email_alternativo: '',
-      modalidade: '',
-      receber_comunicado: false,
-      perfil: '',
-      data_cadastro: new Date(),
-    });
+    // Limpe os estados separados
+    setNome('');
+    setSobrenome('');
+    setDataNascimento('');
+    // Faça o mesmo para os outros campos...
   };
 
   const salvarAssociado = async event => {
     event.preventDefault();
     try {
-      setSaving(true);
-
-      if (cpfConfirmacao !== associadoData.cpf) {
-        notify.showError('CPF de confirmação não corresponde.');
-        setSaving(false);
-        return;
-      }
+      const associadoData = {
+        nome,
+        sobrenome,
+        data_nascimento: dataNascimento,
+        cpf,
+        rg,
+        tel_celular: telCelular,
+        whatsapp,
+        tel_comercial: telComercial,
+        tel_residencial: telResidencial,
+        email,
+        email_alternativo: emailAlternativo,
+        cep,
+        rua,
+        numero,
+        bairro,
+        estado,
+        cidade,
+      };
 
       if (associado) {
         await ServicoAssociado.atualizarAssociado(associadoData, associado.id);
@@ -156,33 +158,25 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
                   autoFocus
-                  value={associadoData.nome}
+                  value={nome}
                   label="Nome do associado"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setNome(event.target.value)}
                 />
               </FormControl>
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.sobrenome}
+                  value={sobrenome}
                   label="Sobrenome do associado"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setSobrenome(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -195,31 +189,23 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.data_nascimento}
+                  value={dataNascimento}
                   label="Data de nascimento"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setDataNascimento(event.target.value)}
                 />
               </FormControl>
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.cpf}
+                  value={cpf}
                   label="CPF"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setCpf(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -231,18 +217,14 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.rg}
+                  value={rg}
                   label="RG"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setRg(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -263,21 +245,21 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.tel_celular}
+                  value={telCelular}
                   label="Telefone celular"
                   type="text"
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setTelCelular(event.target.value)}
                 />
               </FormControl>
-              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <FormControlLabel
-                  value={associadoData.whatsapp}
+                  value={whatsapp}
                   control={<Switch color="primary" />}
                   label="Whatsapp"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setWhatsapp(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -290,22 +272,21 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.tel_comercial}
+                  value={telComercial}
                   label="Telefone comercial"
-                  required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setTelComercial(event.target.value)}
                 />
               </FormControl>
-              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
+              <FormControl style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.tel_residencial}
+                  value={telResidencial}
                   label="Telefone residêncial"
                   type="text"
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setTelResidencial(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -320,24 +301,19 @@ function CadastrarAssociado(props) {
             >
               <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.email}
+                  value={email}
                   label="Email"
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setEmail(event.target.value)}
                 />
               </FormControl>
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.email_alternativo}
+                  value={emailAlternativo}
                   label="Email alternativo"
                   type="text"
-                  required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setEmailAlternativo(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -359,17 +335,13 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '25%', margin: '5px' }}
-              >
+              <FormControl variant="outlined" style={{ width: '25%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.cep}
+                  value={cep}
                   label="CEP"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setCep(event.target.value)}
                 />
               </FormControl>
               <FormControl
@@ -378,12 +350,12 @@ function CadastrarAssociado(props) {
                 style={{ width: '65%', margin: '5px' }}
               >
                 <TextField
-                  value={associadoData.rua}
+                  value={rua}
                   label="Logradouro"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setRua(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -396,17 +368,13 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.numero}
+                  value={numero}
                   label="Numero"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setNumero(event.target.value)}
                 />
               </FormControl>
               <FormControl
@@ -415,12 +383,12 @@ function CadastrarAssociado(props) {
                 style={{ width: '45%', margin: '5px' }}
               >
                 <TextField
-                  value={associadoData.bairro}
+                  value={bairro}
                   label="Bairro"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setBairro(event.target.value)}
                 />
               </FormControl>
             </Grid>
@@ -433,17 +401,13 @@ function CadastrarAssociado(props) {
                 marginBottom: '10px',
               }}
             >
-              <FormControl
-                variant="outlined"
-                required
-                style={{ width: '45%', margin: '5px' }}
-              >
+              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
                 <TextField
-                  value={associadoData.estado}
+                  value={estado}
                   label="Estado"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setEstado(event.target.value)}
                 />
               </FormControl>
               <FormControl
@@ -452,12 +416,12 @@ function CadastrarAssociado(props) {
                 style={{ width: '45%', margin: '5px' }}
               >
                 <TextField
-                  value={associadoData.cidade}
+                  value={cidade}
                   label="Cidade"
                   type="text"
                   required
                   variant="outlined"
-                  onChange={event => setAssociadoData(event.target.value)}
+                  onChange={event => setCidade(event.target.value)}
                 />
               </FormControl>
             </Grid>
