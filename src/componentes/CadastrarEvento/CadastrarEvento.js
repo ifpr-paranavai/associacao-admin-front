@@ -131,7 +131,7 @@ function CadastrarEvento(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          window.location.reload();
+          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
