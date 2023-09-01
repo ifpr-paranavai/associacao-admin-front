@@ -91,7 +91,6 @@ function CadastrarAssociado(props) {
         bairro,
         estado,
         cidade,
-        senha: '12345',
       };
 
       if (associado.id) {
