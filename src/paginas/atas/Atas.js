@@ -55,6 +55,13 @@ function Atas() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(3);
+
+  const handleSearchChange = event => {
+    setSearchValue(event.target.value);
+  };
 
   const abrirFormulario = () => {
     setOpen(true);
@@ -131,13 +138,16 @@ function Atas() {
     async function fetchData() {
       try {
         const dadosAPI = await ServicoAta.listarAtas();
-        setAtas(dadosAPI);
+        const atasFiltradas = dadosAPI.filter(ata =>
+          ata.titulo.toLowerCase().includes(searchValue.toLowerCase()),
+        );
+        setAtas(atasFiltradas);
       } catch (error) {
         // console.error('Erro ao buscar dados da API:', error);
       }
     }
     fetchData();
-  }, []);
+  }, [searchValue]);
 
   return (
     <Container className={styles.root}>
@@ -152,10 +162,12 @@ function Atas() {
         paddingTop="12px"
       >
         <TextField
-          placeholder="Buscar por titulo"
+          placeholder="Buscar por título"
           variant="outlined"
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
+          value={searchValue}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -183,7 +195,7 @@ function Atas() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {atas.map(ata => (
+            {atas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(ata => (
               <TableRow key={ata.id}>
                 <TableCell className={styles.celula}>{ata.titulo}</TableCell>
                 <TableCell className={styles.celula}>{ata.descricao}</TableCell>
@@ -228,6 +240,19 @@ function Atas() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[3, 10, 15, 25]} // Valores de itens por página
+        component="div"
+        count={atas.length} // Total de itens
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={event => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+      />
       <CadastrarAta
         open={open}
         ata={ataSelecionado}
