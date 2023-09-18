@@ -32,6 +32,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import InputMask from 'react-input-mask';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -215,20 +217,34 @@ function CadastrarEvento(props) {
                   variant="outlined"
                   fullWidth
                   required
-                  className={styles.fieldMargin}
+                  style={{ overflow: 'auto' }}
                 >
-                  <TextField
-                    autoFocus // para iniciar com o cursor no campo
+                  <ReactQuill
                     value={descricao}
-                    label="Descrição do evento"
-                    type="text"
-                    className={styles.fieldMargin}
-                    fullWidth
-                    required
-                    multiline
-                    rows={3}
-                    variant="outlined"
-                    onChange={event => setDescricao(event.target.value)}
+                    onChange={setDescricao}
+                    modules={{
+                      toolbar: [
+                        [{ header: '1' }, { header: '2' }, { font: [] }, { size: [] }],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['bold', 'italic', 'underline'],
+                        ['link'],
+                        [{ align: [] }],
+                        ['clean'],
+                      ],
+                    }}
+                    formats={[
+                      'header',
+                      'list',
+                      'bold',
+                      'italic',
+                      'underline',
+                      'link',
+                      'align',
+                      'font',
+                      'size',
+                    ]}
+                    placeholder="Digite aqui..."
+                    style={{ height: 'auto' }} // Defina a altura para automático
                   />
                 </FormControl>
               </Grid>
