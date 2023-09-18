@@ -228,7 +228,11 @@ function Eventos() {
                     wordWrap: 'break-word',
                   }}
                 >
-                  Descrição: {evento.descricao}
+                  {evento.descricao.length > 129 ? (
+                    <>{`${evento.descricao.substring(0, 129)}`}...</>
+                  ) : (
+                    evento.descricao
+                  )}
                 </p>
                 <p style={{ fontFamily: 'Arial', fontSize: 16, wordWrap: 'break-word' }}>
                   Local: {evento.local}
@@ -239,9 +243,18 @@ function Eventos() {
                     evento.data_fim,
                   )}`}
                 </p>
-                <Link href={evento.link} target="_blank" rel="noopener">
-                  {evento.link}
-                </Link>
+                <p
+                  style={{
+                    fontFamily: 'Arial',
+                    fontSize: 16,
+                    wordWrap: 'break-word',
+                  }}
+                >
+                  Link:{' '}
+                  <a href={`//${evento.link}`} target="_blank" rel="noopener noreferrer">
+                    {evento.link}
+                  </a>
+                </p>
               </CardContent>
               <CardActions>
                 <Checkbox
