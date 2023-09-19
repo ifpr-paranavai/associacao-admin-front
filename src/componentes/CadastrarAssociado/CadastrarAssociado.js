@@ -63,11 +63,23 @@ function CadastrarAssociado(props) {
   }, [associado]);
 
   const limparState = () => {
-    // Limpe os estados separados
     setNome('');
     setSobrenome('');
     setDataNascimento('');
-    // Faça o mesmo para os outros campos...
+    setCpf('');
+    setRg('');
+    setTelCelular('');
+    setWhatsapp(false);
+    setTelComercial('');
+    setTelResidencial('');
+    setEmail('');
+    setEmailAlternativo('');
+    setCep('');
+    setRua('');
+    setNumero('');
+    setBairro('');
+    setEstado('');
+    setCidade('');
   };
 
   const salvarAssociado = async event => {
@@ -121,17 +133,7 @@ function CadastrarAssociado(props) {
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
       >
-        <form
-          autoComplete="off"
-          onSubmit={salvarAssociado}
-          style={{
-            width: '100%',
-            minWidth: '800px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
+        <form autoComplete="off" onSubmit={salvarAssociado}>
           <DialogContent
             style={{
               width: '100%',

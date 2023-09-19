@@ -19,34 +19,38 @@ export const NotificationProvider = ({ children }) => {
   function openWithMessage(message) {
     setMessage(message);
     setOpen(true);
+    handleClose();
   }
 
   function showError(message) {
     openWithMessage(message);
     setType('error');
+    handleClose();
   }
 
   function showSuccess(message) {
     openWithMessage(message);
     setType('success');
+    handleClose();
   }
 
   function showWarning(message) {
     openWithMessage(message);
     setType('warning');
+    handleClose();
   }
 
   function showInfo(message) {
     openWithMessage(message);
     setType('info');
+    handleClose();
   }
 
   function handleClose() {
-    setOpen(false);
     setTimeout(() => {
+      setOpen(false);
       setMessage('');
-      setType('error');
-    }, 100);
+    }, 3000);
   }
 
   const value = {

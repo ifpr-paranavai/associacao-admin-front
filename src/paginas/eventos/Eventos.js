@@ -83,9 +83,7 @@ function Eventos() {
       setRemoving(true);
       await ServicoEvento.deletarEvento(eventoSelecionado.id);
       onCloseRemoveEvento();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      notify.showSuccess('Evento excluido com sucesso!');
     } catch (error) {
       notify.showError(error.message);
     } finally {

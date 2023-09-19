@@ -1,22 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  FormLabel,
   FormControl,
-  FormControlLabel,
-  IconButton,
-  TextareaAutosize,
   TextField,
-  OutlinedInput,
-  InputAdornment,
   InputLabel,
   Button,
-  Radio,
-  RadioGroup,
-  Select,
-  MenuItem,
   Typography,
-  Switch,
-  LinearProgress,
   Box,
   Grid,
   CircularProgress,
@@ -25,18 +13,11 @@ import {
   DialogContent,
   DialogActions,
 } from '@material-ui/core';
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
-import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
 
-import InputMask from 'react-input-mask';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import md5 from 'md5';
 
 import 'date-fns';
-import DateFnsUtils from '@date-io/date-fns';
-import clsx from 'clsx';
 import Axios from 'axios';
-import ImageUploader from '../ImageUploader/ImageUploader';
 import Config from '../../uteis/configuracao';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import { useNotify } from '../../contextos/Notificacao';
@@ -44,11 +25,9 @@ import styles from './estilo.css';
 
 function CadastrarEvento(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
-  const numberRef = useRef(null);
   const notify = useNotify();
 
   const [saving, setSaving] = useState(false);
-  const [searching, setSearching] = useState(false);
 
   const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
@@ -98,9 +77,6 @@ function CadastrarEvento(props) {
         await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
       }
       notify.showSuccess('Evento salvo com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
       limparState();
     } catch (error) {
       notify.showError(`${error}`);
