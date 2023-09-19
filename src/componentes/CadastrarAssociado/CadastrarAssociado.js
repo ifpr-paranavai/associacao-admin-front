@@ -133,10 +133,18 @@ function CadastrarAssociado(props) {
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
       >
-        <form autoComplete="off" onSubmit={salvarAssociado}>
+        <form
+          autoComplete="off"
+          onSubmit={salvarAssociado}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <DialogContent
             style={{
-              width: '100%',
               minWidth: '800px',
               display: 'flex',
               flexDirection: 'column',
@@ -158,6 +166,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl style={{ width: '45%', margin: '5px' }}>
@@ -189,6 +199,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
@@ -217,6 +229,9 @@ function CadastrarAssociado(props) {
               style={{
                 width: '100%',
                 marginBottom: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl style={{ width: '45%', margin: '5px' }}>
@@ -244,7 +259,10 @@ function CadastrarAssociado(props) {
               spacing={2}
               style={{
                 width: '100%',
+                display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl style={{ width: '45%', margin: '5px' }}>
@@ -272,6 +290,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl style={{ width: '45%', margin: '5px' }}>
@@ -299,6 +319,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
@@ -335,6 +357,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl variant="outlined" style={{ width: '25%', margin: '5px' }}>
@@ -368,6 +392,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
@@ -401,6 +427,8 @@ function CadastrarAssociado(props) {
                 width: '100%',
                 display: 'flex',
                 marginBottom: '10px',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
               <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
