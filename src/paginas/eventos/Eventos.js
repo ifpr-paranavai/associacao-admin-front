@@ -62,7 +62,10 @@ function Eventos() {
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
 
-  const abrirFormulario = () => {
+  const abrirFormulario = evento => {
+    if (evento) {
+      setEventoSelecionado(evento);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {

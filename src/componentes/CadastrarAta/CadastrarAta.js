@@ -25,14 +25,10 @@ import styles from './estilo.css';
 function CadastrarAta(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const notify = useNotify();
-
   const [saving, setSaving] = useState(false);
-
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [anexo, setAnexo] = useState(null);
-
-  const { fecharFormulario, onSave } = props;
 
   function setAtaState() {
     const { ata } = props;
@@ -63,9 +59,9 @@ function CadastrarAta(props) {
         await Axios.post(`${Config.api}/atas/${idAta}/anexo`, formData);
       }
       notify.showSuccess('Ata salva com sucesso!');
-      limparState();
-      onSave();
-      fecharFormulario();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       notify.showError(`${error}`);
     } finally {

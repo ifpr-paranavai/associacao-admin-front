@@ -26,9 +26,7 @@ import styles from './estilo.css';
 function CadastrarEvento(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const notify = useNotify();
-
   const [saving, setSaving] = useState(false);
-
   const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -77,7 +75,9 @@ function CadastrarEvento(props) {
         await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
       }
       notify.showSuccess('Evento salvo com sucesso!');
-      limparState();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -107,7 +107,6 @@ function CadastrarEvento(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
@@ -274,9 +273,7 @@ function CadastrarEvento(props) {
               style={{ marginRight: '12px' }}
               disabled={saving}
               onClick={() => {
-                limparState();
                 props.fecharFormulario();
-                window.location.reload();
               }}
             >
               Cancelar

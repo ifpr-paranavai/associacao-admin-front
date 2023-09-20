@@ -25,9 +25,7 @@ import styles from './estilo.css';
 function CadastrarFoto(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const notify = useNotify();
-
   const [saving, setSaving] = useState(false);
-
   const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
 
@@ -61,7 +59,6 @@ function CadastrarFoto(props) {
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      limparState();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -86,7 +83,6 @@ function CadastrarFoto(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
@@ -160,8 +156,6 @@ function CadastrarFoto(props) {
               style={{ marginRight: '12px' }}
               disabled={saving}
               onClick={() => {
-                limparState();
-                window.location.reload();
                 props.fecharFormulario();
               }}
             >

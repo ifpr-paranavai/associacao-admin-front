@@ -39,7 +39,7 @@ function CadastrarAssociado(props) {
   const [cidade, setCidade] = useState('');
   const [ativo, setAtivo] = useState('');
 
-  const { associado, fecharFormulario, onSave } = props;
+  const { associado, fecharFormulario } = props;
 
   useEffect(() => {
     if (associado) {
@@ -106,7 +106,7 @@ function CadastrarAssociado(props) {
         bairro,
         estado,
         cidade,
-        ativo: false,
+        ativo: true,
       };
 
       if (associado.id) {
@@ -115,9 +115,9 @@ function CadastrarAssociado(props) {
         await ServicoAssociado.cadastrarAssociado(associadoData);
       }
       notify.showSuccess('Associado salvo com sucesso!');
-      limparState();
-      onSave();
-      fecharFormulario();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       notify.showError(`${error}`);
     } finally {

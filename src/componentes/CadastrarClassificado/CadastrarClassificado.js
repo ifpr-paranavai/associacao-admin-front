@@ -35,7 +35,6 @@ function CadastrarClassificado(props) {
   const [preco, setPreco] = useState('');
   const [usuario, setUsuario] = useState('');
   const [contato, setContato] = useState('');
-  const { fecharFormulario, onSave } = props;
 
   function setClassificadoState() {
     const { classificado } = props;
@@ -72,9 +71,9 @@ function CadastrarClassificado(props) {
         await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
       }
       notify.showSuccess('Classificado salvo com sucesso!');
-      limparState();
-      onSave();
-      fecharFormulario();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       notify.showError(`${error.message}`);
     } finally {

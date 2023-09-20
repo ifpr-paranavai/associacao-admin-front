@@ -63,7 +63,10 @@ function Noticias() {
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
 
-  const abrirFormulario = () => {
+  const abrirFormulario = noticia => {
+    if (noticia) {
+      setNoticiaSelecionado(noticia);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {
