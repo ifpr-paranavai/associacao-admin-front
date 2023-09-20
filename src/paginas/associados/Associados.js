@@ -76,7 +76,12 @@ const Associados = () => {
   async function handleRemoveAssociado() {
     try {
       setRemoving(true);
+      if (cpfConfirmacao !== associadoSelecionado.cpf) {
+        notify.showError('Digite o cpf corretamente para excluir');
+        return;
+      }
       await ServicoAssociado.deletarAssociado(associadoSelecionado.id);
+      notify.showSuccess('Associado excluido');
       onCloseRemoveAssociado();
       setTimeout(() => {
         window.location.reload();

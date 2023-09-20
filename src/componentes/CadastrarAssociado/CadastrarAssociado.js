@@ -13,6 +13,7 @@ import {
   Switch,
   FormControlLabel,
 } from '@material-ui/core';
+import InputMask from 'react-input-mask';
 import { useNotify } from '../../contextos/Notificacao';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 
@@ -215,14 +216,22 @@ function CadastrarAssociado(props) {
                 />
               </FormControl>
               <FormControl style={{ width: '45%', margin: '5px' }}>
-                <TextField
+                <InputMask
+                  mask="999.999.999-99"
                   value={cpf}
-                  label="CPF"
-                  type="text"
-                  required
-                  variant="outlined"
+                  maskChar={null}
                   onChange={event => setCpf(event.target.value)}
-                />
+                >
+                  {inputProps => (
+                    <TextField
+                      {...inputProps}
+                      label="CPF"
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                    />
+                  )}
+                </InputMask>
               </FormControl>
             </Grid>
             <Grid
