@@ -59,7 +59,10 @@ function Classificados() {
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
 
-  const abrirFormulario = () => {
+  const abrirFormulario = classificados => {
+    if (classificados) {
+      setClassificadoSelecionado(classificados);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {

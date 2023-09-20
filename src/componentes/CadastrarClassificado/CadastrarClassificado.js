@@ -35,6 +35,7 @@ function CadastrarClassificado(props) {
   const [preco, setPreco] = useState('');
   const [usuario, setUsuario] = useState('');
   const [contato, setContato] = useState('');
+  const { fecharFormulario, onSave } = props;
 
   function setClassificadoState() {
     const { classificado } = props;
@@ -71,12 +72,11 @@ function CadastrarClassificado(props) {
         await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
       }
       notify.showSuccess('Classificado salvo com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
       limparState();
+      onSave();
+      fecharFormulario();
     } catch (error) {
-      notify.showError(`${error}`);
+      notify.showError(`${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -103,7 +103,6 @@ function CadastrarClassificado(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
@@ -246,8 +245,6 @@ function CadastrarClassificado(props) {
               style={{ marginRight: '12px' }}
               disabled={saving}
               onClick={() => {
-                limparState();
-                window.location.reload();
                 props.fecharFormulario();
               }}
             >
