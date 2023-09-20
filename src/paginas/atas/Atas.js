@@ -63,9 +63,13 @@ function Atas() {
     setSearchValue(event.target.value);
   };
 
-  const abrirFormulario = () => {
+  const abrirFormulario = ata => {
+    if (ata) {
+      setAtaSelecionado(ata);
+    }
     setOpen(true);
   };
+
   const fecharFormulario = () => {
     setOpen(false);
   };

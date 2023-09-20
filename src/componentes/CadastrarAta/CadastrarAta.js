@@ -32,6 +32,8 @@ function CadastrarAta(props) {
   const [descricao, setDescricao] = useState('');
   const [anexo, setAnexo] = useState(null);
 
+  const { fecharFormulario, onSave } = props;
+
   function setAtaState() {
     const { ata } = props;
     setTitulo(ata.titulo);
@@ -62,6 +64,8 @@ function CadastrarAta(props) {
       }
       notify.showSuccess('Ata salva com sucesso!');
       limparState();
+      onSave();
+      fecharFormulario();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -87,7 +91,6 @@ function CadastrarAta(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
@@ -183,8 +186,6 @@ function CadastrarAta(props) {
               style={{ marginRight: '12px' }}
               disabled={saving}
               onClick={() => {
-                limparState();
-                window.location.reload();
                 props.fecharFormulario();
               }}
             >

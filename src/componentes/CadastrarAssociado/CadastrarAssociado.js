@@ -37,6 +37,7 @@ function CadastrarAssociado(props) {
   const [bairro, setBairro] = useState('');
   const [estado, setEstado] = useState('');
   const [cidade, setCidade] = useState('');
+  const [ativo, setAtivo] = useState('');
 
   const { associado, fecharFormulario, onSave } = props;
 
@@ -59,6 +60,7 @@ function CadastrarAssociado(props) {
       setBairro(associado.bairro || '');
       setEstado(associado.estado || '');
       setCidade(associado.cidade || '');
+      setAtivo(associado.ativo || false);
     }
   }, [associado]);
 
@@ -80,6 +82,7 @@ function CadastrarAssociado(props) {
     setBairro('');
     setEstado('');
     setCidade('');
+    setAtivo(false);
   };
 
   const salvarAssociado = async event => {
@@ -103,6 +106,7 @@ function CadastrarAssociado(props) {
         bairro,
         estado,
         cidade,
+        ativo: false,
       };
 
       if (associado.id) {
@@ -110,7 +114,6 @@ function CadastrarAssociado(props) {
       } else {
         await ServicoAssociado.cadastrarAssociado(associadoData);
       }
-
       notify.showSuccess('Associado salvo com sucesso!');
       limparState();
       onSave();
@@ -128,7 +131,6 @@ function CadastrarAssociado(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
