@@ -33,17 +33,14 @@ import {
 } from '@material-ui/icons';
 import { FaWhatsapp } from 'react-icons/fa';
 
-import { useDebouncedCallback } from 'use-debounce';
-import Axios from 'axios';
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
-import Config from '../../uteis/configuracao';
 
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
-import { isValidCPF, removeMask } from '../../uteis/string';
+import { removeMask } from '../../uteis/string';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
@@ -79,7 +76,12 @@ const Associados = () => {
   async function handleRemoveAssociado() {
     try {
       setRemoving(true);
+      if (cpfConfirmacao !== associadoSelecionado.cpf) {
+        notify.showError('Digite o cpf corretamente para excluir');
+        return;
+      }
       await ServicoAssociado.deletarAssociado(associadoSelecionado.id);
+      notify.showSuccess('Associado excluido');
       onCloseRemoveAssociado();
       setTimeout(() => {
         window.location.reload();

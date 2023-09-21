@@ -1,22 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  FormLabel,
   FormControl,
-  FormControlLabel,
-  IconButton,
-  TextareaAutosize,
   TextField,
-  OutlinedInput,
-  InputAdornment,
   InputLabel,
   Button,
-  Radio,
-  RadioGroup,
-  Select,
-  MenuItem,
   Typography,
-  Switch,
-  LinearProgress,
   Box,
   Grid,
   CircularProgress,
@@ -35,15 +23,10 @@ import 'dayjs/locale/pt-br';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-import InputMask from 'react-input-mask';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import md5 from 'md5';
 
 import 'date-fns';
-import DateFnsUtils from '@date-io/date-fns';
-import clsx from 'clsx';
 import Axios from 'axios';
-import ImageUploader from '../ImageUploader/ImageUploader';
 import Config from '../../uteis/configuracao';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import { useNotify } from '../../contextos/Notificacao';
@@ -51,12 +34,8 @@ import styles from './estilo.css';
 
 function CadastrarEvento(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
-  const numberRef = useRef(null);
   const notify = useNotify();
-
   const [saving, setSaving] = useState(false);
-  const [searching, setSearching] = useState(false);
-
   const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -114,7 +93,6 @@ function CadastrarEvento(props) {
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      limparState();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -144,7 +122,6 @@ function CadastrarEvento(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparState();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
@@ -323,9 +300,7 @@ function CadastrarEvento(props) {
               style={{ marginRight: '12px' }}
               disabled={saving}
               onClick={() => {
-                limparState();
                 props.fecharFormulario();
-                window.location.reload();
               }}
             >
               Cancelar

@@ -58,7 +58,10 @@ function Videos() {
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
 
-  const abrirFormulario = () => {
+  const abrirFormulario = video => {
+    if (video) {
+      setVideoSelecionado(video);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {

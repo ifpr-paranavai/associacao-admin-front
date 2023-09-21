@@ -78,10 +78,10 @@ export default function CadastrarAssociado() {
   async function setLoggedData() {
     try {
       setLoadingPage(true);
-      const associado = await ServicoAssociado.buscarPorId(logged._id);
+      const associado = await ServicoAssociado.buscarPorId(logged.id);
       setAssociadoState(associado);
     } catch (error) {
-      notify.showError(error.response.data);
+      notify.showError(error.message);
     } finally {
       setLoadingPage(false);
     }
@@ -109,7 +109,14 @@ export default function CadastrarAssociado() {
     setCelular(associado.tel_celular);
     setTelComercial(associado.tel_comercial);
     setTelResidencial(associado.tel_residencial);
-    setEndereco(associado.endereco);
+    setEndereco({
+      cep: associado.cep || '',
+      estado: associado.estado || '',
+      cidade: associado.cidade || '',
+      rua: associado.rua || '',
+      bairro: associado.bairro || '',
+      numero: associado.numero || '',
+    });
   }
 
   async function salvarAssociado(event) {
@@ -118,7 +125,6 @@ export default function CadastrarAssociado() {
       setSaving(true);
       const [nome, sobrenome] = nomecompleto.split(' ');
       const data = {
-        imagem,
         nome,
         sobrenome,
         data_nascimento,
@@ -127,21 +133,27 @@ export default function CadastrarAssociado() {
         email,
         email_alternativo,
         modalidade,
-        tel_celular,
         tel_comercial,
         tel_residencial,
-        endereco,
+        cep: endereco.cep,
+        estado: endereco.estado,
+        cidade: endereco.cidade,
+        rua: endereco.rua,
+        bairro: endereco.bairro,
+        numero: endereco.numero,
+        tel_celular: tel_celular.numero,
+        whatsapp: tel_celular.whatsapp,
       };
       if (senha) {
         data.senha = md5(senha);
       }
       await ServicoAssociado.atualizarAssociado({
-        _id: logged._id,
         ...data,
+        _id: logged.id,
       });
       notify.showSuccess('Dados salvos com sucesso!');
     } catch (error) {
-      notify.showError(error.response.data);
+      notify.showError(error.message);
     } finally {
       setSaving(false);
     }
