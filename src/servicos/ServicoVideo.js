@@ -2,14 +2,23 @@ import Axios from 'axios';
 import Config from '../uteis/configuracao';
 
 class ServicoVideo {
-  static async listarVideos() {
+  static async listarVideos(limite, pagina) {
     try {
-      const response = await Axios.get(`${Config.api}/videos`);
+      const response = await Axios.get(`${Config.api}/videos`, {
+        params: { ...{ limite, pagina } },
+      });
       return response.data;
     } catch (error) {
       // console.error('Erro ao obter dados da API:', error);
       throw error;
     }
+  }
+
+  static async buscarPorTitulo(titulo, limite, pagina) {
+    const { data } = await Axios.get(`${Config.api}/videos/titulo/${titulo}`, {
+      params: { ...{ limite, pagina } },
+    });
+    return data;
   }
 
   static async cadastrarVideo(video) {
