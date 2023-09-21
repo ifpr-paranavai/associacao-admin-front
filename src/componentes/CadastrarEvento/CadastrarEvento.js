@@ -13,6 +13,15 @@ import {
   DialogContent,
   DialogActions,
 } from '@material-ui/core';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
+import { Visibility, VisibilityOff, Person, Phone, Home } from '@material-ui/icons';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
@@ -41,8 +50,14 @@ function CadastrarEvento(props) {
     setDescricao(evento.descricao);
     setLink(evento.link);
     setLocal(evento.local);
-    setDataInicio(evento.data_inicio);
-    setDataFim(evento.data_fim);
+    // Conversor de datas
+    const dataInicioDoBanco = evento.data_inicio;
+    const dataFimDoBanco = evento.data_fim;
+    const dataInicioFormatada = dataInicioDoBanco ? dataInicioDoBanco.slice(0, 10) : '';
+    const dataFimFormatada = dataFimDoBanco ? dataFimDoBanco.slice(0, 10) : '';
+
+    setDataInicio(dataInicioFormatada);
+    setDataFim(dataFimFormatada);
   }
 
   async function salvarEvento(event) {
@@ -97,8 +112,8 @@ function CadastrarEvento(props) {
     setDescricao('');
     setLink('');
     setLocal('');
-    setDataInicio(null);
-    setDataFim(null);
+    setDataInicio('');
+    setDataFim('');
   }
 
   return (
@@ -179,20 +194,34 @@ function CadastrarEvento(props) {
                   variant="outlined"
                   fullWidth
                   required
-                  className={styles.fieldMargin}
+                  style={{ overflow: 'auto' }}
                 >
-                  <TextField
-                    autoFocus // para iniciar com o cursor no campo
+                  <ReactQuill
                     value={descricao}
-                    label="Descrição do evento"
-                    type="text"
-                    className={styles.fieldMargin}
-                    fullWidth
-                    required
-                    multiline
-                    rows={3}
-                    variant="outlined"
-                    onChange={event => setDescricao(event.target.value)}
+                    onChange={setDescricao}
+                    modules={{
+                      toolbar: [
+                        [{ header: '1' }, { header: '2' }, { font: [] }, { size: [] }],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['bold', 'italic', 'underline'],
+                        ['link'],
+                        [{ align: [] }],
+                        ['clean'],
+                      ],
+                    }}
+                    formats={[
+                      'header',
+                      'list',
+                      'bold',
+                      'italic',
+                      'underline',
+                      'link',
+                      'align',
+                      'font',
+                      'size',
+                    ]}
+                    placeholder="Digite aqui..."
+                    style={{ height: 'auto' }} // Defina a altura para automático
                   />
                 </FormControl>
               </Grid>
@@ -242,28 +271,26 @@ function CadastrarEvento(props) {
 
               <Grid item xs={isMobile ? 12 : 6}>
                 <InputLabel>Data de inicio</InputLabel>
-                <TextField
-                  type="datetime-local"
-                  value={data_inicio}
-                  required
-                  className={styles.fieldMargin}
-                  fullWidth
-                  variant="outlined"
-                  onChange={event => setDataInicio(event.target.value)}
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                  <DesktopDatePicker
+                    maxDate={dayjs(data_fim)}
+                    defaultValue={dayjs(data_inicio)}
+                    onChange={value => setDataInicio(value)}
+                    required
+                  />
+                </LocalizationProvider>
               </Grid>
 
               <Grid item xs={isMobile ? 12 : 6}>
                 <InputLabel>Data de encerramento</InputLabel>
-                <TextField
-                  type="datetime-local"
-                  value={data_fim}
-                  required
-                  className={styles.fieldMargin}
-                  fullWidth
-                  variant="outlined"
-                  onChange={event => setDataFim(event.target.value)}
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                  <DesktopDatePicker
+                    minDate={dayjs(data_inicio)}
+                    defaultValue={dayjs(data_fim)}
+                    required
+                    onChange={value => setDataFim(value)}
+                  />
+                </LocalizationProvider>
               </Grid>
             </Grid>
           </DialogContent>

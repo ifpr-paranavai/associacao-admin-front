@@ -31,6 +31,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import InputMask from 'react-input-mask';
 
@@ -222,15 +224,16 @@ function Eventos() {
                 <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
                   Título: {evento.titulo}
                 </h2>
-                <p
-                  style={{
-                    fontFamily: 'Arial',
-                    fontSize: 18,
-                    wordWrap: 'break-word',
-                  }}
-                >
-                  Descrição: {evento.descricao}
-                </p>
+                <ReactQuill
+                  value={
+                    evento.descricao.length > 129
+                      ? `${evento.descricao.substring(0, 129)}...`
+                      : evento.descricao
+                  }
+                  readOnly
+                  theme={null}
+                />
+
                 <p style={{ fontFamily: 'Arial', fontSize: 16, wordWrap: 'break-word' }}>
                   Local: {evento.local}
                 </p>
@@ -240,9 +243,18 @@ function Eventos() {
                     evento.data_fim,
                   )}`}
                 </p>
-                <Link href={evento.link} target="_blank" rel="noopener">
-                  {evento.link}
-                </Link>
+                <p
+                  style={{
+                    fontFamily: 'Arial',
+                    fontSize: 16,
+                    wordWrap: 'break-word',
+                  }}
+                >
+                  Link:{' '}
+                  <a href={`//${evento.link}`} target="_blank" rel="noopener noreferrer">
+                    {evento.link}
+                  </a>
+                </p>
               </CardContent>
               <CardActions>
                 <Checkbox
