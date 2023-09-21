@@ -14,7 +14,7 @@ export default class ServicoAutenticacao {
       return response.data;
     } catch (error) {
       if (error.response && error.response.status === 500) {
-        throw new Error('Credenciais inválidas. Verifique seu email e senha.');
+        throw new Error(error.response.data);
       } else {
         throw new Error('Ocorreu um erro, tente novamente mais tarde!');
       }
