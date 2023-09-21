@@ -41,6 +41,7 @@ const AssociadosPendentes = () => {
         ativo: true,
       };
       await ServicoAssociado.atualizarAssociado(data, associado.id);
+      notify.showSuccess('Associado aceito com sucesso');
       loadPendings();
     } catch (error) {
       notify.showError('Falha ao aceitar associado');
@@ -50,6 +51,7 @@ const AssociadosPendentes = () => {
   async function handleRemove(associado) {
     try {
       await ServicoAssociado.deletarAssociado(associado.id);
+      notify.showSuccess('Associado deletado com sucesso');
       loadPendings();
     } catch (error) {
       notify.showError('Falha ao deletar pendente');
