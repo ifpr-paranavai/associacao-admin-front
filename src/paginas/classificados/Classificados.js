@@ -3,7 +3,6 @@ import {
   Box,
   Paper,
   Checkbox,
-  Avatar,
   IconButton,
   Container,
   TableContainer,
@@ -16,7 +15,6 @@ import {
   Button,
   LinearProgress,
   CircularProgress,
-  colors,
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
@@ -24,11 +22,8 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
-import InputMask from 'react-input-mask';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import {
   Edit as EditIcon,
@@ -36,9 +31,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
 } from '@material-ui/icons';
-import { FaWhatsapp } from 'react-icons/fa';
 
-import { useDebouncedCallback } from 'use-debounce';
 import Axios from 'axios';
 import Config from '../../uteis/configuracao';
 import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
@@ -48,7 +41,6 @@ import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 import styles from './estilo.css';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
-import { formatarData } from '../../uteis/formatarData';
 
 function Classificados() {
   const [selectedClassificados, setSelectedClassificados] = useState([]);
@@ -58,6 +50,11 @@ function Classificados() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const abrirFormulario = classificados => {
     if (classificados) {
@@ -67,6 +64,11 @@ function Classificados() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+  };
+
+  const handleSearchChange = event => {
+    setSearchValue(event.target.value);
+    setPage(0);
   };
 
   function onSaveClassificado() {
@@ -171,14 +173,26 @@ function Classificados() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const dadosAPI = await ServicoClassificado.listarClassificados();
-        setClassificados(dadosAPI);
+        setLoading(true);
+        let dadosAPI;
+        if (searchValue) {
+          dadosAPI = await ServicoClassificado.buscarPorTitulo(
+            searchValue,
+            rowsPerPage,
+            page + 1,
+          );
+        } else {
+          dadosAPI = await ServicoClassificado.listarClassificados(rowsPerPage, page + 1);
+        }
+        setCount(dadosAPI.count || dadosAPI.length);
+        setClassificados(dadosAPI.rows || dadosAPI);
+        setLoading(false);
       } catch (error) {
-        // console.error('Erro ao buscar dados da API:', error);
+        setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [searchValue, page, rowsPerPage]);
 
   return (
     <Container className={styles.root}>
@@ -197,6 +211,8 @@ function Classificados() {
           variant="outlined"
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
+          value={searchValue}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -240,62 +256,103 @@ function Classificados() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {classificados.map(classificado => (
-              <TableRow key={classificado.id}>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    onChange={event => handleSelectClassificado(event, classificado.id)}
-                  />
-                </TableCell>
-                <TableCell className={styles.celula}>{classificado.titulo}</TableCell>
-                <TableCell className={styles.celula}>{classificado.descricao}</TableCell>
-                <TableCell className={styles.celula}>
-                  {classificado.foto_video}
-                  <IconButton
-                    aria-label="visualizar"
-                    onClick={() => {
-                      handlePreviewAnexo(classificado.id);
-                    }}
-                  >
-                    <VisibilityIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download"
-                    onClick={() => {
-                      handleDownloadAnexo(classificado.id);
-                    }}
-                  >
-                    <GetAppIcon />
-                  </IconButton>
-                </TableCell>
-                <TableCell className={styles.celula}>{classificado.preco}</TableCell>
-                <TableCell className={styles.celula}>{classificado.usuario}</TableCell>
-                <TableCell className={styles.celula}>{classificado.contato}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    aria-label="editar"
-                    onClick={() => {
-                      setClassificadoSelecionado(classificado);
-                      setOpen(true);
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="deletar"
-                    onClick={() => {
-                      setClassificadoSelecionado(classificado);
-                      setDeleteDialog(true);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {(() => {
+              if (loading) {
+                return (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      <LinearProgress />
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+              if (classificados.length > 0) {
+                return classificados.map(classificado => (
+                  <TableRow key={classificado.id}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        onChange={event =>
+                          handleSelectClassificado(event, classificado.id)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className={styles.celula}>{classificado.titulo}</TableCell>
+                    <TableCell className={styles.celula}>
+                      {classificado.descricao}
+                    </TableCell>
+                    <TableCell className={styles.celula}>
+                      {classificado.foto_video}
+                      <IconButton
+                        aria-label="visualizar"
+                        onClick={() => {
+                          handlePreviewAnexo(classificado.id);
+                        }}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="download"
+                        onClick={() => {
+                          handleDownloadAnexo(classificado.id);
+                        }}
+                      >
+                        <GetAppIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell className={styles.celula}>{classificado.preco}</TableCell>
+                    <TableCell className={styles.celula}>
+                      {classificado.usuario}
+                    </TableCell>
+                    <TableCell className={styles.celula}>
+                      {classificado.contato}
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        aria-label="editar"
+                        onClick={() => {
+                          setClassificadoSelecionado(classificado);
+                          setOpen(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="deletar"
+                        onClick={() => {
+                          setClassificadoSelecionado(classificado);
+                          setDeleteDialog(true);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ));
+              }
+              return (
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    Nenhum classificado encontrado
+                  </TableCell>
+                </TableRow>
+              );
+            })()}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 15, 25]}
+        component="div"
+        count={count}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={event => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        disabled={loading}
+      />
       <CadastrarClassificado
         open={open}
         classificado={classificadoSelecionado}

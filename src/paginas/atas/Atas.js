@@ -57,10 +57,13 @@ function Atas() {
   const notify = useNotify();
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(3);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleSearchChange = event => {
     setSearchValue(event.target.value);
+    setPage(0);
   };
 
   const abrirFormulario = ata => {
@@ -141,17 +144,22 @@ function Atas() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const dadosAPI = await ServicoAta.listarAtas();
-        const atasFiltradas = dadosAPI.filter(ata =>
-          ata.titulo.toLowerCase().includes(searchValue.toLowerCase()),
-        );
-        setAtas(atasFiltradas);
+        setLoading(true);
+        let dadosAPI;
+        if (searchValue) {
+          dadosAPI = await ServicoAta.buscarPorTitulo(searchValue, rowsPerPage, page + 1);
+        } else {
+          dadosAPI = await ServicoAta.listarAtas(rowsPerPage, page + 1);
+        }
+        setCount(dadosAPI.count || dadosAPI.length);
+        setAtas(dadosAPI.rows || dadosAPI);
+        setLoading(false);
       } catch (error) {
-        // console.error('Erro ao buscar dados da API:', error);
+        setLoading(false);
       }
     }
     fetchData();
-  }, [searchValue]);
+  }, [searchValue, page, rowsPerPage]);
 
   return (
     <Container className={styles.root}>
@@ -199,56 +207,75 @@ function Atas() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {atas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(ata => (
-              <TableRow key={ata.id}>
-                <TableCell className={styles.celula}>{ata.titulo}</TableCell>
-                <TableCell className={styles.celula}>{ata.descricao}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    aria-label="visualizar"
-                    onClick={() => {
-                      handlePreviewAnexo(ata.id);
-                    }}
-                  >
-                    <VisibilityIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="editar"
-                    onClick={() => {
-                      setAtaSelecionado(ata);
-                      setOpen(true);
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download"
-                    onClick={() => {
-                      handleDownloadAnexo(ata.id);
-                    }}
-                  >
-                    <GetAppIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="deletar"
-                    onClick={() => {
-                      setAtaSelecionado(ata);
-                      setDeleteDialog(true);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {(() => {
+              if (loading) {
+                return (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      <LinearProgress />
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+              if (atas.length > 0) {
+                return atas.map(ata => (
+                  <TableRow key={ata.id}>
+                    <TableCell className={styles.celula}>{ata.titulo}</TableCell>
+                    <TableCell className={styles.celula}>{ata.descricao}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        aria-label="visualizar"
+                        onClick={() => {
+                          handlePreviewAnexo(ata.id);
+                        }}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="editar"
+                        onClick={() => {
+                          setAtaSelecionado(ata);
+                          setOpen(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="download"
+                        onClick={() => {
+                          handleDownloadAnexo(ata.id);
+                        }}
+                      >
+                        <GetAppIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="deletar"
+                        onClick={() => {
+                          setAtaSelecionado(ata);
+                          setDeleteDialog(true);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ));
+              }
+              return (
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    Nenhuma ata encontrada
+                  </TableCell>
+                </TableRow>
+              );
+            })()}
           </TableBody>
         </Table>
       </TableContainer>
-
       <TablePagination
-        rowsPerPageOptions={[3, 10, 15, 25]} // Valores de itens por página
+        rowsPerPageOptions={[5, 10, 15, 25]}
         component="div"
-        count={atas.length} // Total de itens
+        count={count}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={(event, newPage) => setPage(newPage)}
@@ -256,6 +283,7 @@ function Atas() {
           setRowsPerPage(parseInt(event.target.value, 10));
           setPage(0);
         }}
+        disabled={loading}
       />
       <CadastrarAta
         open={open}

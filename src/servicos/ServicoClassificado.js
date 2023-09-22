@@ -2,14 +2,23 @@ import Axios from 'axios';
 import Config from '../uteis/configuracao';
 
 class ServicoClassificado {
-  static async listarClassificados() {
+  static async listarClassificados(limite, pagina) {
     try {
-      const response = await Axios.get(`${Config.api}/classificados`);
+      const response = await Axios.get(`${Config.api}/classificados`, {
+        params: { ...{ limite, pagina } },
+      });
       return response.data;
     } catch (error) {
       // console.error('Erro ao obter dados da API:', error);
       throw error;
     }
+  }
+
+  static async buscarPorTitulo(titulo, limite, pagina) {
+    const { data } = await Axios.get(`${Config.api}/classificados/titulo/${titulo}`, {
+      params: { ...{ limite, pagina } },
+    });
+    return data;
   }
 
   static async cadastrarClassificado(classificado) {

@@ -2,9 +2,12 @@ import Axios from 'axios';
 import Config from '../uteis/configuracao';
 
 class ServicoAta {
-  static async listarAtas() {
+  static async listarAtas(limite, pagina) {
     try {
-      const response = await Axios.get(`${Config.api}/atas`);
+      // Usa o operador spread para passar os parâmetros como query string na URL
+      const response = await Axios.get(`${Config.api}/atas`, {
+        params: { ...{ limite, pagina } },
+      });
       return response.data;
     } catch (error) {
       // console.error('Erro ao obter dados da API:', error);
@@ -24,6 +27,14 @@ class ServicoAta {
 
   static async buscarPorId(id) {
     const { data } = await Axios.get(`${Config.api}/atas/${id}`);
+    return data;
+  }
+
+  static async buscarPorTitulo(titulo, limite, pagina) {
+    // Usa o operador spread para passar os parâmetros como query string na URL
+    const { data } = await Axios.get(`${Config.api}/atas/titulo/${titulo}`, {
+      params: { ...{ limite, pagina } },
+    });
     return data;
   }
 

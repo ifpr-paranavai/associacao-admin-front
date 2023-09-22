@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Paper,
   Checkbox,
   Card,
   Grid,
@@ -9,32 +8,22 @@ import {
   CardMedia,
   CardActions,
   Link,
-  Avatar,
   IconButton,
   Container,
-  TableContainer,
-  Table,
-  TableBody,
-  TableHead,
   TableRow,
   TableCell,
   TablePagination,
   Button,
   LinearProgress,
   CircularProgress,
-  colors,
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
-import InputMask from 'react-input-mask';
 
 import {
   Edit as EditIcon,
@@ -42,9 +31,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
 } from '@material-ui/icons';
-import { FaWhatsapp } from 'react-icons/fa';
 
-import { useDebouncedCallback } from 'use-debounce';
 import Axios from 'axios';
 import CadastrarEvento from '../../componentes/CadastrarEvento/CadastrarEvento';
 import ServicoEvento from '../../servicos/ServicoEvento';
@@ -63,6 +50,11 @@ function Eventos() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(3);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const abrirFormulario = evento => {
     if (evento) {
@@ -72,6 +64,11 @@ function Eventos() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+  };
+
+  const handleSearchChange = event => {
+    setSearchValue(event.target.value);
+    setPage(0);
   };
 
   function onSaveEvento() {
@@ -149,20 +146,34 @@ function Eventos() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const dadosAPI = await ServicoEvento.listarEventos();
-        const eventosComUrl = await Promise.all(
-          dadosAPI.map(async evento => {
-            const url = await handlePreview(evento.id);
-            return { ...evento, url };
-          }),
+        setLoading(true);
+        let dadosAPI;
+        if (searchValue) {
+          dadosAPI = await ServicoEvento.buscarPorTitulo(
+            searchValue,
+            rowsPerPage,
+            page + 1,
+          );
+        } else {
+          dadosAPI = await ServicoEvento.listarEventos(rowsPerPage, page + 1);
+        }
+
+        const eventosComPreview = await Promise.all(
+          dadosAPI.rows.map(async evento => ({
+            ...evento,
+            previewUrl: await handlePreview(evento.id),
+          })),
         );
-        setEventos(eventosComUrl);
+
+        setCount(dadosAPI.count || dadosAPI.length);
+        setEventos(eventosComPreview);
+        setLoading(false);
       } catch (error) {
-        // console.error('Erro ao buscar dados da API:', error);
+        setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [searchValue, page, rowsPerPage]);
 
   return (
     <Container className={styles.root}>
@@ -181,6 +192,8 @@ function Eventos() {
           variant="outlined"
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
+          value={searchValue}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -210,6 +223,101 @@ function Eventos() {
         </Box>
       </Box>
       <Grid container spacing={3}>
+        {(() => {
+          if (loading) {
+            return (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            );
+          }
+          if (eventos.length > 0) {
+            return eventos.map(evento => (
+              <Grid item key={evento.id} xs={12} sm={6} md={4}>
+                <Card style={{ borderRadius: '16px' }}>
+                  <CardMedia
+                    component="img"
+                    alt="Imagem do Evento"
+                    height="220"
+                    image={evento.previewUrl}
+                    title="Imagem do Evento"
+                  />
+                  <CardContent>
+                    <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
+                      Título: {evento.titulo}
+                    </h2>
+                    <p
+                      style={{
+                        fontFamily: 'Arial',
+                        fontSize: 18,
+                        wordWrap: 'break-word',
+                      }}
+                    >
+                      Descrição: {evento.descricao}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'Arial',
+                        fontSize: 16,
+                        wordWrap: 'break-word',
+                      }}
+                    >
+                      Local: {evento.local}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'Arial',
+                        fontSize: 16,
+                        wordWrap: 'break-word',
+                      }}
+                    >
+                      Data:{' '}
+                      {`${formatarData(evento.data_inicio)} a ${formatarData(
+                        evento.data_fim,
+                      )}`}
+                    </p>
+                    <Link href={evento.link} target="_blank" rel="noopener">
+                      {evento.link}
+                    </Link>
+                  </CardContent>
+                  <CardActions>
+                    <Checkbox
+                      onChange={event => handleSelectEvento(event, evento.id)}
+                      checked={selectedEventos.includes(evento.id)}
+                    />
+                    <IconButton
+                      aria-label="editar"
+                      onClick={() => {
+                        setEventoSelecionado(evento);
+                        setOpen(true);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      aria-label="deletar"
+                      onClick={() => {
+                        setEventoSelecionado(evento);
+                        setDeleteDialog(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ));
+          }
+          return (
+            <Grid>
+              <TableCell colSpan={3} align="center">
+                Nenhuma ata encontrada
+              </TableCell>
+            </Grid>
+          );
+        })()}
         {eventos.map(evento => (
           <Grid item key={evento.id} xs={12} sm={6} md={4}>
             <Card style={{ borderRadius: '16px' }}>
@@ -284,6 +392,19 @@ function Eventos() {
           </Grid>
         ))}
       </Grid>
+      <TablePagination
+        rowsPerPageOptions={[3, 6, 12, 24]}
+        component="div"
+        count={count}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={event => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        disabled={loading}
+      />
       <CadastrarEvento
         open={open}
         evento={eventoSelecionado}

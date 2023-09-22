@@ -62,6 +62,11 @@ function Noticias() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(3);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const abrirFormulario = noticia => {
     if (noticia) {
@@ -71,6 +76,11 @@ function Noticias() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+  };
+
+  const handleSearchChange = event => {
+    setSearchValue(event.target.value);
+    setPage(0);
   };
 
   function onSaveNoticia() {
@@ -162,20 +172,34 @@ function Noticias() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const dadosAPI = await ServicoNoticia.listarNoticias();
-        const noticiasComUrl = await Promise.all(
-          dadosAPI.map(async noticia => {
-            const url = await handlePreview(noticia.id);
-            return { ...noticia, url };
-          }),
+        setLoading(true);
+        let dadosAPI;
+        if (searchValue) {
+          dadosAPI = await ServicoNoticia.buscarPorTitulo(
+            searchValue,
+            rowsPerPage,
+            page + 1,
+          );
+        } else {
+          dadosAPI = await ServicoNoticia.listarNoticias(rowsPerPage, page + 1);
+        }
+
+        const noticiasComPreview = await Promise.all(
+          dadosAPI.rows.map(async noticia => ({
+            ...noticia,
+            previewUrl: await handlePreview(noticia.id),
+          })),
         );
-        setNoticias(noticiasComUrl);
+
+        setCount(dadosAPI.count || dadosAPI.length);
+        setNoticias(noticiasComPreview);
+        setLoading(false);
       } catch (error) {
-        // console.error('Erro ao buscar dados da API:', error);
+        setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [searchValue, page, rowsPerPage]);
 
   return (
     <Container className={styles.root}>
@@ -194,6 +218,8 @@ function Noticias() {
           variant="outlined"
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
+          value={searchValue}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -223,49 +249,82 @@ function Noticias() {
         </Box>
       </Box>
       <Grid container spacing={3}>
-        {noticias.map(noticia => (
-          <Grid item key={noticia.id} xs={12} sm={6} md={4}>
-            <Card style={{ borderRadius: '16px' }}>
-              <CardMedia
-                component="img"
-                alt="Imagem da notícia"
-                height="220"
-                image={noticia.url}
-                title="Imagem da notícia"
-              />
-              <CardContent>
-                <h2>{noticia.titulo}</h2>
-                <p>{noticia.descricao}</p>
-                <p>{formatarData(noticia.data_inicio)}</p>
-              </CardContent>
-              <CardActions>
-                <Checkbox
-                  onChange={event => handleSelectNoticia(event, noticia.id)}
-                  checked={selectedNoticias.includes(noticia.id)}
-                />
-                <IconButton
-                  aria-label="editar"
-                  onClick={() => {
-                    setNoticiaSelecionado(noticia);
-                    setOpen(true);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  aria-label="deletar"
-                  onClick={() => {
-                    setNoticiaSelecionado(noticia);
-                    setDeleteDialog(true);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
+        {(() => {
+          if (loading) {
+            return (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            );
+          }
+          if (noticias.length > 0) {
+            return noticias.map(noticia => (
+              <Grid item key={noticia.id} xs={12} sm={6} md={4}>
+                <Card style={{ borderRadius: '16px' }}>
+                  <CardMedia
+                    component="img"
+                    alt="Imagem da notícia"
+                    height="220"
+                    image={noticia.previewUrl}
+                    title="Imagem da notícia"
+                  />
+                  <CardContent>
+                    <h2>{noticia.titulo}</h2>
+                    <p>{noticia.descricao}</p>
+                    <p>{formatarData(noticia.data_inicio)}</p>
+                  </CardContent>
+                  <CardActions>
+                    <Checkbox
+                      onChange={event => handleSelectNoticia(event, noticia.id)}
+                      checked={selectedNoticias.includes(noticia.id)}
+                    />
+                    <IconButton
+                      aria-label="editar"
+                      onClick={() => {
+                        setNoticiaSelecionado(noticia);
+                        setOpen(true);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      aria-label="deletar"
+                      onClick={() => {
+                        setNoticiaSelecionado(noticia);
+                        setDeleteDialog(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ));
+          }
+          return (
+            <Grid>
+              <TableCell colSpan={3} align="center">
+                Nenhuma noticia encontrada
+              </TableCell>
+            </Grid>
+          );
+        })()}
       </Grid>
+      <TablePagination
+        rowsPerPageOptions={[3, 6, 12, 24]}
+        component="div"
+        count={count}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={event => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        disabled={loading}
+      />
       <CadastrarNoticia
         open={open}
         noticia={noticiaSelecionado}
