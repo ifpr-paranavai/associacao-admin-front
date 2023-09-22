@@ -12,6 +12,7 @@ import {
   TextField,
   Switch,
   FormControlLabel,
+  MenuItem,
 } from '@material-ui/core';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import InputMask from 'react-input-mask';
@@ -19,6 +20,15 @@ import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { useNotify } from '../../contextos/Notificacao';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
+
+const roles = [
+  {
+    name: 'ASSOCIADO',
+  },
+  {
+    name: 'ADMIN',
+  },
+];
 
 function CadastrarAssociado(props) {
   const notify = useNotify();
@@ -42,6 +52,7 @@ function CadastrarAssociado(props) {
   const [estado, setEstado] = useState('');
   const [cidade, setCidade] = useState('');
   const [ativo, setAtivo] = useState('');
+  const [perfil, setPerfil] = useState('ASSOCIADO');
 
   const { associado, fecharFormulario } = props;
 
@@ -65,6 +76,7 @@ function CadastrarAssociado(props) {
       setEstado(associado.estado || '');
       setCidade(associado.cidade || '');
       setAtivo(associado.ativo || false);
+      setPerfil(associado.perfil || 'ASSOCIADO');
     }
   }, [associado]);
 
@@ -87,6 +99,7 @@ function CadastrarAssociado(props) {
     setEstado('');
     setCidade('');
     setAtivo(false);
+    setPerfil('ASSOCIADO');
   };
 
   const salvarAssociado = async event => {
@@ -111,6 +124,7 @@ function CadastrarAssociado(props) {
         estado,
         cidade,
         ativo: true,
+        perfil,
       };
 
       if (associado.id) {
@@ -265,6 +279,22 @@ function CadastrarAssociado(props) {
                   variant="outlined"
                   onChange={event => setRg(event.target.value)}
                 />
+              </FormControl>
+              <FormControl style={{ width: '45%', margin: '5px' }}>
+                <TextField
+                  id="role"
+                  select
+                  variant="outlined"
+                  placeholder="Cadastrar-se como"
+                  value={perfil}
+                  onChange={event => setPerfil(event.target.value)}
+                >
+                  {roles.map(option => (
+                    <MenuItem key={option.name} value={option.name}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </FormControl>
             </Grid>
             <DialogTitle
