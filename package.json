@@ -25,6 +25,7 @@
     "mariadb": "^3.1.2",
     "material-table": "^1.69.3",
     "md5": "^2.3.0",
+    "moment": "^2.29.4",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-icons": "^4.2.0",

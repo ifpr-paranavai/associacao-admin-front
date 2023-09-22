@@ -21,6 +21,13 @@ class ServicoEvento {
     return data;
   }
 
+  static async buscarPorData(date, limite, pagina) {
+    const { data } = await Axios.get(`${Config.api}/eventos/data/${date}`, {
+      params: { ...{ limite, pagina } },
+    });
+    return data;
+  }
+
   static async cadastrarEvento(evento) {
     const { data } = await Axios.post(`${Config.api}/eventos`, evento);
     return data;

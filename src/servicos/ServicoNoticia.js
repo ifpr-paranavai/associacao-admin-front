@@ -21,6 +21,13 @@ class ServicoNoticia {
     return data;
   }
 
+  static async buscarPorData(date, limite, pagina) {
+    const { data } = await Axios.get(`${Config.api}/noticias/data/${date}`, {
+      params: { ...{ limite, pagina } },
+    });
+    return data;
+  }
+
   static async cadastrarNoticia(noticia) {
     const { data } = await Axios.post(`${Config.api}/noticias`, noticia);
     return data;

@@ -310,7 +310,7 @@ function Noticias() {
         })()}
       </Grid>
       <TablePagination
-        rowsPerPageOptions={[3, 10, 15, 25]}
+        rowsPerPageOptions={[3, 6, 12, 24]}
         component="div"
         count={count}
         rowsPerPage={rowsPerPage}
