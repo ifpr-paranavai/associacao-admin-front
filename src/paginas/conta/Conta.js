@@ -141,7 +141,8 @@ export default function CadastrarAssociado() {
         ativo,
       };
       if (senha) {
-        associadoData.senha = md5(senha);
+        // associadoData.senha = md5(senha);
+        // Não alterar senha enquanto não retirar criptografia pois altera sua senha
       }
       await ServicoAssociado.atualizarAssociado(associadoData, logged.id);
       notify.showSuccess('Dados salvos com sucesso!');
