@@ -28,7 +28,6 @@ import md5 from 'md5';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import clsx from 'clsx';
-import ImageUploader from '../../componentes/ImageUploader/ImageUploader';
 import { removeMask } from '../../uteis/string';
 
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -51,26 +50,26 @@ export default function CadastrarAssociado() {
   const [searching, setSearching] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [imagem, setImagem] = useState({ src: '', alt: '' });
-  const [nomecompleto, setNomeCompleto] = useState(''); // salvar sobrenome separado
-  const [data_nascimento, setDataNascimento] = useState(null);
-  const [cpf, setCPF] = useState('');
-  const [rg, setRG] = useState('');
+  const [nome, setNome] = useState('');
+  const [sobrenome, setSobrenome] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [rg, setRg] = useState('');
+  const [telCelular, setTelCelular] = useState('');
+  const [whatsapp, setWhatsapp] = useState(false);
+  const [telComercial, setTelComercial] = useState('');
+  const [telResidencial, setTelResidencial] = useState('');
   const [email, setEmail] = useState('');
-  const [email_alternativo, setEmailAlternativo] = useState('');
-  const [modalidade, setModalidade] = useState('aeromodelismo');
+  const [emailAlternativo, setEmailAlternativo] = useState('');
   const [senha, setSenha] = useState('');
-  const [tel_celular, setCelular] = useState({ numero: '', whatsapp: false });
-  const [tel_residencial, setTelResidencial] = useState('');
-  const [tel_comercial, setTelComercial] = useState('');
-  const [endereco, setEndereco] = useState({
-    cep: '',
-    estado: '',
-    cidade: '',
-    rua: '',
-    bairro: '',
-    numero: '',
-  });
+  const [cep, setCep] = useState('');
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [estado, setEstado] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [ativo, setAtivo] = useState('');
+  const [modalidade, setModalidade] = useState('');
 
   const Autenticacao = new ServicoAutenticacao();
   const logged = Autenticacao.obterAssociadoLogado();
@@ -78,10 +77,31 @@ export default function CadastrarAssociado() {
   async function setLoggedData() {
     try {
       setLoadingPage(true);
-      const associado = await ServicoAssociado.buscarPorId(logged._id);
-      setAssociadoState(associado);
+      const associado = await ServicoAssociado.buscarPorId(logged.id);
+      if (associado) {
+        setNome(associado.nome || '');
+        setSobrenome(associado.sobrenome || '');
+        setDataNascimento(associado.data_nascimento || '');
+        setCpf(associado.cpf || '');
+        setRg(associado.rg || '');
+        setTelCelular(associado.tel_celular || '');
+        setWhatsapp(!!associado.whatsapp); // Converte para booleano
+        setTelComercial(associado.tel_comercial || '');
+        setTelResidencial(associado.tel_residencial || '');
+        setEmail(associado.email || '');
+        setEmailAlternativo(associado.email_alternativo || '');
+        setSenha(associado.senha || '');
+        setCep(associado.cep || '');
+        setRua(associado.rua || '');
+        setNumero(associado.numero || '');
+        setBairro(associado.bairro || '');
+        setEstado(associado.estado || '');
+        setCidade(associado.cidade || '');
+        setAtivo(associado.ativo || false);
+        setModalidade(associado.modalidade || '');
+      }
     } catch (error) {
-      notify.showError(error.response.data);
+      notify.showError(error.message);
     } finally {
       setLoadingPage(false);
     }
@@ -96,52 +116,38 @@ export default function CadastrarAssociado() {
     });
   }, []);
 
-  function setAssociadoState(associado) {
-    const surname = associado.sobrenome ? ` ${associado.sobrenome}` : '';
-    setImagem(associado.imagem);
-    setNomeCompleto(associado.nome + surname);
-    setDataNascimento(associado.data_nascimento);
-    setCPF(associado.cpf);
-    setRG(associado.rg);
-    setEmail(associado.email);
-    setEmailAlternativo(associado.email_alternativo);
-    setModalidade(associado.modalidade);
-    setCelular(associado.tel_celular);
-    setTelComercial(associado.tel_comercial);
-    setTelResidencial(associado.tel_residencial);
-    setEndereco(associado.endereco);
-  }
-
   async function salvarAssociado(event) {
     event.preventDefault();
     try {
       setSaving(true);
-      const [nome, sobrenome] = nomecompleto.split(' ');
-      const data = {
-        imagem,
+      const associadoData = {
         nome,
         sobrenome,
-        data_nascimento,
-        rg,
+        data_nascimento: dataNascimento,
         cpf,
+        rg,
+        tel_celular: telCelular,
+        whatsapp,
+        tel_comercial: telComercial,
+        tel_residencial: telResidencial,
         email,
-        email_alternativo,
-        modalidade,
-        tel_celular,
-        tel_comercial,
-        tel_residencial,
-        endereco,
+        email_alternativo: emailAlternativo,
+        cep,
+        rua,
+        numero,
+        bairro,
+        estado,
+        cidade,
+        ativo,
       };
       if (senha) {
-        data.senha = md5(senha);
+        // associadoData.senha = md5(senha);
+        // Não alterar senha enquanto não retirar criptografia pois altera sua senha
       }
-      await ServicoAssociado.atualizarAssociado({
-        _id: logged._id,
-        ...data,
-      });
+      await ServicoAssociado.atualizarAssociado(associadoData, logged.id);
       notify.showSuccess('Dados salvos com sucesso!');
     } catch (error) {
-      notify.showError(error.response.data);
+      notify.showError(error.message);
     } finally {
       setSaving(false);
     }
@@ -150,16 +156,13 @@ export default function CadastrarAssociado() {
   async function findAddress() {
     try {
       setSearching(true);
-      const unmaskedCEP = removeMask(endereco.cep);
+      const unmaskedCEP = removeMask(cep);
       const address = await buscaCEP(unmaskedCEP);
 
-      setEndereco({
-        ...endereco,
-        estado: address.state,
-        cidade: address.city,
-        bairro: address.neighborhood,
-        rua: address.street,
-      });
+      setRua(address.rua);
+      setBairro(address.bairro);
+      setEstado(address.estado);
+      setCidade(address.cidade);
     } catch (error) {
       notify.showError(error.response.data);
     } finally {
@@ -168,11 +171,11 @@ export default function CadastrarAssociado() {
   }
 
   useEffect(() => {
-    if (!endereco.cep || endereco.cep.length < 9) {
+    if (!cep || cep.length < 9) {
       return;
     }
     findAddress();
-  }, [endereco.cep]);
+  }, [cep]);
 
   return (
     <div>
@@ -202,13 +205,6 @@ export default function CadastrarAssociado() {
                 </Box>
               </Grid>
               <Grid item xs={12}>
-                <ImageUploader
-                  image={imagem}
-                  className={classes.fieldMargin}
-                  onUpload={image => setImagem(image)}
-                />
-              </Grid>
-              <Grid item xs={12}>
                 <RadioGroup
                   aria-label="Modalidade"
                   row
@@ -231,45 +227,58 @@ export default function CadastrarAssociado() {
                   />
                 </RadioGroup>
               </Grid>
-              <Grid item xs={isMobile ? 12 : 8}>
+              <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
                   autoFocus // para iniciar com o cursor no campo
-                  value={nomecompleto}
-                  label="Nome completo"
+                  value={nome}
+                  label="Nome"
                   type="text"
                   className={classes.fieldMargin}
                   fullWidth
                   required
                   variant="outlined"
-                  onChange={event => setNomeCompleto(event.target.value)}
+                  onChange={event => setNome(event.target.value)}
                 />
               </Grid>
-              <Grid item xs={isMobile ? 12 : 4}>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <KeyboardDatePicker
-                    variant="inline"
-                    format="dd/MM/yyyy"
-                    margin="normal"
-                    label="Data de nascimento"
-                    inputVariant="outlined"
-                    className={classes.fieldMargin}
-                    style={{ width: '100%', padding: '0px' }}
-                    required
-                    value={data_nascimento}
-                    onChange={value => setDataNascimento(value)}
-                    helperText=""
-                    KeyboardButtonProps={{
-                      'aria-label': 'Escolha uma data',
-                    }}
-                  />
-                </MuiPickersUtilsProvider>
+              <Grid item xs={isMobile ? 12 : 6}>
+                <TextField
+                  autoFocus // para iniciar com o cursor no campo
+                  value={sobrenome}
+                  label="Sobrenome"
+                  type="text"
+                  className={classes.fieldMargin}
+                  fullWidth
+                  required
+                  variant="outlined"
+                  onChange={event => setSobrenome(event.target.value)}
+                />
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 6}>
+                <InputMask
+                  mask="999.999.999-99"
+                  value={cpf}
+                  maskChar={null}
+                  onChange={event => setCpf(event.target.value)}
+                >
+                  {inputProps => (
+                    <TextField
+                      {...inputProps}
+                      label="CPF"
+                      type="text"
+                      required
+                      className={classes.fieldMargin}
+                      fullWidth
+                      variant="outlined"
+                    />
+                  )}
+                </InputMask>
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <InputMask
                   mask="99.999.999-9"
                   value={rg}
                   maskChar={null}
-                  onChange={event => setRG(event.target.value)}
+                  onChange={event => setRg(event.target.value)}
                 >
                   {inputProps => (
                     <TextField
@@ -284,25 +293,25 @@ export default function CadastrarAssociado() {
                   )}
                 </InputMask>
               </Grid>
-              <Grid item xs={isMobile ? 12 : 6}>
-                <InputMask
-                  mask="999.999.999-99"
-                  value={cpf}
-                  maskChar={null}
-                  onChange={event => setCPF(event.target.value)}
-                >
-                  {inputProps => (
-                    <TextField
-                      {...inputProps}
-                      label="CPF"
-                      type="text"
-                      required
-                      className={classes.fieldMargin}
-                      fullWidth
-                      variant="outlined"
-                    />
-                  )}
-                </InputMask>
+              <Grid item xs={isMobile ? 12 : 4}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <KeyboardDatePicker
+                    variant="inline"
+                    format="dd/MM/yyyy"
+                    margin="normal"
+                    label="Data de nascimento"
+                    inputVariant="outlined"
+                    className={classes.fieldMargin}
+                    style={{ width: '100%', padding: '0px' }}
+                    required
+                    value={dataNascimento}
+                    onChange={value => setDataNascimento(value)}
+                    helperText=""
+                    KeyboardButtonProps={{
+                      'aria-label': 'Escolha uma data',
+                    }}
+                  />
+                </MuiPickersUtilsProvider>
               </Grid>
 
               <Grid item xs={12}>
@@ -326,6 +335,53 @@ export default function CadastrarAssociado() {
                 </Box>
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel htmlFor="outlined-adornment-celular">
+                    Telefone residencial
+                  </InputLabel>
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    value={telResidencial}
+                    maskChar={null}
+                    onChange={event => setTelResidencial(event.target.value)}
+                  >
+                    {inputProps => (
+                      <OutlinedInput
+                        {...inputProps}
+                        id="outlined-adornment-celular"
+                        type="phone"
+                        fullWidth
+                        labelWidth={160}
+                      />
+                    )}
+                  </InputMask>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={isMobile ? 12 : 6}>
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel htmlFor="outlined-adornment-celular">
+                    Telefone comercial
+                  </InputLabel>
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    value={telComercial}
+                    maskChar={null}
+                    onChange={event => setTelComercial(event.target.value)}
+                  >
+                    {inputProps => (
+                      <OutlinedInput
+                        {...inputProps}
+                        id="outlined-adornment-celular"
+                        type="phone"
+                        fullWidth
+                        labelWidth={160}
+                      />
+                    )}
+                  </InputMask>
+                </FormControl>
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
                   value={email}
                   label="Email"
@@ -339,7 +395,7 @@ export default function CadastrarAssociado() {
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
-                  value={email_alternativo}
+                  value={emailAlternativo}
                   label="Email alternativo"
                   type="email"
                   className={classes.fieldMargin}
@@ -347,6 +403,44 @@ export default function CadastrarAssociado() {
                   variant="outlined"
                   onChange={event => setEmailAlternativo(event.target.value)}
                 />
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 6}>
+                <FormControl variant="outlined" required fullWidth>
+                  <InputLabel htmlFor="outlined-adornment-celular">
+                    {whatsapp ? 'WhatsApp' : 'Celular'}
+                  </InputLabel>
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    value={telCelular}
+                    maskChar={null}
+                    onChange={event => setTelCelular(event.target.value)}
+                  >
+                    {inputProps => (
+                      <OutlinedInput
+                        {...inputProps}
+                        id="outlined-adornment-celular"
+                        type="phone"
+                        fullWidth
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={whatsapp}
+                                  size="small"
+                                  onChange={event => setWhatsapp(!whatsapp)}
+                                  color="primary"
+                                />
+                              }
+                              label="WhatsApp"
+                            />
+                          </InputAdornment>
+                        }
+                        labelWidth={80}
+                      />
+                    )}
+                  </InputMask>
+                </FormControl>
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <FormControl
@@ -378,99 +472,6 @@ export default function CadastrarAssociado() {
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={isMobile ? 12 : 6}>
-                <FormControl variant="outlined" required fullWidth>
-                  <InputLabel htmlFor="outlined-adornment-celular">
-                    {tel_celular.whatsapp ? 'WhatsApp' : 'Celular'}
-                  </InputLabel>
-                  <InputMask
-                    mask="(99) 99999-9999"
-                    value={tel_celular.numero}
-                    maskChar={null}
-                    onChange={event =>
-                      setCelular({ ...tel_celular, numero: event.target.value })
-                    }
-                  >
-                    {inputProps => (
-                      <OutlinedInput
-                        {...inputProps}
-                        id="outlined-adornment-celular"
-                        type="phone"
-                        fullWidth
-                        endAdornment={
-                          <InputAdornment position="end">
-                            <FormControlLabel
-                              control={
-                                <Switch
-                                  checked={tel_celular.whatsapp}
-                                  size="small"
-                                  onChange={() =>
-                                    setCelular({
-                                      ...tel_celular,
-                                      whatsapp: !tel_celular.whatsapp,
-                                    })
-                                  }
-                                  color="primary"
-                                />
-                              }
-                              label="WhatsApp"
-                            />
-                          </InputAdornment>
-                        }
-                        labelWidth={80}
-                      />
-                    )}
-                  </InputMask>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={isMobile ? 12 : 6}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel htmlFor="outlined-adornment-celular">
-                    Telefone residencial
-                  </InputLabel>
-                  <InputMask
-                    mask="(99) 99999-9999"
-                    value={tel_residencial}
-                    maskChar={null}
-                    onChange={event => setTelResidencial(event.target.value)}
-                  >
-                    {inputProps => (
-                      <OutlinedInput
-                        {...inputProps}
-                        id="outlined-adornment-celular"
-                        type="phone"
-                        fullWidth
-                        labelWidth={160}
-                      />
-                    )}
-                  </InputMask>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={isMobile ? 12 : 6}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel htmlFor="outlined-adornment-celular">
-                    Telefone comercial
-                  </InputLabel>
-                  <InputMask
-                    mask="(99) 99999-9999"
-                    value={tel_comercial}
-                    maskChar={null}
-                    onChange={event => setTelComercial(event.target.value)}
-                  >
-                    {inputProps => (
-                      <OutlinedInput
-                        {...inputProps}
-                        id="outlined-adornment-celular"
-                        type="phone"
-                        fullWidth
-                        labelWidth={160}
-                      />
-                    )}
-                  </InputMask>
-                </FormControl>
-              </Grid>
 
               <Grid item xs={12}>
                 <Box
@@ -495,12 +496,10 @@ export default function CadastrarAssociado() {
               <Grid item xs={isMobile ? 12 : 4}>
                 <InputMask
                   mask="99999-999"
-                  value={endereco.cep}
+                  value={cep}
                   disabled={searching}
                   maskChar={null}
-                  onChange={event =>
-                    setEndereco({ ...endereco, cep: event.target.value })
-                  }
+                  onChange={event => setCep(event.target.value)}
                 >
                   {inputProps => (
                     <TextField
@@ -532,7 +531,7 @@ export default function CadastrarAssociado() {
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
-                  value={endereco.rua}
+                  value={rua}
                   label="Rua"
                   required
                   disabled={searching}
@@ -545,9 +544,7 @@ export default function CadastrarAssociado() {
                       : undefined,
                   }}
                   // Mantém endereco e sobrescreve o rua dentro do objeto endereco
-                  onChange={event =>
-                    setEndereco({ ...endereco, rua: event.target.value })
-                  }
+                  onChange={event => setRua(event.target.value)}
                 />
                 {searching && (
                   <LinearProgress
@@ -562,7 +559,7 @@ export default function CadastrarAssociado() {
               <Grid item xs={isMobile ? 12 : 4}>
                 <TextField
                   inputRef={numberRef}
-                  value={endereco.numero}
+                  value={numero}
                   label="Número"
                   required
                   disabled={searching}
@@ -575,9 +572,7 @@ export default function CadastrarAssociado() {
                       : undefined,
                   }}
                   // Mantém endereco e sobrescreve o numero dentro do objeto endereco
-                  onChange={event =>
-                    setEndereco({ ...endereco, numero: event.target.value })
-                  }
+                  onChange={event => setNumero(event.target.value)}
                 />
                 {searching && (
                   <LinearProgress
@@ -591,7 +586,7 @@ export default function CadastrarAssociado() {
               </Grid>
               <Grid item xs={isMobile ? 12 : 8}>
                 <TextField
-                  value={endereco.bairro}
+                  value={bairro}
                   label="Bairro"
                   required
                   disabled={searching}
@@ -604,9 +599,7 @@ export default function CadastrarAssociado() {
                       : undefined,
                   }}
                   // Mantém endereco e sobrescreve o bairro dentro do objeto endereco
-                  onChange={event =>
-                    setEndereco({ ...endereco, bairro: event.target.value })
-                  }
+                  onChange={event => setBairro(event.target.value)}
                 />
                 {searching && (
                   <LinearProgress
@@ -620,7 +613,7 @@ export default function CadastrarAssociado() {
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
-                  value={endereco.estado}
+                  value={estado}
                   label="Estado"
                   required
                   disabled={searching}
@@ -633,9 +626,7 @@ export default function CadastrarAssociado() {
                       : undefined,
                   }}
                   // Mantém endereco e sobrescreve o estado dentro do objeto endereco
-                  onChange={event =>
-                    setEndereco({ ...endereco, estado: event.target.value })
-                  }
+                  onChange={event => setEstado(event.target.value)}
                 />
                 {searching && (
                   <LinearProgress
@@ -649,7 +640,7 @@ export default function CadastrarAssociado() {
               </Grid>
               <Grid item xs={isMobile ? 12 : 6}>
                 <TextField
-                  value={endereco.cidade}
+                  value={cidade}
                   label="Cidade"
                   required
                   disabled={searching}
@@ -662,9 +653,7 @@ export default function CadastrarAssociado() {
                       : undefined,
                   }}
                   // Mantém endereco e sobrescreve o cidade dentro do objeto endereco
-                  onChange={event =>
-                    setEndereco({ ...endereco, cidade: event.target.value })
-                  }
+                  onChange={event => setCidade(event.target.value)}
                 />
                 {searching && (
                   <LinearProgress

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
-  Avatar,
   IconButton,
   Container,
   TableContainer,
@@ -11,7 +10,6 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TablePagination,
   Button,
   LinearProgress,
   CircularProgress,
@@ -35,7 +33,6 @@ import {
 } from '@material-ui/icons';
 import { FaWhatsapp } from 'react-icons/fa';
 
-import { useDebouncedCallback } from 'use-debounce';
 import CadastrarAssociado from '../../componentes/CadastrarAssociado/CadastrarAssociado';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -43,7 +40,7 @@ import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
-import { isValidCPF, removeMask } from '../../uteis/string';
+import { removeMask } from '../../uteis/string';
 
 const Associados = () => {
   const [loading, setLoading] = useState(false);
@@ -51,91 +48,49 @@ const Associados = () => {
   const [open, setOpen] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const notify = useNotify();
-  const { setLocation } = useNavigation();
 
   const [associadoSelecionado, setAssociadoSelecionado] = useState(null);
   const [cpfConfirmacao, setCPFConfirmacao] = useState(null);
   const [termoBuscado, setTermoBuscado] = useState('');
   const [associados, setAssociados] = useState([]);
-  const [page, setPage] = useState(0);
-  const [oldPage, setOldPage] = useState(0);
-  const [perPage, setPerPage] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [start, setStart] = useState(0);
+  const classes = useStyles();
 
-  const abrirFormulario = () => {
+  const abrirFormulario = associado => {
+    if (associado) {
+      setAssociadoSelecionado(associado);
+    }
     setOpen(true);
-  }; // abrir o dialogo
-
+  };
   const fecharFormulario = () => {
     setOpen(false);
-    setAssociadoSelecionado(null);
-  }; // fechar o dialogo
-
-  async function paginacao(filter) {
-    try {
-      setLoading(true);
-      const associados = await ServicoAssociado.obterAssociados({
-        start,
-        perPage,
-        filter,
-      });
-      setAssociados(associados.data);
-      setTotal(associados.total);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    paginacao();
-    setLocation({
-      title: 'Gestão de Associados',
-      key: 'associados',
-      path: '/associados',
-    });
-  }, [start, perPage]);
-
-  const debouncedPaginacao = useDebouncedCallback(filter => paginacao(filter), 480);
-
-  useEffect(() => {
-    const filter = {};
-
-    if (!termoBuscado) {
-      paginacao();
-      return;
-    }
-
-    if (isValidCPF(termoBuscado)) {
-      filter.cpf = termoBuscado;
-    } else {
-      delete filter.cpf;
-
-      const [nome, sobrenome] = termoBuscado.split(' ');
-      filter.nome = nome;
-      filter.sobrenome = sobrenome;
-    }
-
-    debouncedPaginacao(filter);
-  }, [termoBuscado]);
-
-  async function onChangePage(event, nextPage) {
-    event.preventDefault();
-
-    const operator = nextPage < oldPage ? -1 : 1;
-    setStart(start + perPage * operator);
-    setPage(nextPage);
-    setOldPage(nextPage);
-  }
-
-  async function onChangeRowsPerPage(event) {
-    event.preventDefault();
-    setPerPage(event.target.value);
-  }
+  };
 
   function onSaveAssociado() {
-    paginacao();
     fecharFormulario();
+  }
+
+  function onCloseRemoveAssociado() {
+    setDeleteDialog(false);
+  }
+
+  async function handleRemoveAssociado() {
+    try {
+      setRemoving(true);
+      if (cpfConfirmacao !== associadoSelecionado.cpf) {
+        notify.showError('Digite o cpf corretamente para excluir');
+        return;
+      }
+      await ServicoAssociado.deletarAssociado(associadoSelecionado.id);
+      notify.showSuccess('Associado excluido');
+      onCloseRemoveAssociado();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
   }
 
   function onOpenWhatsAppLink(phone) {
@@ -144,33 +99,29 @@ const Associados = () => {
     window.open(whatsappLink, '_blank');
   }
 
-  function onCloseRemoveAssociado() {
-    setDeleteDialog(false);
-    setCPFConfirmacao(null);
-    setAssociadoSelecionado(null);
-  }
+  const { setLocation } = useNavigation();
+  useEffect(() => {
+    setLocation({
+      title: 'Gestão de Associados',
+      key: 'associados',
+      path: '/associados',
+    });
+  }, []);
 
-  async function handleRemoveAssociado() {
-    if (cpfConfirmacao !== associadoSelecionado.cpf) {
-      notify.showWarning(
-        'O CPF informado não corresponde ao do associado a ser removido!',
-      );
-      return;
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const dadosAPI = await ServicoAssociado.listarAssociados();
+        const AssociadosComUrl = await Promise.all(
+          dadosAPI.map(async associados => associados),
+        );
+        setAssociados(AssociadosComUrl);
+      } catch (error) {
+        // console.error('Erro ao buscar dados da API:', error);
+      }
     }
-    try {
-      setRemoving(true);
-      await ServicoAssociado.deletarAssociado(associadoSelecionado._id);
-
-      onCloseRemoveAssociado();
-      paginacao();
-    } catch (error) {
-      notify.showError(error.message);
-    } finally {
-      setRemoving(false);
-    }
-  }
-
-  const classes = useStyles();
+    fetchData();
+  }, []);
 
   return (
     <Container className={classes.root}>
@@ -230,21 +181,7 @@ const Associados = () => {
               associados.map(associado => (
                 <TableRow key={associado._id}>
                   <TableCell>
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Avatar
-                        alt={associado.nome}
-                        src={associado.imagem.src}
-                        style={{ marginRight: '8px' }}
-                      />
-                      <span style={{ marginRight: '3px' }}>{associado.nome}</span>
-                      {associado.sobrenome && <span>{associado.sobrenome}</span>}
-                    </div>
+                    <span>{associado.nome}</span>
                   </TableCell>
                   <TableCell>
                     <span>{associado.cpf}</span>
@@ -262,7 +199,7 @@ const Associados = () => {
                     >
                       {associado.tel_celular && (
                         <span style={{ lineHeight: '1.2rem' }}>
-                          {associado.tel_celular.numero}
+                          {associado.tel_celular}
                         </span>
                       )}
                       {associado.tel_celular.whatsapp && (
@@ -270,7 +207,7 @@ const Associados = () => {
                           size={18}
                           color={colors.green['700']}
                           style={{ marginLeft: '8px', cursor: 'pointer' }}
-                          onClick={() => onOpenWhatsAppLink(associado.tel_celular.numero)}
+                          nClick={() => onOpenWhatsAppLink(associado.tel_celular)}
                         />
                       )}
                     </div>
@@ -283,7 +220,7 @@ const Associados = () => {
                       aria-label="editar"
                       onClick={() => {
                         setAssociadoSelecionado(associado);
-                        setOpen(true);
+                        abrirFormulario(associado);
                       }}
                     >
                       <EditIcon />
@@ -302,14 +239,6 @@ const Associados = () => {
               ))}
           </TableBody>
         </Table>
-        <TablePagination
-          rowsPerPageOptions={[3, 10, 15, 25, 40]}
-          count={total}
-          rowsPerPage={perPage}
-          page={page}
-          onPageChange={onChangePage}
-          onRowsPerPageChange={onChangeRowsPerPage}
-        />
       </TableContainer>
 
       <CadastrarAssociado

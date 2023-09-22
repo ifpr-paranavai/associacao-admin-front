@@ -68,9 +68,13 @@ function Fotos() {
     setPage(0);
   };
 
-  const abrirFormulario = () => {
+  const abrirFormulario = foto => {
+    if (foto) {
+      setFotoSelecionado(foto);
+    }
     setOpen(true);
   };
+
   const fecharFormulario = () => {
     setOpen(false);
   };

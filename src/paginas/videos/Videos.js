@@ -63,7 +63,10 @@ function Videos() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const abrirFormulario = () => {
+  const abrirFormulario = video => {
+    if (video) {
+      setVideoSelecionado(video);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {

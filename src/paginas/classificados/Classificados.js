@@ -3,7 +3,6 @@ import {
   Box,
   Paper,
   Checkbox,
-  Avatar,
   IconButton,
   Container,
   TableContainer,
@@ -16,7 +15,6 @@ import {
   Button,
   LinearProgress,
   CircularProgress,
-  colors,
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
@@ -24,11 +22,8 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
-import InputMask from 'react-input-mask';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import {
   Edit as EditIcon,
@@ -36,9 +31,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
 } from '@material-ui/icons';
-import { FaWhatsapp } from 'react-icons/fa';
 
-import { useDebouncedCallback } from 'use-debounce';
 import Axios from 'axios';
 import Config from '../../uteis/configuracao';
 import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
@@ -48,7 +41,6 @@ import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
 import styles from './estilo.css';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
-import { formatarData } from '../../uteis/formatarData';
 
 function Classificados() {
   const [selectedClassificados, setSelectedClassificados] = useState([]);
@@ -64,7 +56,10 @@ function Classificados() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const abrirFormulario = () => {
+  const abrirFormulario = classificados => {
+    if (classificados) {
+      setClassificadoSelecionado(classificados);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {

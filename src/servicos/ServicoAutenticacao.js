@@ -3,15 +3,23 @@ import API from '../Api';
 const md5 = require('md5');
 
 export default class ServicoAutenticacao {
-  // --------------------------AUTH--------------------------//
   async logar({ email, senha }) {
-    const response = await API.post('login', {
-      email: email.toLowerCase(),
-      senha: md5(senha),
-    });
-    this.salvarAssociadoLocalStorage(response.data);
-    return response.logar;
-  } // login()
+    try {
+      const response = await API.post('login', {
+        email: email.toLowerCase(),
+        senha: md5(senha),
+      });
+
+      this.salvarAssociadoLocalStorage(response.data);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 500) {
+        throw new Error(error.response.data);
+      } else {
+        throw new Error('Ocorreu um erro, tente novamente mais tarde!');
+      }
+    }
+  }
 
   salvarAssociadoLocalStorage(associado) {
     localStorage.setItem('associadoLogado', JSON.stringify(associado));

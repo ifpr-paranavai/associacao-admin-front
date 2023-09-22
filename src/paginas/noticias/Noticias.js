@@ -68,7 +68,10 @@ function Noticias() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const abrirFormulario = () => {
+  const abrirFormulario = noticia => {
+    if (noticia) {
+      setNoticiaSelecionado(noticia);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {

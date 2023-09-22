@@ -26,7 +26,7 @@ const AssociadosPendentes = () => {
     try {
       setLoading(true);
       const associados = await ServicoAssociado.obterPendentes();
-      setPendentes(associados.data);
+      setPendentes(associados);
     } catch (error) {
       notify.showError(error.response.data);
     } finally {
@@ -34,38 +34,27 @@ const AssociadosPendentes = () => {
     }
   }
 
-  async function handleAccept(_id) {
+  async function handleAccept(associado) {
     try {
-      setAccepting([...accepting, _id]);
-      await ServicoAssociado.atualizarAssociado({
-        _id,
+      const data = {
+        ...associado,
         ativo: true,
-      });
+      };
+      await ServicoAssociado.atualizarAssociado(data, associado.id);
+      notify.showSuccess('Associado aceito com sucesso');
       loadPendings();
     } catch (error) {
-      notify.showError(error.response.data);
-    } finally {
-      const newAccepting = [...accepting];
-      const index = newAccepting.findIndex(acceptingId => acceptingId === _id);
-
-      newAccepting.splice(index, 1);
-      setAccepting([...newAccepting]);
+      notify.showError('Falha ao aceitar associado');
     }
   }
 
-  async function handleRemove(_id) {
+  async function handleRemove(associado) {
     try {
-      setRemoving([...removing, _id]);
-      await ServicoAssociado.deletarAssociado(_id);
+      await ServicoAssociado.deletarAssociado(associado.id);
+      notify.showSuccess('Associado deletado com sucesso');
       loadPendings();
     } catch (error) {
-      notify.showError(error.response.data);
-    } finally {
-      const newRemoving = [...removing];
-      const index = newRemoving.findIndex(removingId => removingId === _id);
-
-      newRemoving.splice(index, 1);
-      setRemoving([...newRemoving]);
+      notify.showError('Falha ao deletar pendente');
     }
   }
 
@@ -132,12 +121,11 @@ const AssociadosPendentes = () => {
                 <Button
                   variant="outlined"
                   size="small"
-                  disabled={removing.includes(associado._id)}
                   style={{
                     borderColor: '#8c8c8c',
                     color: '#8c8c8c',
                   }}
-                  onClick={() => handleRemove(associado._id)}
+                  onClick={() => handleRemove(associado)}
                 >
                   <Delete fontSize="small" htmlColor="#8c8c8c" />
                   Excluir
@@ -159,7 +147,7 @@ const AssociadosPendentes = () => {
                   size="small"
                   disabled={accepting.includes(associado._id)}
                   style={{ borderColor: '#009933', color: '#009933' }}
-                  onClick={() => handleAccept(associado._id)}
+                  onClick={() => handleAccept(associado)}
                 >
                   <Check fontSize="small" htmlColor="#009933" />
                   Aceitar

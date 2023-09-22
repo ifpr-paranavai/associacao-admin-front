@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Paper,
   Checkbox,
   Card,
   Grid,
@@ -9,30 +8,22 @@ import {
   CardMedia,
   CardActions,
   Link,
-  Avatar,
   IconButton,
   Container,
-  TableContainer,
-  Table,
-  TableBody,
-  TableHead,
   TableRow,
   TableCell,
   TablePagination,
   Button,
   LinearProgress,
   CircularProgress,
-  colors,
   InputAdornment,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
-import InputMask from 'react-input-mask';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import {
   Edit as EditIcon,
@@ -40,9 +31,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
 } from '@material-ui/icons';
-import { FaWhatsapp } from 'react-icons/fa';
 
-import { useDebouncedCallback } from 'use-debounce';
 import Axios from 'axios';
 import CadastrarEvento from '../../componentes/CadastrarEvento/CadastrarEvento';
 import ServicoEvento from '../../servicos/ServicoEvento';
@@ -67,7 +56,10 @@ function Eventos() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const abrirFormulario = () => {
+  const abrirFormulario = evento => {
+    if (evento) {
+      setEventoSelecionado(evento);
+    }
     setOpen(true);
   };
   const fecharFormulario = () => {
@@ -93,9 +85,7 @@ function Eventos() {
       setRemoving(true);
       await ServicoEvento.deletarEvento(eventoSelecionado.id);
       onCloseRemoveEvento();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      notify.showSuccess('Evento excluido com sucesso!');
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -328,6 +318,79 @@ function Eventos() {
             </Grid>
           );
         })()}
+        {eventos.map(evento => (
+          <Grid item key={evento.id} xs={12} sm={6} md={4}>
+            <Card style={{ borderRadius: '16px' }}>
+              <CardMedia
+                component="img"
+                alt="Imagem do Evento"
+                height="220"
+                image={evento.url}
+                title="Imagem do Evento"
+              />
+              <CardContent>
+                <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
+                  Título: {evento.titulo}
+                </h2>
+                <ReactQuill
+                  value={
+                    evento.descricao.length > 129
+                      ? `${evento.descricao.substring(0, 129)}...`
+                      : evento.descricao
+                  }
+                  readOnly
+                  theme={null}
+                />
+
+                <p style={{ fontFamily: 'Arial', fontSize: 16, wordWrap: 'break-word' }}>
+                  Local: {evento.local}
+                </p>
+                <p style={{ fontFamily: 'Arial', fontSize: 16, wordWrap: 'break-word' }}>
+                  Data:{' '}
+                  {`${formatarData(evento.data_inicio)} a ${formatarData(
+                    evento.data_fim,
+                  )}`}
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'Arial',
+                    fontSize: 16,
+                    wordWrap: 'break-word',
+                  }}
+                >
+                  Link:{' '}
+                  <a href={`//${evento.link}`} target="_blank" rel="noopener noreferrer">
+                    {evento.link}
+                  </a>
+                </p>
+              </CardContent>
+              <CardActions>
+                <Checkbox
+                  onChange={event => handleSelectEvento(event, evento.id)}
+                  checked={selectedEventos.includes(evento.id)}
+                />
+                <IconButton
+                  aria-label="editar"
+                  onClick={() => {
+                    setEventoSelecionado(evento);
+                    setOpen(true);
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  aria-label="deletar"
+                  onClick={() => {
+                    setEventoSelecionado(evento);
+                    setDeleteDialog(true);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
       <TablePagination
         rowsPerPageOptions={[3, 6, 12, 24]}
