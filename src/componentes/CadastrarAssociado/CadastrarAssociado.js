@@ -13,7 +13,10 @@ import {
   Switch,
   FormControlLabel,
 } from '@material-ui/core';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import InputMask from 'react-input-mask';
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
 import { useNotify } from '../../contextos/Notificacao';
 import ServicoAssociado from '../../servicos/ServicoAssociado';
 
@@ -206,15 +209,23 @@ function CadastrarAssociado(props) {
                 justifyContent: 'space-between',
               }}
             >
-              <FormControl variant="outlined" style={{ width: '45%', margin: '5px' }}>
-                <TextField
-                  value={dataNascimento}
-                  type="date"
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  variant="inline"
+                  format="dd/MM/yyyy"
+                  margin="normal"
+                  label="Data de nascimento"
+                  inputVariant="outlined"
+                  style={{ width: '45%', margin: '5px' }}
                   required
-                  variant="outlined"
-                  onChange={event => setDataNascimento(event.target.value)}
+                  value={dataNascimento}
+                  onChange={value => setDataNascimento(value)}
+                  helperText=""
+                  KeyboardButtonProps={{
+                    'aria-label': 'Escolha uma data',
+                  }}
                 />
-              </FormControl>
+              </MuiPickersUtilsProvider>
               <FormControl style={{ width: '45%', margin: '5px' }}>
                 <InputMask
                   mask="999.999.999-99"
