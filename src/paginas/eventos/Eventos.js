@@ -248,15 +248,16 @@ function Eventos() {
                     <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
                       Título: {evento.titulo}
                     </h2>
-                    <p
-                      style={{
-                        fontFamily: 'Arial',
-                        fontSize: 18,
-                        wordWrap: 'break-word',
-                      }}
-                    >
-                      Descrição: {evento.descricao}
-                    </p>
+                    <ReactQuill
+                      value={
+                        evento.descricao.length > 129
+                          ? `${evento.descricao.substring(0, 129)}...`
+                          : evento.descricao
+                      }
+                      readOnly
+                      theme={null}
+                    />
+
                     <p
                       style={{
                         fontFamily: 'Arial',
@@ -278,9 +279,22 @@ function Eventos() {
                         evento.data_fim,
                       )}`}
                     </p>
-                    <Link href={evento.link} target="_blank" rel="noopener">
-                      {evento.link}
-                    </Link>
+                    <p
+                      style={{
+                        fontFamily: 'Arial',
+                        fontSize: 16,
+                        wordWrap: 'break-word',
+                      }}
+                    >
+                      Link:{' '}
+                      <a
+                        href={`//${evento.link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {evento.link}
+                      </a>
+                    </p>
                   </CardContent>
                   <CardActions>
                     <Checkbox
@@ -318,79 +332,6 @@ function Eventos() {
             </Grid>
           );
         })()}
-        {eventos.map(evento => (
-          <Grid item key={evento.id} xs={12} sm={6} md={4}>
-            <Card style={{ borderRadius: '16px' }}>
-              <CardMedia
-                component="img"
-                alt="Imagem do Evento"
-                height="220"
-                image={evento.url}
-                title="Imagem do Evento"
-              />
-              <CardContent>
-                <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
-                  Título: {evento.titulo}
-                </h2>
-                <ReactQuill
-                  value={
-                    evento.descricao.length > 129
-                      ? `${evento.descricao.substring(0, 129)}...`
-                      : evento.descricao
-                  }
-                  readOnly
-                  theme={null}
-                />
-
-                <p style={{ fontFamily: 'Arial', fontSize: 16, wordWrap: 'break-word' }}>
-                  Local: {evento.local}
-                </p>
-                <p style={{ fontFamily: 'Arial', fontSize: 16, wordWrap: 'break-word' }}>
-                  Data:{' '}
-                  {`${formatarData(evento.data_inicio)} a ${formatarData(
-                    evento.data_fim,
-                  )}`}
-                </p>
-                <p
-                  style={{
-                    fontFamily: 'Arial',
-                    fontSize: 16,
-                    wordWrap: 'break-word',
-                  }}
-                >
-                  Link:{' '}
-                  <a href={`//${evento.link}`} target="_blank" rel="noopener noreferrer">
-                    {evento.link}
-                  </a>
-                </p>
-              </CardContent>
-              <CardActions>
-                <Checkbox
-                  onChange={event => handleSelectEvento(event, evento.id)}
-                  checked={selectedEventos.includes(evento.id)}
-                />
-                <IconButton
-                  aria-label="editar"
-                  onClick={() => {
-                    setEventoSelecionado(evento);
-                    setOpen(true);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  aria-label="deletar"
-                  onClick={() => {
-                    setEventoSelecionado(evento);
-                    setDeleteDialog(true);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
       </Grid>
       <TablePagination
         rowsPerPageOptions={[3, 6, 12, 24]}
