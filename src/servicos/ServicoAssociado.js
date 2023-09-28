@@ -2,13 +2,23 @@ import Axios from 'axios';
 import Config from '../uteis/configuracao';
 
 class ServicoAssociado {
-  static async obterAssociados({ start, perPage, filter }) {
-    const { data } = await Axios.get(`${Config.api}/associados`, {
-      params: {
-        start,
-        perPage,
-        filter,
-      },
+  static async obterAssociados(limite, pagina) {
+    try {
+      // Usa o operador spread para passar os parâmetros como query string na URL
+      const response = await Axios.get(`${Config.api}/associados`, {
+        params: { ...{ limite, pagina } },
+      });
+      return response.data;
+    } catch (error) {
+      // console.error('Erro ao obter dados da API:', error);
+      throw error;
+    }
+  }
+
+  static async buscarPorNome(nome, limite, pagina) {
+    // Usa o operador spread para passar os parâmetros como query string na URL
+    const { data } = await Axios.get(`${Config.api}/associados/nome/${nome}`, {
+      params: { ...{ limite, pagina } },
     });
     return data;
   }

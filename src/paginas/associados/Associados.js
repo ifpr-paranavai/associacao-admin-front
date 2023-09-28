@@ -15,6 +15,7 @@ import {
   CircularProgress,
   colors,
   InputAdornment,
+  TablePagination,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -48,12 +49,20 @@ const Associados = () => {
   const [open, setOpen] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const notify = useNotify();
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [count, setCount] = useState(0);
 
   const [associadoSelecionado, setAssociadoSelecionado] = useState(null);
   const [cpfConfirmacao, setCPFConfirmacao] = useState(null);
-  const [termoBuscado, setTermoBuscado] = useState('');
   const [associados, setAssociados] = useState([]);
   const classes = useStyles();
+
+  const handleSearchChange = event => {
+    setSearchValue(event.target.value);
+    setPage(0);
+  };
 
   const abrirFormulario = associado => {
     if (associado) {
@@ -111,17 +120,26 @@ const Associados = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const dadosAPI = await ServicoAssociado.listarAssociados();
-        const AssociadosComUrl = await Promise.all(
-          dadosAPI.map(async associados => associados),
-        );
-        setAssociados(AssociadosComUrl);
+        setLoading(true);
+        let dadosAPI;
+        if (searchValue) {
+          dadosAPI = await ServicoAssociado.buscarPorNome(
+            searchValue,
+            rowsPerPage,
+            page + 1,
+          );
+        } else {
+          dadosAPI = await ServicoAssociado.obterAssociados(rowsPerPage, page + 1);
+        }
+        setCount(dadosAPI.count || dadosAPI.length);
+        setAssociados(dadosAPI.rows || dadosAPI);
+        setLoading(false);
       } catch (error) {
-        // console.error('Erro ao buscar dados da API:', error);
+        setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [searchValue, page, rowsPerPage]);
 
   return (
     <Container className={classes.root}>
@@ -136,11 +154,12 @@ const Associados = () => {
         paddingTop="12px"
       >
         <TextField
-          value={termoBuscado}
-          placeholder="Buscar por nome ou CPF"
+          placeholder="Buscar por título"
           variant="outlined"
           size="small"
           style={{ width: '100%', maxWidth: '400px' }}
+          value={searchValue}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -148,9 +167,7 @@ const Associados = () => {
               </InputAdornment>
             ),
           }}
-          onChange={event => setTermoBuscado(event.target.value)}
         />
-
         <Button
           variant="contained"
           color="primary"
@@ -160,11 +177,7 @@ const Associados = () => {
           Adicionar
         </Button>
       </Box>
-
-      {!loading && <div className={classes.mockProgressBar} />}
       <TableContainer component={Paper}>
-        {loading && <LinearProgress />}
-        {loading && <div className={classes.tableLoading} />}
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
@@ -177,69 +190,104 @@ const Associados = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {associados.length > 0 &&
-              associados.map(associado => (
-                <TableRow key={associado._id}>
-                  <TableCell>
-                    <span>{associado.nome}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span>{associado.cpf}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span>{associado.email}</span>
-                  </TableCell>
-                  <TableCell>
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {associado.tel_celular && (
-                        <span style={{ lineHeight: '1.2rem' }}>
-                          {associado.tel_celular}
-                        </span>
-                      )}
-                      {associado.tel_celular.whatsapp && (
-                        <FaWhatsapp
-                          size={18}
-                          color={colors.green['700']}
-                          style={{ marginLeft: '8px', cursor: 'pointer' }}
-                          nClick={() => onOpenWhatsAppLink(associado.tel_celular)}
-                        />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span>{associado.perfil}</span>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      aria-label="editar"
-                      onClick={() => {
-                        setAssociadoSelecionado(associado);
-                        abrirFormulario(associado);
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      aria-label="deletar"
-                      onClick={() => {
-                        setAssociadoSelecionado(associado);
-                        setDeleteDialog(true);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+            {(() => {
+              if (loading) {
+                return (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      <LinearProgress />
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+              if (associados.length > 0) {
+                return (
+                  associados.length > 0 &&
+                  associados.map(associado => (
+                    <TableRow key={associado._id}>
+                      <TableCell>
+                        <span>{associado.nome}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>{associado.cpf}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>{associado.email}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {associado.tel_celular && (
+                            <span style={{ lineHeight: '1.2rem' }}>
+                              {associado.tel_celular}
+                            </span>
+                          )}
+                          {associado.tel_celular.whatsapp && (
+                            <FaWhatsapp
+                              size={18}
+                              color={colors.green['700']}
+                              style={{ marginLeft: '8px', cursor: 'pointer' }}
+                              nClick={() => onOpenWhatsAppLink(associado.tel_celular)}
+                            />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span>{associado.perfil}</span>
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          aria-label="editar"
+                          onClick={() => {
+                            setAssociadoSelecionado(associado);
+                            abrirFormulario(associado);
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          aria-label="deletar"
+                          onClick={() => {
+                            setAssociadoSelecionado(associado);
+                            setDeleteDialog(true);
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                );
+              }
+              return (
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    Nenhum associado encontrado
                   </TableCell>
                 </TableRow>
-              ))}
+              );
+            })()}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 15, 25]}
+        component="div"
+        count={count}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={event => {
+          setRowsPerPage(parseInt(event.target.value, 10));
+          setPage(0);
+        }}
+        disabled={loading}
+      />
 
       <CadastrarAssociado
         open={open}
