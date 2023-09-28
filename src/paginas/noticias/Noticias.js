@@ -31,6 +31,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import ReactQuill from 'react-quill';
 
 import InputMask from 'react-input-mask';
 
@@ -271,9 +272,27 @@ function Noticias() {
                     title="Imagem da notícia"
                   />
                   <CardContent>
-                    <h2>{noticia.titulo}</h2>
-                    <p>{noticia.descricao}</p>
-                    <p>{formatarData(noticia.data_inicio)}</p>
+                    <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
+                      Título: {noticia.titulo}
+                    </h2>
+                    <ReactQuill
+                      value={
+                        noticia.descricao.length > 129
+                          ? `${noticia.descricao.substring(0, 129)}...`
+                          : noticia.descricao
+                      }
+                      readOnly
+                      theme={null}
+                    />
+                    <p
+                      style={{
+                        fontFamily: 'Arial',
+                        fontSize: 16,
+                        wordWrap: 'break-word',
+                      }}
+                    >
+                      Data: {`${formatarData(noticia.data_inicio)}`}
+                    </p>
                   </CardContent>
                   <CardActions>
                     <Checkbox
