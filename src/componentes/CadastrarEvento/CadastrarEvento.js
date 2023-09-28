@@ -188,6 +188,7 @@ function CadastrarEvento(props) {
               </Grid>
 
               <Grid item xs={12}>
+                <InputLabel>Descrição</InputLabel>
                 <FormControl
                   variant="outlined"
                   fullWidth

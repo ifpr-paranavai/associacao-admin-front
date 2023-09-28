@@ -13,6 +13,13 @@ import {
   DialogContent,
   DialogActions,
 } from '@material-ui/core';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
@@ -30,14 +37,17 @@ function CadastrarNoticia(props) {
   const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [data_inicio, setDataInicio] = useState(null);
+  const [data_inicio, setDataInicio] = useState('');
   const { fecharFormulario, onSave } = props;
 
   function setNoticiaState() {
     const { noticia } = props;
     setTitulo(noticia.titulo);
     setDescricao(noticia.descricao);
-    setDataInicio(noticia.data_inicio);
+    // Conversor de datas
+    const dataInicioDoBanco = noticia.data_inicio;
+    const dataInicioFormatada = dataInicioDoBanco ? dataInicioDoBanco.slice(0, 10) : '';
+    setDataInicio(dataInicioFormatada);
   }
 
   async function salvarNoticia(event) {
@@ -88,7 +98,7 @@ function CadastrarNoticia(props) {
   function limparState() {
     setTitulo('');
     setDescricao('');
-    setDataInicio(null);
+    setDataInicio('');
   }
 
   return (
@@ -113,7 +123,34 @@ function CadastrarNoticia(props) {
                   </Typography>
                 </Box>
               </Grid>
-
+              <Grid item xs={12}>
+                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
+                  <input
+                    accept=".png,.jpg,.jpeg" // aceita apenas imagens
+                    style={{ display: 'none' }}
+                    id="anexo-upload"
+                    type="file"
+                    onChange={event => {
+                      const file = event.target.files[0];
+                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
+                    }}
+                  />
+                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                  <label htmlFor="anexo-upload">
+                    <Button variant="contained" color="primary" component="span">
+                      Selecionar Anexo
+                    </Button>
+                    <span style={{ marginLeft: '10px', color: 'red' }}>
+                      *Somente imagens
+                    </span>
+                  </label>
+                  {anexo && (
+                    <Typography variant="body1" className={styles.fileLabel}>
+                      {anexo.name}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
               <Grid item xs={12}>
                 <FormControl
                   variant="outlined"
@@ -136,67 +173,52 @@ function CadastrarNoticia(props) {
               </Grid>
 
               <Grid item xs={12}>
+                <InputLabel>Descrição</InputLabel>
                 <FormControl
                   variant="outlined"
                   fullWidth
                   required
-                  className={styles.fieldMargin}
+                  style={{ overflow: 'auto' }}
                 >
-                  <TextField
-                    autoFocus // para iniciar com o cursor no campo
+                  <ReactQuill
                     value={descricao}
-                    label="Descrição do noticia"
-                    type="text"
-                    className={styles.fieldMargin}
-                    fullWidth
-                    required
-                    multiline
-                    rows={3}
-                    variant="outlined"
-                    onChange={event => setDescricao(event.target.value)}
+                    onChange={setDescricao}
+                    modules={{
+                      toolbar: [
+                        [{ header: '1' }, { header: '2' }, { font: [] }, { size: [] }],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['bold', 'italic', 'underline'],
+                        ['link'],
+                        [{ align: [] }],
+                        ['clean'],
+                      ],
+                    }}
+                    formats={[
+                      'header',
+                      'list',
+                      'bold',
+                      'italic',
+                      'underline',
+                      'link',
+                      'align',
+                      'font',
+                      'size',
+                    ]}
+                    placeholder="Digite aqui..."
+                    style={{ height: 'auto' }} // Defina a altura para automático
                   />
                 </FormControl>
               </Grid>
 
               <Grid item xs={isMobile ? 12 : 6}>
-                <InputLabel>Data</InputLabel>
-                <TextField
-                  type="datetime-local"
-                  value={data_inicio}
-                  required
-                  className={styles.fieldMargin}
-                  fullWidth
-                  variant="outlined"
-                  onChange={event => setDataInicio(event.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
-                  <input
-                    accept=".png,.jpg,.jpeg" // aceita apenas imagens
-                    style={{ display: 'none' }}
-                    id="anexo-upload"
-                    type="file"
-                    onChange={event => {
-                      const file = event.target.files[0];
-                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
-                    }}
+                <InputLabel>Data da notícia</InputLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                  <DesktopDatePicker
+                    defaultValue={dayjs(data_inicio)}
+                    onChange={value => setDataInicio(value)}
+                    required
                   />
-                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                  <label htmlFor="anexo-upload">
-                    <Button variant="contained" color="primary" component="span">
-                      Selecionar Anexo
-                    </Button>
-                    <span style={{ marginLeft: '10px', color: 'red' }}>
-                      *Somente Video e imagens
-                    </span>
-                  </label>
-                  {anexo && (
-                    <Typography variant="body1" className={styles.fileLabel}>
-                      {anexo.name}
-                    </Typography>
-                  )}
-                </FormControl>
+                </LocalizationProvider>
               </Grid>
             </Grid>
           </DialogContent>
