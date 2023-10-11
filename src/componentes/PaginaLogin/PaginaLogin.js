@@ -38,7 +38,7 @@ export default function PaginaLogin() {
       const Servico = new ServicoAutenticacao();
       await Servico.logar(values);
 
-      window.location.replace('/');
+      window.location.replace('/admin/');
     } catch (e) {
       notify.showError(e.message);
     } finally {
