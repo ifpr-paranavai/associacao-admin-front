@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -77,6 +77,7 @@ function Fotos() {
 
   const fecharFormulario = () => {
     setOpen(false);
+    fetchData();
   };
 
   function onSaveFoto() {
@@ -93,9 +94,7 @@ function Fotos() {
       setRemoving(true);
       await ServicoFoto.deletarFoto(fotoSelecionado.id);
       onCloseRemoveFoto();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -112,9 +111,7 @@ function Fotos() {
       setRemoving(true);
       await Promise.all(selectedFotos.map(id => ServicoFoto.deletarFoto(id)));
       setSelectedFotos([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -183,37 +180,35 @@ function Fotos() {
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        let dadosAPI;
-        if (searchValue) {
-          dadosAPI = await ServicoFoto.buscarPorTitulo(
-            searchValue,
-            rowsPerPage,
-            page + 1,
-          );
-        } else {
-          dadosAPI = await ServicoFoto.listarFotos(rowsPerPage, page + 1);
-        }
-
-        const fotosComPreview = await Promise.all(
-          dadosAPI.rows.map(async foto => ({
-            ...foto,
-            previewUrl: await handlePreview(foto.id),
-          })),
-        );
-
-        setCount(dadosAPI.count || dadosAPI.length);
-        setFotos(fotosComPreview);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      let dadosAPI;
+      if (searchValue) {
+        dadosAPI = await ServicoFoto.buscarPorTitulo(searchValue, rowsPerPage, page + 1);
+      } else {
+        dadosAPI = await ServicoFoto.listarFotos(rowsPerPage, page + 1);
       }
+
+      const fotosComPreview = await Promise.all(
+        dadosAPI.rows.map(async foto => ({
+          ...foto,
+          previewUrl: await handlePreview(foto.id),
+        })),
+      );
+
+      setCount(dadosAPI.count || dadosAPI.length);
+      setFotos(fotosComPreview);
+      setLoading(false);
+    } catch (error) {
+      // Trate o erro aqui conforme necessário
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, [searchValue, page, rowsPerPage]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container className={styles.root}>
@@ -364,10 +359,7 @@ function Fotos() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => {
-          onCloseRemoveFoto();
-          window.location.reload();
-        }}
+        onClose={() => onCloseRemoveFoto()}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -383,7 +375,6 @@ function Fotos() {
             color="primary"
             onClick={() => {
               onCloseRemoveFoto();
-              window.location.reload();
             }}
           >
             Cancelar

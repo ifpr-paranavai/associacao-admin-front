@@ -88,9 +88,8 @@ function CadastrarEvento(props) {
         await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
       }
       notify.showSuccess('Evento salvo com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      props.fecharFormulario();
+      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -105,13 +104,8 @@ function CadastrarEvento(props) {
     setEventoState();
   }, [props.evento]);
 
-  function limparState() {
-    setTitulo('');
-    setDescricao('');
-    setLink('');
-    setLocal('');
-    setDataInicio('');
-    setDataFim('');
+  function limparAnexo() {
+    setAnexo(null);
   }
 
   return (
@@ -300,6 +294,7 @@ function CadastrarEvento(props) {
               disabled={saving}
               onClick={() => {
                 props.fecharFormulario();
+                limparAnexo();
               }}
             >
               Cancelar

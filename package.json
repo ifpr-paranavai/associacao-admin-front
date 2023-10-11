@@ -2,6 +2,7 @@
   "name": "admin-associacao",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://localhost/admin/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -26,6 +27,7 @@
     "axios": "^0.21.4",
     "date-fns": "^2.0.0-alpha.27",
     "dayjs": "^1.11.10",
+    "express-favicon": "^2.0.4",
     "mariadb": "^3.1.2",
     "material-table": "^1.69.3",
     "md5": "^2.3.0",
@@ -38,6 +40,7 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "serve": "^14.2.1",
     "use-debounce": "^7.0.0",
     "vue-md-date-picker": "^1.0.16",
     "web-vitals": "^1.1.1"

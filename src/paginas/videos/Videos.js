@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -71,6 +71,7 @@ function Videos() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+    fetchData();
   };
 
   const handleSearchChange = event => {
@@ -92,9 +93,7 @@ function Videos() {
       setRemoving(true);
       await ServicoVideo.deletarVideo(videoSelecionado.id);
       onCloseRemoveVideo();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -111,9 +110,7 @@ function Videos() {
       setRemoving(true);
       await Promise.all(selectedVideos.map(id => ServicoVideo.deletarVideo(id)));
       setSelectedVideos([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -169,29 +166,27 @@ function Videos() {
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        let dadosAPI;
-        if (searchValue) {
-          dadosAPI = await ServicoVideo.buscarPorTitulo(
-            searchValue,
-            rowsPerPage,
-            page + 1,
-          );
-        } else {
-          dadosAPI = await ServicoVideo.listarVideos(rowsPerPage, page + 1);
-        }
-        setCount(dadosAPI.count || dadosAPI.length);
-        setVideos(dadosAPI.rows || dadosAPI);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      let dadosAPI;
+      if (searchValue) {
+        dadosAPI = await ServicoVideo.buscarPorTitulo(searchValue, rowsPerPage, page + 1);
+      } else {
+        dadosAPI = await ServicoVideo.listarVideos(rowsPerPage, page + 1);
       }
+      setCount(dadosAPI.count || dadosAPI.length);
+      setVideos(dadosAPI.rows || dadosAPI);
+      setLoading(false);
+    } catch (error) {
+      // Trate o erro aqui conforme necessário
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, [searchValue, page, rowsPerPage]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container className={styles.root}>
@@ -338,10 +333,7 @@ function Videos() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => {
-          onCloseRemoveVideo();
-          window.location.reload();
-        }}
+        onClose={() => onCloseRemoveVideo()}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -357,7 +349,6 @@ function Videos() {
             color="primary"
             onClick={() => {
               onCloseRemoveVideo();
-              window.location.reload();
             }}
           >
             Cancelar

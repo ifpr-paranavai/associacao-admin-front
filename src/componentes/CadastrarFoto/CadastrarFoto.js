@@ -56,9 +56,8 @@ function CadastrarFoto(props) {
         await Axios.post(`${Config.api}/fotos/${idFoto}/anexo`, formData);
       }
       notify.showSuccess('Foto salvo com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      props.fecharFormulario();
+      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -73,8 +72,8 @@ function CadastrarFoto(props) {
     setFotoState();
   }, [props.foto]);
 
-  function limparState() {
-    setTitulo('');
+  function limparAnexo() {
+    setAnexo(null);
   }
 
   return (
@@ -83,6 +82,7 @@ function CadastrarFoto(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
+          limparAnexo();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"

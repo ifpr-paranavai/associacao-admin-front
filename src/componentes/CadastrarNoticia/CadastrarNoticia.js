@@ -77,10 +77,8 @@ function CadastrarNoticia(props) {
         await Axios.post(`${Config.api}/noticias/${idNoticia}/anexo`, formData);
       }
       notify.showSuccess('Noticia salva com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      limparState();
+      props.fecharFormulario();
+      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -95,10 +93,8 @@ function CadastrarNoticia(props) {
     setNoticiaState();
   }, [props.noticia]);
 
-  function limparState() {
-    setTitulo('');
-    setDescricao('');
-    setDataInicio('');
+  function limparAnexo() {
+    setAnexo(null);
   }
 
   return (
@@ -229,6 +225,7 @@ function CadastrarNoticia(props) {
               disabled={saving}
               onClick={() => {
                 props.fecharFormulario();
+                limparAnexo();
               }}
             >
               Cancelar

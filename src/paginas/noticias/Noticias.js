@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -77,6 +77,7 @@ function Noticias() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+    fetchData();
   };
 
   const handleSearchChange = event => {
@@ -98,9 +99,7 @@ function Noticias() {
       setRemoving(true);
       await ServicoNoticia.deletarNoticia(noticiaSelecionado.id);
       onCloseRemoveNoticia();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -143,9 +142,7 @@ function Noticias() {
       setRemoving(true);
       await Promise.all(selectedNoticias.map(id => ServicoNoticia.deletarNoticia(id)));
       setSelectedNoticias([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -170,37 +167,39 @@ function Noticias() {
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        let dadosAPI;
-        if (searchValue) {
-          dadosAPI = await ServicoNoticia.buscarPorTitulo(
-            searchValue,
-            rowsPerPage,
-            page + 1,
-          );
-        } else {
-          dadosAPI = await ServicoNoticia.listarNoticias(rowsPerPage, page + 1);
-        }
-
-        const noticiasComPreview = await Promise.all(
-          dadosAPI.rows.map(async noticia => ({
-            ...noticia,
-            previewUrl: await handlePreview(noticia.id),
-          })),
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      let dadosAPI;
+      if (searchValue) {
+        dadosAPI = await ServicoNoticia.buscarPorTitulo(
+          searchValue,
+          rowsPerPage,
+          page + 1,
         );
-
-        setCount(dadosAPI.count || dadosAPI.length);
-        setNoticias(noticiasComPreview);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
+      } else {
+        dadosAPI = await ServicoNoticia.listarNoticias(rowsPerPage, page + 1);
       }
+
+      const noticiasComPreview = await Promise.all(
+        dadosAPI.rows.map(async noticia => ({
+          ...noticia,
+          previewUrl: await handlePreview(noticia.id),
+        })),
+      );
+
+      setCount(dadosAPI.count || dadosAPI.length);
+      setNoticias(noticiasComPreview);
+      setLoading(false);
+    } catch (error) {
+      // Trate o erro aqui conforme necessário
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, [searchValue, page, rowsPerPage]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container className={styles.root}>
@@ -352,10 +351,7 @@ function Noticias() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => {
-          onCloseRemoveNoticia();
-          window.location.reload();
-        }}
+        onClose={() => onCloseRemoveNoticia()}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -371,7 +367,6 @@ function Noticias() {
             color="primary"
             onClick={() => {
               onCloseRemoveNoticia();
-              window.location.reload();
             }}
           >
             Cancelar

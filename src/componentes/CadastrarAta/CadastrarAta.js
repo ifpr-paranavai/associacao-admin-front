@@ -59,9 +59,8 @@ function CadastrarAta(props) {
         await Axios.post(`${Config.api}/atas/${idAta}/anexo`, formData);
       }
       notify.showSuccess('Ata salva com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      props.fecharFormulario();
+      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -76,9 +75,8 @@ function CadastrarAta(props) {
     setAtaState();
   }, [props.ata]);
 
-  function limparState() {
-    setTitulo('');
-    setDescricao('');
+  function limparAnexo() {
+    setAnexo(null);
   }
 
   return (
@@ -183,6 +181,7 @@ function CadastrarAta(props) {
               disabled={saving}
               onClick={() => {
                 props.fecharFormulario();
+                limparAnexo();
               }}
             >
               Cancelar

@@ -56,9 +56,8 @@ function CadastrarVideo(props) {
         await Axios.post(`${Config.api}/videos/${idVideo}/anexo`, formData);
       }
       notify.showSuccess('Video salvo com sucesso!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      props.fecharFormulario();
+      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -73,8 +72,8 @@ function CadastrarVideo(props) {
     setVideoState();
   }, [props.video]);
 
-  function limparState() {
-    setTitulo('');
+  function limparAnexo() {
+    setAnexo(null);
   }
 
   return (
@@ -157,6 +156,7 @@ function CadastrarVideo(props) {
               disabled={saving}
               onClick={() => {
                 props.fecharFormulario();
+                limparAnexo();
               }}
             >
               Cancelar

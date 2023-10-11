@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Checkbox,
@@ -64,6 +64,7 @@ function Eventos() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+    fetchData();
   };
 
   const handleSearchChange = event => {
@@ -85,6 +86,7 @@ function Eventos() {
       setRemoving(true);
       await ServicoEvento.deletarEvento(eventoSelecionado.id);
       onCloseRemoveEvento();
+      fetchData();
       notify.showSuccess('Evento excluido com sucesso!');
     } catch (error) {
       notify.showError(error.message);
@@ -116,9 +118,7 @@ function Eventos() {
       setRemoving(true);
       await Promise.all(selectedEventos.map(id => ServicoEvento.deletarEvento(id)));
       setSelectedEventos([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -143,37 +143,39 @@ function Eventos() {
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        let dadosAPI;
-        if (searchValue) {
-          dadosAPI = await ServicoEvento.buscarPorTitulo(
-            searchValue,
-            rowsPerPage,
-            page + 1,
-          );
-        } else {
-          dadosAPI = await ServicoEvento.listarEventos(rowsPerPage, page + 1);
-        }
-
-        const eventosComPreview = await Promise.all(
-          dadosAPI.rows.map(async evento => ({
-            ...evento,
-            previewUrl: await handlePreview(evento.id),
-          })),
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      let dadosAPI;
+      if (searchValue) {
+        dadosAPI = await ServicoEvento.buscarPorTitulo(
+          searchValue,
+          rowsPerPage,
+          page + 1,
         );
-
-        setCount(dadosAPI.count || dadosAPI.length);
-        setEventos(eventosComPreview);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
+      } else {
+        dadosAPI = await ServicoEvento.listarEventos(rowsPerPage, page + 1);
       }
+
+      const eventosComPreview = await Promise.all(
+        dadosAPI.rows.map(async evento => ({
+          ...evento,
+          previewUrl: await handlePreview(evento.id),
+        })),
+      );
+
+      setCount(dadosAPI.count || dadosAPI.length);
+      setEventos(eventosComPreview);
+      setLoading(false);
+    } catch (error) {
+      // Trate o erro aqui conforme necessário
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, [searchValue, page, rowsPerPage]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container className={styles.root}>
@@ -354,10 +356,7 @@ function Eventos() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => {
-          onCloseRemoveEvento();
-          window.location.reload();
-        }}
+        onClose={() => onCloseRemoveEvento()}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -373,7 +372,6 @@ function Eventos() {
             color="primary"
             onClick={() => {
               onCloseRemoveEvento();
-              window.location.reload();
             }}
           >
             Cancelar
