@@ -34,6 +34,7 @@ import Videos from '../../paginas/videos/Videos';
 import Site from '../../paginas/site/Site';
 import MinhaConta from '../../paginas/conta/Conta';
 import PaginaLogin from '../PaginaLogin/PaginaLogin';
+import { baseRoute } from '../../uteis/rota.json';
 
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 import { useNavigation } from '../../contextos/Navegacao';
@@ -204,17 +205,17 @@ export default function BarraNavegacao(props) {
       >
         <div className={classes.drawerHeader} />
         <Switch>
-          <Route exact path="/" component={Inicio} />
-          <Route exact path="/login" component={PaginaLogin} />
-          <Route path="/eventos" component={Eventos} />
-          <Route path="/associados" component={Associados} />
-          <Route path="/atas" component={Atas} />
-          <Route path="/noticias" component={Noticias} />
-          <Route path="/classificados" component={Classificados} />
-          <Route path="/fotos" component={Fotos} />
-          <Route path="/videos" component={Videos} />
-          <Route path="/site" component={Site} />
-          <Route path="/minha-conta" component={MinhaConta} />
+          <Route exact path={`${baseRoute}/inicio`} component={Inicio} />
+          <Route exact path={`${baseRoute}/login`} component={PaginaLogin} />
+          <Route path={`${baseRoute}/eventos`} component={Eventos} />
+          <Route path={`${baseRoute}/associados`} component={Associados} />
+          <Route path={`${baseRoute}/atas`} component={Atas} />
+          <Route path={`${baseRoute}/noticias`} component={Noticias} />
+          <Route path={`${baseRoute}/classificados`} component={Classificados} />
+          <Route path={`${baseRoute}/fotos`} component={Fotos} />
+          <Route path={`${baseRoute}/videos`} component={Videos} />
+          <Route path={`${baseRoute}/site`} component={Site} />
+          <Route path={`${baseRoute}/minha-conta`} component={MinhaConta} />
         </Switch>
       </main>
     </div>

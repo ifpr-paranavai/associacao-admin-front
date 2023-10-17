@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -64,6 +64,7 @@ function Classificados() {
   };
   const fecharFormulario = () => {
     setOpen(false);
+    fetchData();
   };
 
   const handleSearchChange = event => {
@@ -91,9 +92,7 @@ function Classificados() {
         selectedClassificados.map(id => ServicoClassificado.deletarClassificado(id)),
       );
       setSelectedClassificados([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -106,9 +105,7 @@ function Classificados() {
       setRemoving(true);
       await ServicoClassificado.deletarClassificado(classificadoSelecionado.id);
       onCloseRemoveClassificado();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchData();
     } catch (error) {
       notify.showError(error.message);
     } finally {
@@ -170,29 +167,31 @@ function Classificados() {
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        let dadosAPI;
-        if (searchValue) {
-          dadosAPI = await ServicoClassificado.buscarPorTitulo(
-            searchValue,
-            rowsPerPage,
-            page + 1,
-          );
-        } else {
-          dadosAPI = await ServicoClassificado.listarClassificados(rowsPerPage, page + 1);
-        }
-        setCount(dadosAPI.count || dadosAPI.length);
-        setClassificados(dadosAPI.rows || dadosAPI);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      let dadosAPI;
+      if (searchValue) {
+        dadosAPI = await ServicoClassificado.buscarPorTitulo(
+          searchValue,
+          rowsPerPage,
+          page + 1,
+        );
+      } else {
+        dadosAPI = await ServicoClassificado.listarClassificados(rowsPerPage, page + 1);
       }
+      setCount(dadosAPI.count || dadosAPI.length);
+      setClassificados(dadosAPI.rows || dadosAPI);
+      setLoading(false);
+    } catch (error) {
+      // Trate o erro aqui conforme necessário
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, [searchValue, page, rowsPerPage]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <Container className={styles.root}>
@@ -361,10 +360,7 @@ function Classificados() {
       />
       <Dialog
         open={deleteDialog}
-        onClose={() => {
-          onCloseRemoveClassificado();
-          window.location.reload();
-        }}
+        onClose={() => onCloseRemoveClassificado()}
         aria-labelledby="form-dialog-title"
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
@@ -380,7 +376,6 @@ function Classificados() {
             color="primary"
             onClick={() => {
               onCloseRemoveClassificado();
-              window.location.reload();
             }}
           >
             Cancelar

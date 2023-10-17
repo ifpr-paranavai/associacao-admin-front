@@ -15,7 +15,7 @@ function Inicio() {
     setLocation({
       title: 'Página Inicial',
       key: 'inicio',
-      path: '/',
+      path: '/inicio',
     });
   }, []);
 
