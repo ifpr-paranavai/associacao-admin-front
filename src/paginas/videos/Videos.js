@@ -18,6 +18,11 @@ import {
   CircularProgress,
   colors,
   InputAdornment,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -27,6 +32,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import YouTube from 'react-youtube';
+import CloseIcon from '@material-ui/icons/Close';
 
 import InputMask from 'react-input-mask';
 
@@ -62,6 +69,18 @@ function Videos() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState(null);
+
+  const openModal = videoId => {
+    setSelectedVideoId(videoId);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedVideoId(null);
+    setModalOpen(false);
+  };
 
   const abrirFormulario = video => {
     if (video) {
@@ -126,37 +145,6 @@ function Videos() {
     }
   };
 
-  async function handleDownloadAnexo(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/videos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `anexo_${id}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
-  async function handlePreviewAnexo(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/videos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -187,6 +175,13 @@ function Videos() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  function extractVideoId(url) {
+    const regex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
 
   return (
     <Container className={styles.root}>
@@ -235,34 +230,49 @@ function Videos() {
           </Button>
         </Box>
       </Box>
-      <TableContainer component={Paper}>
-        <Table className={styles.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Titulo</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(() => {
-              if (loading) {
-                return (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center">
-                      <LinearProgress />
-                    </TableCell>
-                  </TableRow>
-                );
-              }
-              if (videos.length > 0) {
-                return videos.map(video => (
-                  <TableRow key={video.id}>
-                    <TableCell padding="checkbox">
-                      <Checkbox onChange={event => handleSelectVideo(event, video.id)} />
-                    </TableCell>
-                    <TableCell className={styles.celula}>{video.titulo}</TableCell>
-                    <TableCell align="right">
+      <Grid container spacing={3}>
+        {(() => {
+          if (loading) {
+            return (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            );
+          }
+          if (videos.length > 0) {
+            return videos.map(video => {
+              const videoId = extractVideoId(video.link);
+              const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+              return (
+                <Grid item key={video.id} xs={12} sm={6} md={4}>
+                  <Card
+                    style={{
+                      borderRadius: '16px',
+                      position: 'relative',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      alt="Thumbnail do Video"
+                      height="220"
+                      image={thumbnailUrl}
+                      title="Thumbnail do Video"
+                      onClick={() => openModal(videoId)}
+                    />
+                    <CardContent>
+                      <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
+                        Título: {video.titulo}
+                      </h2>
+                    </CardContent>
+                    <CardActions>
+                      <Checkbox
+                        onChange={event => handleSelectVideo(event, video.id)}
+                        checked={selectedVideos.includes(video.id)}
+                      />
                       <IconButton
                         aria-label="editar"
                         onClick={() => {
@@ -281,39 +291,23 @@ function Videos() {
                       >
                         <DeleteIcon />
                       </IconButton>
-                      <IconButton
-                        aria-label="visualizar"
-                        onClick={() => {
-                          handlePreviewAnexo(video.id);
-                        }}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="download"
-                        onClick={() => {
-                          handleDownloadAnexo(video.id);
-                        }}
-                      >
-                        <GetAppIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ));
-              }
-              return (
-                <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    Nenhum video encontrado
-                  </TableCell>
-                </TableRow>
+                    </CardActions>
+                  </Card>
+                </Grid>
               );
-            })()}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            });
+          }
+          return (
+            <Grid>
+              <TableCell colSpan={3} align="center">
+                Nenhuma ata encontrada
+              </TableCell>
+            </Grid>
+          );
+        })()}
+      </Grid>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 15, 25]}
+        rowsPerPageOptions={[3, 6, 12, 24]}
         component="div"
         count={count}
         rowsPerPage={rowsPerPage}
@@ -365,6 +359,24 @@ function Videos() {
             {removing && <CircularProgress size={24} className={styles.buttonProgress} />}
           </div>
         </DialogActions>
+      </Dialog>
+      <Dialog open={modalOpen} onClose={closeModal} maxWidth="lg" scroll="body">
+        <IconButton
+          edge="end"
+          color="inherit"
+          onClick={closeModal}
+          style={{ position: 'absolute', right: 0, top: 0, zIndex: 1 }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent>
+          {selectedVideoId && (
+            <YouTube
+              videoId={selectedVideoId}
+              opts={{ height: '540px', width: '960px' }}
+            />
+          )}
+        </DialogContent>
       </Dialog>
     </Container>
   );

@@ -16,8 +16,6 @@ import {
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import 'date-fns';
-import Axios from 'axios';
-import Config from '../../uteis/configuracao';
 import ServicoVideo from '../../servicos/ServicoVideo';
 import { useNotify } from '../../contextos/Notificacao';
 import styles from './estilo.css';
@@ -26,12 +24,13 @@ function CadastrarVideo(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const notify = useNotify();
   const [saving, setSaving] = useState(false);
-  const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
+  const [link, setLink] = useState('');
 
   function setVideoState() {
     const { video } = props;
     setTitulo(video.titulo);
+    setLink(video.link);
   }
 
   async function salvarVideo(event) {
@@ -40,6 +39,7 @@ function CadastrarVideo(props) {
       setSaving(true);
       const data = {
         titulo,
+        link,
       };
       let idVideo;
       if (props.video?.id) {
@@ -49,15 +49,8 @@ function CadastrarVideo(props) {
         const novoVideo = await ServicoVideo.cadastrarVideo(data);
         idVideo = novoVideo.id;
       }
-      // lógica para lidar com o upload de anexos aqui
-      if (anexo) {
-        const formData = new FormData();
-        formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/videos/${idVideo}/anexo`, formData);
-      }
-      notify.showSuccess('Video salvo com sucesso!');
+      notify.showSuccess('Foto salvo com sucesso!');
       props.fecharFormulario();
-      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -71,10 +64,6 @@ function CadastrarVideo(props) {
     }
     setVideoState();
   }, [props.video]);
-
-  function limparAnexo() {
-    setAnexo(null);
-  }
 
   return (
     <div>
@@ -120,31 +109,23 @@ function CadastrarVideo(props) {
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
-                  <input
-                    accept=".mp4,.mov" // aceita apenas imagens e vídeos
-                    style={{ display: 'none' }}
-                    id="anexo-upload"
-                    type="file"
-                    onChange={event => {
-                      const file = event.target.files[0];
-                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
-                    }}
+                <FormControl
+                  variant="outlined"
+                  fullWidth
+                  required
+                  className={styles.fieldMargin}
+                >
+                  <TextField
+                    autoFocus // para iniciar com o cursor no campo
+                    value={link}
+                    label="link do video"
+                    type="text"
+                    className={styles.fieldMargin}
+                    fullWidth
+                    required
+                    variant="outlined"
+                    onChange={event => setLink(event.target.value)}
                   />
-                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                  <label htmlFor="anexo-upload">
-                    <Button variant="contained" color="primary" component="span">
-                      Selecionar Anexo
-                    </Button>
-                    <span style={{ marginLeft: '10px', color: 'red' }}>
-                      *Somente Videos
-                    </span>
-                  </label>
-                  {anexo && (
-                    <Typography variant="body1" className={styles.fileLabel}>
-                      {anexo.name}
-                    </Typography>
-                  )}
                 </FormControl>
               </Grid>
             </Grid>
@@ -156,7 +137,6 @@ function CadastrarVideo(props) {
               disabled={saving}
               onClick={() => {
                 props.fecharFormulario();
-                limparAnexo();
               }}
             >
               Cancelar

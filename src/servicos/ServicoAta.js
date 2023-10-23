@@ -31,7 +31,6 @@ class ServicoAta {
   }
 
   static async buscarPorTitulo(titulo, limite, pagina) {
-    // Usa o operador spread para passar os parâmetros como query string na URL
     const { data } = await Axios.get(`${Config.api}/atas/titulo/${titulo}`, {
       params: { ...{ limite, pagina } },
     });
