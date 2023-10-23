@@ -118,7 +118,7 @@ function CadastrarVideo(props) {
                   <TextField
                     autoFocus // para iniciar com o cursor no campo
                     value={link}
-                    label="link do video"
+                    label="link do video (Youtube)"
                     type="text"
                     className={styles.fieldMargin}
                     fullWidth

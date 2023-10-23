@@ -17,6 +17,7 @@ import {
   CircularProgress,
   colors,
   InputAdornment,
+  Checkbox,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -49,6 +50,7 @@ import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
 
 function Atas() {
+  const [selectedAtas, setSelectedAtas] = useState([]);
   const [atas, setAtas] = useState([]);
   const [open, setOpen] = useState(false);
   const [ataSelecionado, setAtaSelecionado] = useState(null);
@@ -99,6 +101,31 @@ function Atas() {
       setRemoving(false);
     }
   }
+
+  async function handleDeleteSelected() {
+    if (selectedAtas.length === 0) {
+      // Não há eventos selecionados, retornar ou realizar outra ação.
+      return;
+    }
+    try {
+      setRemoving(true);
+      await Promise.all(selectedAtas.map(id => ServicoAta.deletarAta(id)));
+      setSelectedAtas([]);
+      fetchData();
+    } catch (error) {
+      notify.showError(error.message);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
+  const handleSelectAta = (event, id) => {
+    if (event.target.checked) {
+      setSelectedAtas(prevSelected => [...prevSelected, id]);
+    } else {
+      setSelectedAtas(prevSelected => prevSelected.filter(item => item !== id));
+    }
+  };
 
   async function handleDownloadAnexo(id) {
     try {
@@ -188,19 +215,31 @@ function Atas() {
             ),
           }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={abrirFormulario}
-        >
-          Adicionar
-        </Button>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={abrirFormulario}
+            style={{ marginRight: '8px' }}
+          >
+            Adicionar
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<DeleteIcon />}
+            onClick={handleDeleteSelected}
+          >
+            Excluir
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table className={styles.table}>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>Titulo</TableCell>
               <TableCell>Descrição</TableCell>
               <TableCell />
@@ -220,6 +259,9 @@ function Atas() {
               if (atas.length > 0) {
                 return atas.map(ata => (
                   <TableRow key={ata.id}>
+                    <TableCell padding="checkbox">
+                      <Checkbox onChange={event => handleSelectAta(event, ata.id)} />
+                    </TableCell>
                     <TableCell className={styles.celula}>{ata.titulo}</TableCell>
                     <TableCell className={styles.celula}>{ata.descricao}</TableCell>
                     <TableCell align="right">
