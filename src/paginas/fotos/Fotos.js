@@ -18,6 +18,11 @@ import {
   CircularProgress,
   colors,
   InputAdornment,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -27,6 +32,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import YouTube from 'react-youtube';
+import CloseIcon from '@material-ui/icons/Close';
 
 import InputMask from 'react-input-mask';
 
@@ -51,9 +58,9 @@ import { useNavigation } from '../../contextos/Navegacao';
 
 function Fotos() {
   const [selectedFotos, setSelectedFotos] = useState([]);
-  const [fotos, setFotos] = useState([]);
+  const [Fotos, setFotos] = useState([]);
   const [open, setOpen] = useState(false);
-  const [fotoSelecionado, setFotoSelecionado] = useState(null);
+  const [Fotoselecionado, setFotoselecionado] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
   const notify = useNotify();
@@ -62,22 +69,33 @@ function Fotos() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedFotoId, setSelectedFotoId] = useState(null);
+
+  const openModal = FotoId => {
+    setSelectedFotoId(FotoId);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedFotoId(null);
+    setModalOpen(false);
+  };
+
+  const abrirFormulario = Foto => {
+    if (Foto) {
+      setFotoselecionado(Foto);
+    }
+    setOpen(true);
+  };
+  const fecharFormulario = () => {
+    setOpen(false);
+    fetchData();
+  };
 
   const handleSearchChange = event => {
     setSearchValue(event.target.value);
     setPage(0);
-  };
-
-  const abrirFormulario = foto => {
-    if (foto) {
-      setFotoSelecionado(foto);
-    }
-    setOpen(true);
-  };
-
-  const fecharFormulario = () => {
-    setOpen(false);
-    fetchData();
   };
 
   function onSaveFoto() {
@@ -86,13 +104,13 @@ function Fotos() {
 
   function onCloseRemoveFoto() {
     setDeleteDialog(false);
-    setFotoSelecionado(null);
+    setFotoselecionado(null);
   }
 
   async function handleRemoveFoto() {
     try {
       setRemoving(true);
-      await ServicoFoto.deletarFoto(fotoSelecionado.id);
+      await ServicoFoto.deletarFoto(Fotoselecionado.id);
       onCloseRemoveFoto();
       fetchData();
     } catch (error) {
@@ -104,7 +122,7 @@ function Fotos() {
 
   async function handleDeleteSelected() {
     if (selectedFotos.length === 0) {
-      // Não há fotos selecionadas, retornar ou realizar outra ação.
+      // Não há Fotos selecionados, retornar ou realizar outra ação.
       return;
     }
     try {
@@ -127,56 +145,12 @@ function Fotos() {
     }
   };
 
-  async function handleDownloadAnexo(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/fotos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `anexo_${id}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
-  async function handlePreview(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/fotos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      return url;
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
-  async function handlePreviewAnexo(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/fotos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
       title: 'Gestão de Fotos',
-      key: 'fotos',
-      path: '/fotos',
+      key: 'Fotos',
+      path: '/Fotos',
     });
   }, []);
 
@@ -189,16 +163,8 @@ function Fotos() {
       } else {
         dadosAPI = await ServicoFoto.listarFotos(rowsPerPage, page + 1);
       }
-
-      const fotosComPreview = await Promise.all(
-        dadosAPI.rows.map(async foto => ({
-          ...foto,
-          previewUrl: await handlePreview(foto.id),
-        })),
-      );
-
       setCount(dadosAPI.count || dadosAPI.length);
-      setFotos(fotosComPreview);
+      setFotos(dadosAPI.rows || dadosAPI);
       setLoading(false);
     } catch (error) {
       // Trate o erro aqui conforme necessário
@@ -209,6 +175,13 @@ function Fotos() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  function extractFotoId(url) {
+    const regex =
+      /(?:https?:\/\/)?(?:www\.)?(?:drive\.google\.com\/file\/d\/)([a-zA-Z0-9_-]+)(?:\/.*)?/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
 
   return (
     <Container className={styles.root}>
@@ -257,42 +230,54 @@ function Fotos() {
           </Button>
         </Box>
       </Box>
-      <TableContainer component={Paper}>
-        <Table className={styles.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Titulo</TableCell>
-              <TableCell>Fotos</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(() => {
-              if (loading) {
-                return (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center">
-                      <LinearProgress />
-                    </TableCell>
-                  </TableRow>
-                );
-              }
-              if (fotos.length > 0) {
-                return fotos.map(foto => (
-                  <TableRow key={foto.id}>
-                    <TableCell padding="checkbox">
-                      <Checkbox onChange={event => handleSelectFoto(event, foto.id)} />
-                    </TableCell>
-                    <TableCell className={styles.celula}>{foto.titulo}</TableCell>
-                    <TableCell>
-                      <img src={foto.previewUrl} alt="Preview" width="100" />
-                    </TableCell>
-                    <TableCell align="right">
+      <Grid container spacing={3}>
+        {(() => {
+          if (loading) {
+            return (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            );
+          }
+          if (Fotos.length > 0) {
+            return Fotos.map(Foto => {
+              const fotoId = extractFotoId(Foto.link);
+              const thumbnailUrl = `https://drive.google.com/thumbnail?id=${fotoId}&sz=w400`;
+              const FotoTelaCheia = `https://drive.google.com/uc?id=${fotoId}`;
+
+              return (
+                <Grid item key={Foto.id} xs={12} sm={6} md={4}>
+                  <Card
+                    style={{
+                      borderRadius: '16px',
+                      position: 'relative',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      alt="Thumbnail do Foto"
+                      height="220"
+                      image={thumbnailUrl}
+                      title="Thumbnail do Foto"
+                      onClick={() => openModal(FotoTelaCheia)}
+                    />
+                    <CardContent>
+                      <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
+                        Título: {Foto.titulo}
+                      </h2>
+                    </CardContent>
+                    <CardActions>
+                      <Checkbox
+                        onChange={event => handleSelectFoto(event, Foto.id)}
+                        checked={selectedFotos.includes(Foto.id)}
+                      />
                       <IconButton
                         aria-label="editar"
                         onClick={() => {
-                          setFotoSelecionado(foto);
+                          setFotoselecionado(Foto);
                           setOpen(true);
                         }}
                       >
@@ -301,45 +286,29 @@ function Fotos() {
                       <IconButton
                         aria-label="deletar"
                         onClick={() => {
-                          setFotoSelecionado(foto);
+                          setFotoselecionado(Foto);
                           setDeleteDialog(true);
                         }}
                       >
                         <DeleteIcon />
                       </IconButton>
-                      <IconButton
-                        aria-label="visualizar"
-                        onClick={() => {
-                          handlePreviewAnexo(foto.id);
-                        }}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="download"
-                        onClick={() => {
-                          handleDownloadAnexo(foto.id);
-                        }}
-                      >
-                        <GetAppIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ));
-              }
-              return (
-                <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    Nenhuma ata encontrada
-                  </TableCell>
-                </TableRow>
+                    </CardActions>
+                  </Card>
+                </Grid>
               );
-            })()}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            });
+          }
+          return (
+            <Grid>
+              <TableCell colSpan={3} align="center">
+                Nenhuma ata encontrada
+              </TableCell>
+            </Grid>
+          );
+        })()}
+      </Grid>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 15, 25]}
+        rowsPerPageOptions={[3, 6, 12, 24]}
         component="div"
         count={count}
         rowsPerPage={rowsPerPage}
@@ -353,7 +322,7 @@ function Fotos() {
       />
       <CadastrarFoto
         open={open}
-        foto={fotoSelecionado}
+        Foto={Fotoselecionado}
         fecharFormulario={fecharFormulario}
         onSave={() => onSaveFoto()}
       />
@@ -364,9 +333,9 @@ function Fotos() {
       >
         <DialogTitle id="form-dialog-title" style={{ padding: '20px' }}>
           Excluir associado:
-          {fotoSelecionado && (
+          {Fotoselecionado && (
             <span style={{ marginRight: '10px', marginLeft: '10px' }}>
-              {fotoSelecionado.titulo}
+              {Fotoselecionado.titulo}
             </span>
           )}
         </DialogTitle>
@@ -391,6 +360,21 @@ function Fotos() {
             {removing && <CircularProgress size={24} className={styles.buttonProgress} />}
           </div>
         </DialogActions>
+      </Dialog>
+      <Dialog open={modalOpen} onClose={closeModal} maxWidth="lg" scroll="body">
+        <IconButton
+          edge="end"
+          color="inherit"
+          onClick={closeModal}
+          style={{ position: 'absolute', right: 0, top: 0, zIndex: 1 }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent>
+          {selectedFotoId && (
+            <img src={selectedFotoId} alt="Imagem" style={{ width: '100%' }} />
+          )}
+        </DialogContent>
       </Dialog>
     </Container>
   );

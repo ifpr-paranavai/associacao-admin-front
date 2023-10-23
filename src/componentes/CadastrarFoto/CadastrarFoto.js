@@ -16,8 +16,6 @@ import {
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import 'date-fns';
-import Axios from 'axios';
-import Config from '../../uteis/configuracao';
 import ServicoFoto from '../../servicos/ServicoFoto';
 import { useNotify } from '../../contextos/Notificacao';
 import styles from './estilo.css';
@@ -26,12 +24,13 @@ function CadastrarFoto(props) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const notify = useNotify();
   const [saving, setSaving] = useState(false);
-  const [anexo, setAnexo] = useState(null);
   const [titulo, setTitulo] = useState('');
+  const [link, setLink] = useState('');
 
-  function setFotoState() {
-    const { foto } = props;
-    setTitulo(foto.titulo);
+  function setFotostate() {
+    const { Foto } = props;
+    setTitulo(Foto.titulo);
+    setLink(Foto.link);
   }
 
   async function salvarFoto(event) {
@@ -40,24 +39,18 @@ function CadastrarFoto(props) {
       setSaving(true);
       const data = {
         titulo,
+        link,
       };
       let idFoto;
-      if (props.foto?.id) {
-        await ServicoFoto.atualizarFoto(data, props.foto.id);
-        idFoto = props.foto.id;
+      if (props.Foto?.id) {
+        await ServicoFoto.atualizarFoto(data, props.Foto.id);
+        idFoto = props.Foto.id;
       } else {
         const novoFoto = await ServicoFoto.cadastrarFoto(data);
         idFoto = novoFoto.id;
       }
-      // lógica para lidar com o upload de anexos aqui
-      if (anexo) {
-        const formData = new FormData();
-        formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/fotos/${idFoto}/anexo`, formData);
-      }
       notify.showSuccess('Foto salvo com sucesso!');
       props.fecharFormulario();
-      limparAnexo();
     } catch (error) {
       notify.showError(`${error}`);
     } finally {
@@ -66,15 +59,11 @@ function CadastrarFoto(props) {
   }
 
   useEffect(() => {
-    if (!props.foto) {
+    if (!props.Foto) {
       return;
     }
-    setFotoState();
-  }, [props.foto]);
-
-  function limparAnexo() {
-    setAnexo(null);
-  }
+    setFotostate();
+  }, [props.Foto]);
 
   return (
     <div>
@@ -82,7 +71,6 @@ function CadastrarFoto(props) {
         open={props.open}
         onClose={() => {
           props.fecharFormulario();
-          limparAnexo();
         }}
         aria-labelledby="form-dialog-title"
         maxWidth="800px"
@@ -95,7 +83,7 @@ function CadastrarFoto(props) {
               <Grid item xs={12}>
                 <Box display="flex" flexDirection="row" alignItems="center">
                   <Typography variant="h6" className={styles.title}>
-                    Dados do foto
+                    Dados do Foto
                   </Typography>
                 </Box>
               </Grid>
@@ -110,7 +98,7 @@ function CadastrarFoto(props) {
                   <TextField
                     autoFocus // para iniciar com o cursor no campo
                     value={titulo}
-                    label="Titulo do foto"
+                    label="Titulo da Foto"
                     type="text"
                     className={styles.fieldMargin}
                     fullWidth
@@ -121,31 +109,23 @@ function CadastrarFoto(props) {
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
-                  <input
-                    accept=".png,.jpg,.jpeg" // aceita apenas imagens e vídeos
-                    style={{ display: 'none' }}
-                    id="anexo-upload"
-                    type="file"
-                    onChange={event => {
-                      const file = event.target.files[0];
-                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
-                    }}
+                <FormControl
+                  variant="outlined"
+                  fullWidth
+                  required
+                  className={styles.fieldMargin}
+                >
+                  <TextField
+                    autoFocus // para iniciar com o cursor no campo
+                    value={link}
+                    label="link da Foto (Google Drive)"
+                    type="text"
+                    className={styles.fieldMargin}
+                    fullWidth
+                    required
+                    variant="outlined"
+                    onChange={event => setLink(event.target.value)}
                   />
-                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                  <label htmlFor="anexo-upload">
-                    <Button variant="contained" color="primary" component="span">
-                      Selecionar Anexo
-                    </Button>
-                    <span style={{ marginLeft: '10px', color: 'red' }}>
-                      *Somente Imagens
-                    </span>
-                  </label>
-                  {anexo && (
-                    <Typography variant="body1" className={styles.fileLabel}>
-                      {anexo.name}
-                    </Typography>
-                  )}
                 </FormControl>
               </Grid>
             </Grid>
