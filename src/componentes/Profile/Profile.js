@@ -88,8 +88,8 @@ const Profile = props => {
           >
             <AvatarImagem
               style={{
-                width: '200px',
-                height: '200px',
+                width: '158px',
+                height: '158px',
                 borderRadius: '50%',
                 objectFit: 'cover',
                 border: '4px solid #1976d2',
