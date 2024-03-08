@@ -46,6 +46,12 @@ class ServicoEvento {
   static async deletarEvento(id) {
     await Axios.delete(`${Config.api}/eventos/${id}`);
   }
+
+  static async uploadAnexo(idEvento, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
+  }
 }
 
 export default ServicoEvento;
