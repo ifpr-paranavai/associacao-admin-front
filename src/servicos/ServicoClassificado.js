@@ -39,6 +39,12 @@ class ServicoClassificado {
   static async deletarClassificado(id) {
     await Axios.delete(`${Config.api}/classificados/${id}`);
   }
+
+  static async uploadAnexo(idClassificado, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+  }
 }
 
 export default ServicoClassificado;

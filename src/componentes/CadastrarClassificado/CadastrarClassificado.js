@@ -66,9 +66,7 @@ function CadastrarClassificado(props) {
       }
       // lógica para lidar com o upload de anexos aqui
       if (anexo) {
-        const formData = new FormData();
-        formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+        await ServicoClassificado.uploadAnexo(idClassificado, anexo);
       }
       notify.showSuccess('Classificado salvo com sucesso!');
       props.fecharFormulario();
