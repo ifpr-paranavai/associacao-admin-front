@@ -13,6 +13,7 @@ import {
   Button,
   FormControl,
   CircularProgress,
+  Link,
 } from '@material-ui/core';
 
 import clsx from 'clsx';
@@ -99,6 +100,7 @@ export default function PaginaLogin() {
               }
               labelWidth={70}
             />
+            <Link href="/recuperar-senha">Recuperar Senha</Link>
           </FormControl>
           <div style={{ height: 20 }} />
           <div className={classes.wrapper}>
