@@ -54,9 +54,7 @@ function CadastrarAta(props) {
       }
       // lógica para lidar com o upload de anexos aqui
       if (anexo) {
-        const formData = new FormData();
-        formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/atas/${idAta}/anexo`, formData);
+        await ServicoAta.uploadAnexo(idAta, anexo);
       }
       notify.showSuccess('Ata salva com sucesso!');
       props.fecharFormulario();

@@ -40,6 +40,12 @@ class ServicoAta {
   static async deletarAta(id) {
     await Axios.delete(`${Config.api}/atas/${id}`);
   }
+
+  static async uploadAnexo(idAta, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/atas/${idAta}/anexo`, formData);
+  }
 }
 
 export default ServicoAta;
