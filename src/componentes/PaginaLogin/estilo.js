@@ -22,9 +22,10 @@ const useStyles = makeStyles(theme => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    padding: '40px',
-    height: '60vh',
-    width: '100%',
+    paddingTop: '35px',
+    padding: '20px',
+    height: '380px',
+    width: '95%',
     maxWidth: '380px',
   },
   wrapper: {
@@ -37,6 +38,9 @@ const useStyles = makeStyles(theme => ({
     left: '50%',
     marginTop: -12,
     marginLeft: -12,
+  },
+  textAlign: {
+    textalign: 'center',
   },
 }));
 
