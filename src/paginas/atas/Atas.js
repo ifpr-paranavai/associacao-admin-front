@@ -129,10 +129,7 @@ function Atas() {
 
   async function handleDownloadAnexo(id) {
     try {
-      const response = await Axios.get(`${Config.api}/atas/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoAta.downloadAnexo(id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -147,10 +144,7 @@ function Atas() {
 
   async function handlePreviewAnexo(id) {
     try {
-      const response = await Axios.get(`${Config.api}/atas/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoAta.downloadAnexo(id);
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (error) {
