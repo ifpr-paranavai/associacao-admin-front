@@ -46,6 +46,12 @@ class ServicoNoticia {
   static async deletarNoticia(id) {
     await Axios.delete(`${Config.api}/noticias/${id}`);
   }
+
+  static async uploadAnexo(idNoticia, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/noticias/${idNoticia}/anexo`, formData);
+  }
 }
 
 export default ServicoNoticia;

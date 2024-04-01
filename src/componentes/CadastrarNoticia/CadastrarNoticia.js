@@ -72,9 +72,7 @@ function CadastrarNoticia(props) {
       }
       // lógica para lidar com o upload de anexos aqui
       if (anexo) {
-        const formData = new FormData();
-        formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/noticias/${idNoticia}/anexo`, formData);
+        await ServicoNoticia.uploadAnexo(idNoticia, anexo);
       }
       notify.showSuccess('Noticia salva com sucesso!');
       props.fecharFormulario();
