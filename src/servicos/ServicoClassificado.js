@@ -45,6 +45,34 @@ class ServicoClassificado {
     formData.append('anexo', anexo);
     await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
   }
+
+  static async downloadAnexo(id) {
+    try {
+      const response = await Axios.get(
+        `${Config.api}/classificados/${id}/anexo/download`,
+        {
+          responseType: 'blob',
+        },
+      );
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw new Error(`Falha ao fazer download do anexo: ${error}`);
+    }
+  }
+
+  static async previewAnexo(id) {
+    try {
+      const response = await Axios.get(
+        `${Config.api}/classificados/${id}/anexo/download`,
+        {
+          responseType: 'blob',
+        },
+      );
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw new Error(`Falha ao fazer download do anexo: ${error}`);
+    }
+  }
 }
 
 export default ServicoClassificado;
