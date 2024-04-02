@@ -39,7 +39,6 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
-import Axios from 'axios';
 import Config from '../../uteis/configuracao';
 import CadastrarAta from '../../componentes/CadastrarAta/CadastrarAta';
 import ServicoAta from '../../servicos/ServicoAta';
