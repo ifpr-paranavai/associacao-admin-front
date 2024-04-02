@@ -32,7 +32,6 @@ import {
   Search as SearchIcon,
 } from '@material-ui/icons';
 
-import Axios from 'axios';
 import CadastrarEvento from '../../componentes/CadastrarEvento/CadastrarEvento';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
