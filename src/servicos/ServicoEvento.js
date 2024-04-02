@@ -52,6 +52,17 @@ class ServicoEvento {
     formData.append('anexo', anexo);
     await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
   }
+
+  static async preview(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw new Error(`Falha ao exibir visualização: ${error}`);
+    }
+  }
 }
 
 export default ServicoEvento;

@@ -97,10 +97,7 @@ function Eventos() {
 
   async function handlePreview(id) {
     try {
-      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoEvento.preview(id);
       const url = window.URL.createObjectURL(blob);
       return url;
     } catch (error) {
