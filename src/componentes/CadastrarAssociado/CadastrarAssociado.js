@@ -226,7 +226,7 @@ function CadastrarAssociado(props) {
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
                   variant="inline"
-                  format="dd/MM/yyyy"
+                  format="dd/mm/yyyy"
                   margin="normal"
                   label="Data de nascimento"
                   inputVariant="outlined"
@@ -245,6 +245,7 @@ function CadastrarAssociado(props) {
                   mask="999.999.999-99"
                   value={cpf}
                   maskChar={null}
+                  required
                   onChange={event => setCpf(event.target.value)}
                 >
                   {inputProps => (

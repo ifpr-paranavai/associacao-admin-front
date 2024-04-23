@@ -138,7 +138,7 @@ function Classificados() {
       link.click();
       link.remove();
     } catch (error) {
-      notify.showError(`${error}`);
+      notify.showError(`Erro ao fazer o download do anexo: ${error.message}`);
     }
   }
 
@@ -154,7 +154,7 @@ function Classificados() {
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (error) {
-      notify.showError(`${error}`);
+      notify.showError(`Erro ao visualizar o anexo: ${error.message}`);
     }
   }
 

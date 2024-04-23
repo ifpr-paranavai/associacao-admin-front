@@ -1,3 +1,3 @@
 export default {
-  apiHost: 'https://amaer.com.br/api',
+  apiHost: 'http://localhost:4000/',
 };
