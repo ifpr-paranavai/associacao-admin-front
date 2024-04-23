@@ -70,7 +70,10 @@ function CadastrarClassificado(props) {
         anexo.forEach(file => {
           formData.append('anexo', file);
         });
-        await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+        ServicoClassificado.cadastrarClassificadoComVariosArquivos(
+          idClassificado,
+          formData,
+        );
       }
       notify.showSuccess('Classificado salvo com sucesso!');
       props.fecharFormulario();
@@ -215,7 +218,7 @@ function CadastrarClassificado(props) {
                     multiple
                     onChange={event => {
                       const arrayDosArquivos = Array.from(event.target.files);
-                      setAnexo(arrayDosArquivos); // Store selected file names in 'anexo' state
+                      setAnexo(arrayDosArquivos);
                     }}
                   />
                   {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}

@@ -26,10 +26,9 @@ class ServicoClassificado {
     return data;
   }
 
-  static async cadastrarClassificadoComVariosArquivos(idClassificado, anexo) {
-    const formData = new FormData();
-    formData.append('anexo', anexo);
-    await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+  static async cadastrarClassificadoComVariosArquivos(idClassificado, formData) {
+    const { data } = await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+    return data;
   }
 
   static async atualizarClassificado(classificado, id) {
