@@ -171,7 +171,7 @@ function Classificados() {
       setClassificados(dadosAPI.rows || dadosAPI);
       setLoading(false);
     } catch (error) {
-      // Trate o erro aqui conforme necessário
+      notify.showError(error.message);
     } finally {
       setLoading(false);
     }
