@@ -44,6 +44,15 @@ const Profile = props => {
     setdialogs(false);
   };
 
+  const deletarImagemPerfil = async () => {
+    try {
+      await Axios.delete(`${Config.api}/associados/deletarImagem/${props.id}`);
+      setimgeCrop(null);
+    } catch (error) {
+      console.error('Erro ao deletar a imagem:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchImage = async () => {
       try {
@@ -98,6 +107,10 @@ const Profile = props => {
               alt=""
             />
           </button>
+
+          <Button onClick={deletarImagemPerfil} variant="contained" color="secondary">
+            Deletar
+          </Button>
 
           <Dialog open={dialogs} onClose={() => setdialogs(false)}>
             <div className="confirmation-content flex flex-column align-itens-center">
