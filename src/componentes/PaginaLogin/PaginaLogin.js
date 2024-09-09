@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { FormatAlignCenter, Visibility, VisibilityOff } from '@material-ui/icons';
 import {
   Grid,
   Box,
@@ -13,6 +13,7 @@ import {
   Button,
   FormControl,
   CircularProgress,
+  Link,
 } from '@material-ui/core';
 
 import clsx from 'clsx';
@@ -62,7 +63,7 @@ export default function PaginaLogin() {
     <Box className={classes.container}>
       <Paper elevation={10} className={classes.paper}>
         <form autoComplete="off" onSubmit={logar}>
-          <Grid align="center" style={{ marginBottom: '24px' }}>
+          <Grid align="center" style={{ marginBottom: '5px' }}>
             <img src={LogoBlack} alt="Logo Amaer" width="300px" />
           </Grid>
           <h2 style={{ margin: '14px 0' }}>Autenticação</h2>
@@ -99,6 +100,7 @@ export default function PaginaLogin() {
               }
               labelWidth={70}
             />
+            <Link href="/recuperar-senha">Recuperar Senha</Link>
           </FormControl>
           <div style={{ height: 20 }} />
           <div className={classes.wrapper}>

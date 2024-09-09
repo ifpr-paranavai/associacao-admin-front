@@ -32,7 +32,6 @@ import {
   Search as SearchIcon,
 } from '@material-ui/icons';
 
-import Axios from 'axios';
 import CadastrarEvento from '../../componentes/CadastrarEvento/CadastrarEvento';
 import ServicoEvento from '../../servicos/ServicoEvento';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -97,10 +96,7 @@ function Eventos() {
 
   async function handlePreview(id) {
     try {
-      const response = await Axios.get(`${Config.api}/eventos/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoEvento.preview(id);
       const url = window.URL.createObjectURL(blob);
       return url;
     } catch (error) {

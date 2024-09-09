@@ -83,9 +83,7 @@ function CadastrarEvento(props) {
         idEvento = novoEvento.id;
       }
       if (anexo) {
-        const formData = new FormData();
-        formData.append('anexo', anexo);
-        await Axios.post(`${Config.api}/eventos/${idEvento}/anexo`, formData);
+        await ServicoEvento.uploadAnexo(idEvento, anexo);
       }
       notify.showSuccess('Evento salvo com sucesso!');
       props.fecharFormulario();

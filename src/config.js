@@ -1,3 +1,3 @@
 export default {
-  apiHost: 'http://localhost:4000/',
+  apiHost: 'http://localhost:4000',
 };

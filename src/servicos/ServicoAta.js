@@ -40,6 +40,34 @@ class ServicoAta {
   static async deletarAta(id) {
     await Axios.delete(`${Config.api}/atas/${id}`);
   }
+
+  static async uploadAnexo(idAta, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/atas/${idAta}/anexo`, formData);
+  }
+
+  static async downloadAnexo(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/atas/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw new Error(`Falha ao fazer download do anexo: ${error.message}`);
+    }
+  }
+
+  static async previewAnexo(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/atas/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw new Error(`Falha ao exibir a visualização do anexo: ${error.message}`);
+    }
+  }
 }
 
 export default ServicoAta;

@@ -32,7 +32,6 @@ import {
   Search as SearchIcon,
 } from '@material-ui/icons';
 
-import Axios from 'axios';
 import Config from '../../uteis/configuracao';
 import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
 import ServicoClassificado from '../../servicos/ServicoClassificado';
@@ -123,13 +122,7 @@ function Classificados() {
 
   async function handleDownloadAnexo(id) {
     try {
-      const response = await Axios.get(
-        `${Config.api}/classificados/${id}/anexo/download`,
-        {
-          responseType: 'blob',
-        },
-      );
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoClassificado.downloadAnexo(id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -144,13 +137,7 @@ function Classificados() {
 
   async function handlePreviewAnexo(id) {
     try {
-      const response = await Axios.get(
-        `${Config.api}/classificados/${id}/anexo/download`,
-        {
-          responseType: 'blob',
-        },
-      );
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoClassificado.previewAnexo(id);
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (error) {
@@ -184,7 +171,7 @@ function Classificados() {
       setClassificados(dadosAPI.rows || dadosAPI);
       setLoading(false);
     } catch (error) {
-      // Trate o erro aqui conforme necessário
+      notify.showError(error.message);
     } finally {
       setLoading(false);
     }

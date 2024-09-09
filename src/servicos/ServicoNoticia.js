@@ -46,6 +46,23 @@ class ServicoNoticia {
   static async deletarNoticia(id) {
     await Axios.delete(`${Config.api}/noticias/${id}`);
   }
+
+  static async uploadAnexo(idNoticia, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/noticias/${idNoticia}/anexo`, formData);
+  }
+
+  static async preview(id) {
+    try {
+      const response = await Axios.get(`${Config.api}/noticias/${id}/anexo/download`, {
+        responseType: 'blob',
+      });
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw Error(`Erro ao exibir visualização: ${error}`);
+    }
+  }
 }
 
 export default ServicoNoticia;
