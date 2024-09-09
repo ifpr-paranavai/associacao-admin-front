@@ -222,19 +222,19 @@ const Associados = () => {
                             alignItems: 'center',
                           }}
                         >
-                          {associado.tel_celular && (
+                          {associado.tel_celular ? (
                             <span style={{ lineHeight: '1.2rem' }}>
-                              {associado.tel_celular}
+                              {associado.tel_celular ? associado.tel_celular : ''}
                             </span>
-                          )}
-                          {associado.tel_celular.whatsapp && (
+                          ) : null}
+                          {associado.tel_celular && associado.tel_celular.whatsapp ? (
                             <FaWhatsapp
                               size={18}
                               color={colors.green['700']}
                               style={{ marginLeft: '8px', cursor: 'pointer' }}
                               nClick={() => onOpenWhatsAppLink(associado.tel_celular)}
                             />
-                          )}
+                          ) : null}
                         </div>
                       </TableCell>
                       <TableCell>

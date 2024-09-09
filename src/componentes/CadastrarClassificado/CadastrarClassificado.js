@@ -28,7 +28,7 @@ function CadastrarClassificado(props) {
 
   const [saving, setSaving] = useState(false);
 
-  const [anexo, setAnexo] = useState(null);
+  const [anexo, setAnexo] = useState([]);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
@@ -65,7 +65,14 @@ function CadastrarClassificado(props) {
       }
       // lógica para lidar com o upload de anexos aqui
       if (anexo) {
-        await ServicoClassificado.uploadAnexo(idClassificado, anexo);
+        const formData = new FormData();
+        anexo.forEach(file => {
+          formData.append('anexo', file);
+        });
+        ServicoClassificado.cadastrarClassificadoComVariosArquivos(
+          idClassificado,
+          formData,
+        );
       }
       notify.showSuccess('Classificado salvo com sucesso!');
       props.fecharFormulario();
@@ -203,13 +210,14 @@ function CadastrarClassificado(props) {
               <Grid item xs={12}>
                 <FormControl variant="outlined" fullWidth className={styles.fieldMargin}>
                   <input
-                    accept=".png,.jpg,.jpeg,.mp4,.mov" // aceita apenas imagens e vídeos
+                    accept=".png,.jpg,.jpeg,.mp4,.mov"
                     style={{ display: 'none' }}
                     id="anexo-upload"
                     type="file"
+                    multiple
                     onChange={event => {
-                      const file = event.target.files[0];
-                      setAnexo(file); // Armazena o arquivo selecionado no estado 'anexo'
+                      const arrayDosArquivos = Array.from(event.target.files);
+                      setAnexo(arrayDosArquivos);
                     }}
                   />
                   {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
@@ -221,11 +229,12 @@ function CadastrarClassificado(props) {
                       *Somente Video e imagens
                     </span>
                   </label>
-                  {anexo && (
-                    <Typography variant="body1" className={styles.fileLabel}>
-                      {anexo.name}
-                    </Typography>
-                  )}
+                  <Typography variant="body1" className={styles.fileLabel}>
+                    {anexo &&
+                      anexo.map(arquivo => (
+                        <span key={arquivo.name}>{arquivo.name}</span>
+                      ))}
+                  </Typography>
                 </FormControl>
               </Grid>
             </Grid>
