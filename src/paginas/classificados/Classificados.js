@@ -135,16 +135,6 @@ function Classificados() {
     }
   }
 
-  async function handlePreviewAnexo(id) {
-    try {
-      const blob = await ServicoClassificado.previewAnexo(id);
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (error) {
-      notify.showError(`Erro ao visualizar o anexo: ${error.message}`);
-    }
-  }
-
   const { setLocation } = useNavigation();
   useEffect(() => {
     setLocation({
@@ -268,14 +258,6 @@ function Classificados() {
                     </TableCell>
                     <TableCell className={styles.celula}>
                       {classificado.foto_video}
-                      <IconButton
-                        aria-label="visualizar"
-                        onClick={() => {
-                          handlePreviewAnexo(classificado.id);
-                        }}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
                       <IconButton
                         aria-label="download"
                         onClick={() => {
