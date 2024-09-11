@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import AvatarImagem from '@material-ui/core/Avatar';
-import { Button } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
+import { Delete as DeleteIcon } from '@material-ui/icons';
 import AvatarCrop from 'react-avatar-edit';
 import Axios from 'axios';
 import Config from '../../uteis/configuracao';
@@ -82,7 +83,10 @@ const Profile = props => {
 
   return (
     <div>
-      <div className="profile_img text-center p-4">
+      <div
+        className="profile_img text-center p-4"
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      >
         <div className="div">
           <button
             type="button"
@@ -108,9 +112,22 @@ const Profile = props => {
             />
           </button>
 
-          <Button onClick={deletarImagemPerfil} variant="contained" color="secondary">
-            Deletar
-          </Button>
+          <div>
+            <IconButton
+              aria-label="deletar"
+              onClick={deletarImagemPerfil}
+              style={{
+                position: 'absolute',
+                top: '240px',
+                right: '500px',
+              }}
+            >
+              <DeleteIcon
+                color="secondary"
+                style={{ fontSize: '35px', marginLeft: '20px' }}
+              />
+            </IconButton>
+          </div>
 
           <Dialog open={dialogs} onClose={() => setdialogs(false)}>
             <div className="confirmation-content flex flex-column align-itens-center">

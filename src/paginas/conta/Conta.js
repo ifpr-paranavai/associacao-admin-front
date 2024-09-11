@@ -205,7 +205,15 @@ export default function CadastrarAssociado() {
                   </Box>
                 </Grid>
                 <Grid item xs={12}>
-                  <Profile {...logged} />
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Profile {...logged} />
+                  </div>
                   <RadioGroup
                     aria-label="Modalidade"
                     row
