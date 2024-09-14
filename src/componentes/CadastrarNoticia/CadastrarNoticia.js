@@ -162,6 +162,10 @@ function CadastrarNoticia(props) {
                     required
                     variant="outlined"
                     onChange={event => setTitulo(event.target.value)}
+                    InputProps={{
+                      endAdornment: <div>{titulo ? titulo.length : 0} / 75 </div>,
+                      inputProps: { maxLength: 75 },
+                    }}
                   />
                 </FormControl>
               </Grid>

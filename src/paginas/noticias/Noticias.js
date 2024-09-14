@@ -254,7 +254,12 @@ function Noticias() {
                     title="Imagem da notícia"
                   />
                   <CardContent>
-                    <h2 style={{ fontFamily: 'Arial', wordWrap: 'break-word' }}>
+                    <h2
+                      style={{
+                        fontFamily: 'Arial',
+                        wordWrap: 'break-word',
+                      }}
+                    >
                       Título: {noticia.titulo}
                     </h2>
                     <ReactQuill
