@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Switch, Link, useHistory } from 'react-router-dom';
 import {
   Drawer,
@@ -20,6 +20,7 @@ import {
 import * as FaIcons from 'react-icons/fa';
 import { useTheme } from '@material-ui/core/styles';
 import clsx from 'clsx';
+import Axios from 'axios';
 import { useStyles } from './estilo';
 import DadosBarraNavegacao from './DadosBarraNavegacao';
 
@@ -35,12 +36,14 @@ import Site from '../../paginas/site/Site';
 import MinhaConta from '../../paginas/conta/Conta';
 import PaginaLogin from '../PaginaLogin/PaginaLogin';
 import { baseRoute } from '../../uteis/rota.json';
+import Config from '../../uteis/configuracao';
 
 import ServicoAutenticacao from '../../servicos/ServicoAutenticacao';
 import { useNavigation } from '../../contextos/Navegacao';
 import LogoWhite from '../../assets/logo-amaer.png';
 
 export default function BarraNavegacao(props) {
+  const [imagem, setImagem] = useState(null);
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
@@ -69,7 +72,7 @@ export default function BarraNavegacao(props) {
   };
 
   const handleAccount = () => {
-    history.push('/minha-conta');
+    history.push('/admin/minha-conta');
     handleClose();
   };
 
@@ -77,6 +80,27 @@ export default function BarraNavegacao(props) {
     Autenticacao.removerAssociadoLocalStorage();
     props.onLogout();
   };
+
+  useEffect(() => {
+    const carregarImagem = async () => {
+      try {
+        const response = await Axios.get(
+          `${Config.api}/associados/downloadImagem/${associadoLogado?.id}`,
+          {
+            responseType: 'arraybuffer',
+          },
+        );
+        const imagemBase64 = Buffer.from(response.data, 'binary').toString('base64');
+        const imagemUrl = `data:${response.headers['content-type']};base64,${imagemBase64}`;
+
+        setImagem(imagemUrl);
+      } catch (error) {
+        console.error('Erro ao carregar imagem:', error);
+      }
+    };
+
+    carregarImagem();
+  }, [props.id]);
 
   return (
     <div className={classes.root}>
@@ -123,8 +147,8 @@ export default function BarraNavegacao(props) {
                 >
                   <Avatar
                     alt={associadoLogado.nome}
-                    src={associadoLogado.imagem?.src}
-                    style={{ width: '36px', height: '36px' }}
+                    src={imagem}
+                    style={{ width: '52px', height: '52px' }}
                   />
                 </IconButton>
                 <Menu
