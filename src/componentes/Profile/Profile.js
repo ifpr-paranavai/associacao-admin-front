@@ -112,21 +112,20 @@ const Profile = props => {
             />
           </button>
 
-          <div>
-            <IconButton
-              aria-label="deletar"
-              onClick={deletarImagemPerfil}
+          <div className="relative-parent">
+            <div
               style={{
-                position: 'absolute',
-                top: '240px',
-                right: '500px',
+                display: 'flex',
+                position: 'relative',
+                justifyContent: 'right',
+                top: '-20px',
+                left: '30px',
               }}
             >
-              <DeleteIcon
-                color="secondary"
-                style={{ fontSize: '35px', marginLeft: '20px' }}
-              />
-            </IconButton>
+              <IconButton aria-label="deletar" onClick={deletarImagemPerfil}>
+                <DeleteIcon color="secondary" style={{ fontSize: '35px' }} />
+              </IconButton>
+            </div>
           </div>
 
           <Dialog open={dialogs} onClose={() => setdialogs(false)}>
