@@ -307,19 +307,21 @@ function Atas() {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 15, 25]}
-        component="div"
-        count={count}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(event, newPage) => setPage(newPage)}
-        onRowsPerPageChange={event => {
-          setRowsPerPage(parseInt(event.target.value, 10));
-          setPage(0);
-        }}
-        disabled={loading}
-      />
+      {!loading && atas.length >= 1 && (
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 15, 25]}
+          component="div"
+          count={count || 0}
+          rowsPerPage={rowsPerPage}
+          page={page || 0}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={event => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+          disabled={loading}
+        />
+      )}
       <CadastrarAta
         open={open}
         ata={ataSelecionado}

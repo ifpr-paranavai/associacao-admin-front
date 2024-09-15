@@ -306,19 +306,21 @@ function Fotos() {
           );
         })()}
       </Grid>
-      <TablePagination
-        rowsPerPageOptions={[3, 6, 12, 24]}
-        component="div"
-        count={count}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(event, newPage) => setPage(newPage)}
-        onRowsPerPageChange={event => {
-          setRowsPerPage(parseInt(event.target.value, 10));
-          setPage(0);
-        }}
-        disabled={loading}
-      />
+      {!loading && Fotos.length >= 1 && (
+        <TablePagination
+          rowsPerPageOptions={[3, 6, 12, 24]}
+          component="div"
+          count={count || 0}
+          rowsPerPage={rowsPerPage}
+          page={page || 0}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={event => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+          disabled={loading}
+        />
+      )}
       <CadastrarFoto
         open={open}
         Foto={Fotoselecionado}

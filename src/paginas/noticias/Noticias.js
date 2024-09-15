@@ -318,19 +318,21 @@ function Noticias() {
           );
         })()}
       </Grid>
-      <TablePagination
-        rowsPerPageOptions={[3, 6, 12, 24]}
-        component="div"
-        count={count}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(event, newPage) => setPage(newPage)}
-        onRowsPerPageChange={event => {
-          setRowsPerPage(parseInt(event.target.value, 10));
-          setPage(0);
-        }}
-        disabled={loading}
-      />
+      {!loading && noticias.length >= 1 && (
+        <TablePagination
+          rowsPerPageOptions={[3, 6, 12, 24]}
+          component="div"
+          count={count || 0}
+          rowsPerPage={rowsPerPage}
+          page={page || 0}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={event => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+          disabled={loading}
+        />
+      )}
       <CadastrarNoticia
         open={open}
         noticia={noticiaSelecionado}
