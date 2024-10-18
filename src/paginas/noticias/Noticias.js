@@ -44,7 +44,6 @@ import {
 import { FaWhatsapp } from 'react-icons/fa';
 
 import { useDebouncedCallback } from 'use-debounce';
-import Axios from 'axios';
 import Config from '../../uteis/configuracao';
 import CadastrarNoticia from '../../componentes/CadastrarNoticia/CadastrarNoticia';
 import ServicoNoticia from '../../servicos/ServicoNoticia';
@@ -107,25 +106,9 @@ function Noticias() {
     }
   }
 
-  async function handlePreviewAnexo(id) {
-    try {
-      const response = await Axios.get(`${Config.api}/noticias/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (error) {
-      notify.showError(`${error}`);
-    }
-  }
-
   async function handlePreview(id) {
     try {
-      const response = await Axios.get(`${Config.api}/noticias/${id}/anexo/download`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoNoticia.preview(id);
       const url = window.URL.createObjectURL(blob);
       return url;
     } catch (error) {

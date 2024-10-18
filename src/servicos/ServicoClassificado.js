@@ -5,18 +5,17 @@ class ServicoClassificado {
   static async listarClassificados(limite, pagina) {
     try {
       const response = await Axios.get(`${Config.api}/classificados-admin`, {
-        params: { ...{ limite, pagina } },
+        params: { limite, pagina },
       });
       return response.data;
     } catch (error) {
-      // console.error('Erro ao obter dados da API:', error);
       throw error;
     }
   }
 
   static async buscarPorTitulo(titulo, limite, pagina) {
     const { data } = await Axios.get(`${Config.api}/classificados/titulo/${titulo}`, {
-      params: { ...{ limite, pagina } },
+      params: { limite, pagina },
     });
     return data;
   }
@@ -46,6 +45,37 @@ class ServicoClassificado {
 
   static async deletarClassificado(id) {
     await Axios.delete(`${Config.api}/classificados/${id}`);
+  }
+
+  static async uploadAnexo(idClassificado, anexo) {
+    const formData = new FormData();
+    formData.append('anexo', anexo);
+    await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+  }
+
+  static async downloadAnexo(id) {
+    try {
+      const response = await Axios.get(
+        `${Config.api}/classificados/${id}/anexo/download`,
+        {
+          responseType: 'blob',
+        },
+      );
+      return new Blob([response.data], { type: response.headers['content-type'] });
+    } catch (error) {
+      throw new Error(`Falha ao fazer download do anexo: ${error}`);
+    }
+  }
+
+  static async previewAnexo(id) {
+    try {
+      const response = await Axios.get(
+        `${Config.api}/classificados/${id}/anexo/visualizar`,
+      );
+      return response.data.imagens;
+    } catch (error) {
+      throw new Error(`Falha ao visualizar o anexo: ${error}`);
+    }
   }
 }
 

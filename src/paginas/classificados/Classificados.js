@@ -125,13 +125,7 @@ function Classificados() {
 
   async function handleDownloadAnexo(id) {
     try {
-      const response = await Axios.get(
-        `${Config.api}/classificados/${id}/anexo/download`,
-        {
-          responseType: 'arraybuffer',
-        },
-      );
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = await ServicoClassificado.downloadAnexo(id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -146,11 +140,8 @@ function Classificados() {
 
   const handlePreviewAnexo = async id => {
     try {
-      const response = await Axios.get(
-        `${Config.api}/classificados/${id}/anexo/visualizar`,
-      );
-
-      setPreviewFiles(response.data.imagens);
+      const imagens = await ServicoClassificado.previewAnexo(id);
+      setPreviewFiles(imagens);
       setModalPreviewAberto(true);
     } catch (error) {
       notify.showError(`Erro ao visualizar o anexo: ${error.message}`);
@@ -183,7 +174,7 @@ function Classificados() {
       setClassificados(dadosAPI.rows || dadosAPI);
       setLoading(false);
     } catch (error) {
-      // Trate o erro aqui conforme necessário
+      notify.showError(error.message);
     } finally {
       setLoading(false);
     }
