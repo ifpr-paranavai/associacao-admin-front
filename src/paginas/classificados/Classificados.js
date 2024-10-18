@@ -32,7 +32,9 @@ import {
   Search as SearchIcon,
 } from '@material-ui/icons';
 
+import Axios from 'axios';
 import Config from '../../uteis/configuracao';
+import PreviewModal from './PreviewModal';
 import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
 import ServicoClassificado from '../../servicos/ServicoClassificado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -48,6 +50,8 @@ function Classificados() {
   const [classificadoSelecionado, setClassificadoSelecionado] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [previewFiles, setPreviewFiles] = useState([]);
+  const [modalPreviewAberto, setModalPreviewAberto] = useState(false);
   const notify = useNotify();
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(0);
@@ -82,7 +86,6 @@ function Classificados() {
 
   async function handleDeleteSelected() {
     if (selectedClassificados.length === 0) {
-      // Não há eventos selecionados, retornar ou realizar outra ação.
       return;
     }
     try {
@@ -134,6 +137,16 @@ function Classificados() {
       notify.showError(`Erro ao fazer o download do anexo: ${error.message}`);
     }
   }
+
+  const handlePreviewAnexo = async id => {
+    try {
+      const imagens = await ServicoClassificado.previewAnexo(id);
+      setPreviewFiles(imagens);
+      setModalPreviewAberto(true);
+    } catch (error) {
+      notify.showError(`Erro ao visualizar o anexo: ${error.message}`);
+    }
+  };
 
   const { setLocation } = useNavigation();
   useEffect(() => {
@@ -259,6 +272,14 @@ function Classificados() {
                     <TableCell className={styles.celula}>
                       {classificado.foto_video}
                       <IconButton
+                        aria-label="visualizar"
+                        onClick={() => {
+                          handlePreviewAnexo(classificado.id);
+                        }}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
                         aria-label="download"
                         onClick={() => {
                           handleDownloadAnexo(classificado.id);
@@ -362,6 +383,11 @@ function Classificados() {
           </div>
         </DialogActions>
       </Dialog>
+      <PreviewModal
+        files={previewFiles}
+        isOpen={modalPreviewAberto}
+        onClose={() => setModalPreviewAberto(false)}
+      />
     </Container>
   );
 }

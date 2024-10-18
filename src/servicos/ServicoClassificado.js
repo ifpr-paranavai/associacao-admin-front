@@ -4,19 +4,18 @@ import Config from '../uteis/configuracao';
 class ServicoClassificado {
   static async listarClassificados(limite, pagina) {
     try {
-      const response = await Axios.get(`${Config.api}/classificados`, {
-        params: { ...{ limite, pagina } },
+      const response = await Axios.get(`${Config.api}/classificados-admin`, {
+        params: { limite, pagina },
       });
       return response.data;
     } catch (error) {
-      // console.error('Erro ao obter dados da API:', error);
       throw error;
     }
   }
 
   static async buscarPorTitulo(titulo, limite, pagina) {
     const { data } = await Axios.get(`${Config.api}/classificados/titulo/${titulo}`, {
-      params: { ...{ limite, pagina } },
+      params: { limite, pagina },
     });
     return data;
   }
@@ -71,14 +70,11 @@ class ServicoClassificado {
   static async previewAnexo(id) {
     try {
       const response = await Axios.get(
-        `${Config.api}/classificados/${id}/anexo/download`,
-        {
-          responseType: 'blob',
-        },
+        `${Config.api}/classificados/${id}/anexo/visualizar`,
       );
-      return new Blob([response.data], { type: response.headers['content-type'] });
+      return response.data.imagens;
     } catch (error) {
-      throw new Error(`Falha ao fazer download do anexo: ${error}`);
+      throw new Error(`Falha ao visualizar o anexo: ${error}`);
     }
   }
 }
