@@ -37,6 +37,7 @@ import { buscaCEP } from '../../servicos/ServicoCEP';
 import { useStyles } from './estilo';
 import { useNotify } from '../../contextos/Notificacao';
 import { useNavigation } from '../../contextos/Navegacao';
+import Profile from '../../componentes/Profile/Profile';
 
 export default function CadastrarAssociado() {
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -204,6 +205,15 @@ export default function CadastrarAssociado() {
                   </Box>
                 </Grid>
                 <Grid item xs={12}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Profile {...logged} />
+                  </div>
                   <RadioGroup
                     aria-label="Modalidade"
                     row
