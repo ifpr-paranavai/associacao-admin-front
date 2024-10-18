@@ -34,6 +34,7 @@ import {
 
 import Axios from 'axios';
 import Config from '../../uteis/configuracao';
+import PreviewModal from './PreviewModal';
 import CadastrarClassificado from '../../componentes/CadastrarClassificado/CadastrarClassificado';
 import ServicoClassificado from '../../servicos/ServicoClassificado';
 import Breadcrumbs from '../../componentes/Breadcrumbs/Breadcrumbs';
@@ -49,6 +50,8 @@ function Classificados() {
   const [classificadoSelecionado, setClassificadoSelecionado] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [previewFiles, setPreviewFiles] = useState([]);
+  const [modalPreviewAberto, setModalPreviewAberto] = useState(false);
   const notify = useNotify();
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(0);
@@ -83,7 +86,6 @@ function Classificados() {
 
   async function handleDeleteSelected() {
     if (selectedClassificados.length === 0) {
-      // Não há eventos selecionados, retornar ou realizar outra ação.
       return;
     }
     try {
@@ -126,7 +128,7 @@ function Classificados() {
       const response = await Axios.get(
         `${Config.api}/classificados/${id}/anexo/download`,
         {
-          responseType: 'blob',
+          responseType: 'arraybuffer',
         },
       );
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -142,21 +144,18 @@ function Classificados() {
     }
   }
 
-  async function handlePreviewAnexo(id) {
+  const handlePreviewAnexo = async id => {
     try {
       const response = await Axios.get(
-        `${Config.api}/classificados/${id}/anexo/download`,
-        {
-          responseType: 'blob',
-        },
+        `${Config.api}/classificados/${id}/anexo/visualizar`,
       );
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
+
+      setPreviewFiles(response.data.imagens);
+      setModalPreviewAberto(true);
     } catch (error) {
       notify.showError(`Erro ao visualizar o anexo: ${error.message}`);
     }
-  }
+  };
 
   const { setLocation } = useNavigation();
   useEffect(() => {
@@ -393,6 +392,11 @@ function Classificados() {
           </div>
         </DialogActions>
       </Dialog>
+      <PreviewModal
+        files={previewFiles}
+        isOpen={modalPreviewAberto}
+        onClose={() => setModalPreviewAberto(false)}
+      />
     </Container>
   );
 }

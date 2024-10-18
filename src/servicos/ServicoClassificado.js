@@ -4,7 +4,7 @@ import Config from '../uteis/configuracao';
 class ServicoClassificado {
   static async listarClassificados(limite, pagina) {
     try {
-      const response = await Axios.get(`${Config.api}/classificados`, {
+      const response = await Axios.get(`${Config.api}/classificados-admin`, {
         params: { ...{ limite, pagina } },
       });
       return response.data;
@@ -27,7 +27,10 @@ class ServicoClassificado {
   }
 
   static async cadastrarClassificadoComVariosArquivos(idClassificado, formData) {
-    const { data } = await Axios.post(`${Config.api}/classificados/${idClassificado}/anexo`, formData);
+    const { data } = await Axios.post(
+      `${Config.api}/classificados/${idClassificado}/anexo`,
+      formData,
+    );
     return data;
   }
 
